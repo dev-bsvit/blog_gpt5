@@ -573,9 +573,18 @@ def _verify_user(authorization: Optional[str]) -> Dict[str, Any]:
 
 
 @app.post("/api/v1/articles/{slug}/comments", status_code=201)
-def add_comment(slug: str, body: CommentCreate, authorization: Optional[str] = Header(default=None)):
+def add_comment(
+    slug: str,
+    body: CommentCreate,
+    authorization: Optional[str] = Header(default=None),
+    x_user_id: Optional[str] = Header(default=None, alias="X-User-Id"),
+):
     ensure_seed()
-    user = _verify_user(authorization)
+    # Prefer verified Firebase user; fallback to X-User-Id for MVP if token недоступен
+    try:
+        user = _verify_user(authorization)
+    except HTTPException:
+        user = {"uid": (x_user_id or "").strip()}
     text = (body.text or "").strip()
     if not text:
         raise HTTPException(status_code=400, detail={"error": "text is required"})

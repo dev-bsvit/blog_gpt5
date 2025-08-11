@@ -11,6 +11,7 @@ export default function Comments({ slug }: { slug: string }) {
   const [text, setText] = useState("");
   const [canPost, setCanPost] = useState(false);
   const [sending, setSending] = useState(false);
+  const [uid, setUid] = useState<string | null>(null);
 
   useEffect(() => {
     apiGet<CommentItem[]>(`/articles/${slug}/comments`)
@@ -18,9 +19,13 @@ export default function Comments({ slug }: { slug: string }) {
       .catch(() => setItems([]));
     try {
       const auth = getFirebaseAuth();
-      return onAuthStateChanged(auth, (u) => setCanPost(Boolean(u)));
+      return onAuthStateChanged(auth, (u) => {
+        setCanPost(Boolean(u));
+        setUid(u?.uid || null);
+      });
     } catch {
       setCanPost(false);
+      setUid(null);
     }
   }, [slug]);
 
@@ -29,7 +34,8 @@ export default function Comments({ slug }: { slug: string }) {
     if (!text.trim()) return;
     setSending(true);
     try {
-      const c = await apiPost<CommentItem>(`/articles/${slug}/comments`, { text });
+      const headers = uid ? { "X-User-Id": uid } : undefined;
+      const c = await apiPost<CommentItem>(`/articles/${slug}/comments`, { text }, headers ? { headers } : undefined);
       setItems((prev) => [c, ...prev]);
       setText("");
     } finally {
