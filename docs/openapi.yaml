@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: Blog Platform API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /articles:
+    get:
+      summary: List articles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Article' }
+    post:
+      summary: Create draft
+      security: [{ firebase: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleCreate'
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Article' } } } }
+  /articles/{slug}:
+    get:
+      summary: Get by slug
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Article' } } } }
+        '404': { description: Not Found }
+    put:
+      summary: Update by slug
+      security: [{ firebase: [] }]
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleUpdate'
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Article' } } } }
+    delete:
+      summary: Delete by slug
+      security: [{ firebase: [] }]
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Deleted }
+  /articles/{id}/publish:
+    post:
+      summary: Publish
+      security: [{ firebase: [] }]
+      responses:
+        '204': { description: Published }
+  /articles/health:
+    get:
+      summary: Health check
+      responses:
+        '200': { description: OK }
+  /articles/{id}/view:
+    post:
+      summary: Add view
+      responses:
+        '204': { description: Counted }
+  /articles/{id}/like:
+    post:
+      summary: Toggle like
+      security: [{ firebase: [] }]
+      responses:
+        '200': { description: State, content: { application/json: { schema: { type: object, properties: { liked: { type: boolean } } } } } }
+  /articles/{id}/bookmark:
+    post:
+      summary: Add bookmark
+      security: [{ firebase: [] }]
+      responses:
+        '204': { description: Added }
+    delete:
+      summary: Remove bookmark
+      security: [{ firebase: [] }]
+      responses:
+        '204': { description: Removed }
+  /authors/{authorId}/follow:
+    post:
+      summary: Follow author
+      security: [{ firebase: [] }]
+      responses:
+        '204': { description: Followed }
+    delete:
+      summary: Unfollow author
+      security: [{ firebase: [] }]
+      responses:
+        '204': { description: Unfollowed }
+components:
+  securitySchemes:
+    firebase:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Article:
+      type: object
+      properties:
+        slug: { type: string }
+        title: { type: string }
+        subtitle: { type: string }
+        content: { type: string }
+        cover_url: { type: string, nullable: true }
+        author_id: { type: string, nullable: true }
+        tags: { type: array, items: { type: string } }
+        is_published: { type: boolean }
+        created_at: { type: string }
+        updated_at: { type: string }
+    ArticleCreate:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string }
+        subtitle: { type: string }
+        content: { type: string }
+        is_published: { type: boolean }
+        tags: { type: array, items: { type: string } }
+        cover_url: { type: string }
+    ArticleUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        subtitle: { type: string }
+        content: { type: string }
+        is_published: { type: boolean }
+        tags: { type: array, items: { type: string } }
+        cover_url: { type: string }

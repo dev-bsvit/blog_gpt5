@@ -1,0 +1,36 @@
+# Node/Next.js
+node_modules/
+.next/
+.turbo/
+dist/
+build/
+.vercel/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.python-version
+venv/
+.venv/
+services/python/.venv/
+
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Env files
+.env
+.env.*
+apps/web/.env.local
+services/python/api/.env
+
+# Render/Vercel local artifacts
+.render/
+
+
