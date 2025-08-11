@@ -11,20 +11,7 @@ export default function HomeClient({ initialArticles, initialHealth }: { initial
   const articles = useMemo(() => (list || []).filter((a: ArticleListItem) => a.is_published !== false), [list]);
   const apiStatus = (health as { status?: string })?.status ?? "...";
 
-  async function createTestArticle() {
-    try {
-      const r = await apiPost<{ slug: string }>("/articles", {
-        title: "Hello from UI",
-        content: "Это тестовая статья, созданная из интерфейса.\n\nЗдесь можно писать контент и он будет отображаться красиво.",
-        subtitle: "Тест публикация",
-      });
-      setCreateResult(`Создано: ${r.slug}`);
-      mutate();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setCreateResult(`Ошибка: ${msg}`);
-    }
-  }
+  // function createTestArticle() { /* dev helper removed for prod build */ }
 
   return (
     <main className="mx-auto max-w-2xl p-6 space-y-6">

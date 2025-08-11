@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
-import useSWR from "swr";
+// import useSWR from "swr";
 import ArticleCard, { ArticleListItem } from "@/components/ArticleCard";
 
 type Article = ArticleListItem;

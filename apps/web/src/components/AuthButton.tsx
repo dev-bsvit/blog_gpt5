@@ -18,8 +18,7 @@ export default function AuthButton() {
       setAuthReady(true);
       return () => unsub();
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
+      /* noop */
     }
   }, [envOk]);
 

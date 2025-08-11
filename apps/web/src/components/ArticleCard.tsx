@@ -21,6 +21,8 @@ export type ArticleListItem = {
   tags?: string[];
   category?: string;
   reading_time_minutes?: number;
+  cover_url?: string;
+  cover_alt?: string;
 };
 
 export default function ArticleCard({ a }: { a: ArticleListItem }) {
@@ -30,8 +32,8 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
     <article className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 shadow-sm ring-1 ring-white/5 transition hover:shadow-lg">
       {/* Cover */}
       <Link href={`/article/${a.slug}`} className="block relative aspect-[4/3] overflow-hidden">
-        {a as any && (a as any).cover_url ? (
-          <Image src={(a as any).cover_url as string} alt={(a as any).cover_alt || a.title || a.slug || "cover"} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover transition-transform duration-300 group-hover:scale-105" />
+        {a.cover_url ? (
+          <Image src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover transition-transform duration-300 group-hover:scale-105" />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-700 transition-transform duration-300 group-hover:scale-105" />
         )}

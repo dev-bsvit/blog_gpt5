@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiGet } from "@/lib/api";
+// import { apiGet } from "@/lib/api";
 import useSWR from "swr";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
 import { onAuthStateChanged, User } from "firebase/auth";
