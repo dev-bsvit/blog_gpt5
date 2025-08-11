@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Header, Request
-from fastapi import Query
+from fastapi import Query, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any, Set, Tuple
@@ -16,7 +16,12 @@ try:
     from google.cloud import firestore  # type: ignore
 except Exception:  # pragma: no cover
     firestore = None  # type: ignore
+try:
+    from google.cloud import storage  # type: ignore
+except Exception:  # pragma: no cover
+    storage = None  # type: ignore
 from starlette.middleware.gzip import GZipMiddleware
+from fastapi.responses import JSONResponse
 
 
 app = FastAPI(title="Blog API (Python)", version="0.1.0")
@@ -92,6 +97,7 @@ def _load_firestore_client():
 
 
 _fs_client = None  # type: ignore
+_gcs_client = None  # type: ignore
 
 
 def fs_client():
@@ -103,6 +109,43 @@ def fs_client():
 
 def using_firestore() -> bool:
     return fs_client() is not None
+
+
+def gcs_client():
+    global _gcs_client
+    if _gcs_client is not None:
+        return _gcs_client
+    if storage is None:
+        return None
+    try:
+        json_str = (os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON") or "").strip()
+        if not json_str:
+            json_path = (os.getenv("FIREBASE_SERVICE_ACCOUNT_FILE") or "").strip()
+            if json_path:
+                try:
+                    json_str = Path(json_path).read_text(encoding="utf-8").strip()
+                except Exception:
+                    json_str = ""
+        if not json_str:
+            secrets_dir = Path("/etc/secrets")
+            if secrets_dir.exists():
+                for p in (list(secrets_dir.glob("*.json")) or list(secrets_dir.iterdir())):
+                    if p.is_file():
+                        try:
+                            json_str = p.read_text(encoding="utf-8").strip()
+                            json.loads(json_str)
+                            break
+                        except Exception:
+                            continue
+        if not json_str:
+            return None
+        info = json.loads(json_str)
+        creds = service_account.Credentials.from_service_account_info(info)
+        project_id = info.get("project_id")
+        _gcs_client = storage.Client(project=project_id, credentials=creds)
+        return _gcs_client
+    except Exception:
+        return None
 
 
 @app.middleware("http")
@@ -145,6 +188,11 @@ class ArticleCreate(BaseModel):
     tags: Optional[List[str]] = None
     category: Optional[str] = None
     reading_time_minutes: Optional[int] = None
+    cover_url: Optional[str] = None
+    cover_alt: Optional[str] = None
+    cover_focal_x: Optional[float] = None
+    cover_focal_y: Optional[float] = None
+    cover_caption: Optional[str] = None
 
 
 class ArticleUpdate(BaseModel):
@@ -155,6 +203,11 @@ class ArticleUpdate(BaseModel):
     tags: Optional[List[str]] = None
     category: Optional[str] = None
     reading_time_minutes: Optional[int] = None
+    cover_url: Optional[str] = None
+    cover_alt: Optional[str] = None
+    cover_focal_x: Optional[float] = None
+    cover_focal_y: Optional[float] = None
+    cover_caption: Optional[str] = None
 
 
 class CommentCreate(BaseModel):
@@ -358,6 +411,11 @@ def create_article(body: ArticleCreate, authorization: Optional[str] = Header(de
             "tags": list(body.tags or []),
             "category": (body.category or CATEGORIES[0]),
             "reading_time_minutes": reading_minutes,
+            "cover_url": body.cover_url,
+            "cover_alt": body.cover_alt,
+            "cover_focal_x": body.cover_focal_x,
+            "cover_focal_y": body.cover_focal_y,
+            "cover_caption": body.cover_caption,
         }
         client.collection("articles").document(slug).set(article)
         return article
@@ -383,6 +441,11 @@ def create_article(body: ArticleCreate, authorization: Optional[str] = Header(de
         "tags": list(body.tags or []),
         "category": (body.category or CATEGORIES[0]),
         "reading_time_minutes": reading_minutes,
+        "cover_url": body.cover_url,
+        "cover_alt": body.cover_alt,
+        "cover_focal_x": body.cover_focal_x,
+        "cover_focal_y": body.cover_focal_y,
+        "cover_caption": body.cover_caption,
     }
     articles_by_slug[slug] = article
     comments_by_slug.setdefault(slug, [])
@@ -451,6 +514,16 @@ def update_article(slug: str, body: ArticleUpdate, authorization: Optional[str] 
             update["tags"] = list(body.tags or [])
         if body.category is not None:
             update["category"] = body.category or CATEGORIES[0]
+        if body.cover_url is not None:
+            update["cover_url"] = body.cover_url or ""
+        if body.cover_alt is not None:
+            update["cover_alt"] = body.cover_alt or ""
+        if body.cover_focal_x is not None:
+            update["cover_focal_x"] = float(body.cover_focal_x)
+        if body.cover_focal_y is not None:
+            update["cover_focal_y"] = float(body.cover_focal_y)
+        if body.cover_caption is not None:
+            update["cover_caption"] = body.cover_caption or ""
         # reading time logic
         if body.reading_time_minutes is not None:
             try:
@@ -494,6 +567,16 @@ def update_article(slug: str, body: ArticleUpdate, authorization: Optional[str] 
         a["tags"] = list(body.tags or [])
     if body.category is not None:
         a["category"] = body.category or CATEGORIES[0]
+    if body.cover_url is not None:
+        a["cover_url"] = body.cover_url or ""
+    if body.cover_alt is not None:
+        a["cover_alt"] = body.cover_alt or ""
+    if body.cover_focal_x is not None:
+        a["cover_focal_x"] = float(body.cover_focal_x)
+    if body.cover_focal_y is not None:
+        a["cover_focal_y"] = float(body.cover_focal_y)
+    if body.cover_caption is not None:
+        a["cover_caption"] = body.cover_caption or ""
     if body.reading_time_minutes is not None:
         try:
             provided = int(body.reading_time_minutes)
@@ -932,3 +1015,45 @@ def list_my_articles(authorization: Optional[str] = Header(default=None)):
 # For local dev: uvicorn main:app --host 0.0.0.0 --port 4000
 
 
+# Upload cover to Google Cloud Storage (Firebase Storage)
+@app.post("/api/v1/upload/cover")
+async def upload_cover(
+    file: UploadFile = File(...),
+    alt: str = Form(...),
+    user_id: Optional[str] = Form(default=None),
+    authorization: Optional[str] = Header(default=None),
+):
+    if file.content_type not in ("image/jpeg", "image/png", "image/webp", "image/avif"):
+        raise HTTPException(status_code=400, detail={"error": "unsupported file type"})
+    if not (10 <= len((alt or "").strip()) <= 140):
+        raise HTTPException(status_code=400, detail={"error": "alt length 10-140 required"})
+
+    try:
+        claims = _verify_user(authorization)
+        uid = (claims.get("user_id") or claims.get("uid") or "").strip()
+    except HTTPException:
+        uid = (user_id or "").strip()
+    if not uid:
+        raise HTTPException(status_code=401, detail={"error": "auth required"})
+
+    client = gcs_client()
+    if client is None:
+        raise HTTPException(status_code=500, detail={"error": "storage not configured"})
+    bucket_name = os.getenv("FIREBASE_STORAGE_BUCKET") or os.getenv("GCS_BUCKET")
+    if not bucket_name:
+        raise HTTPException(status_code=500, detail={"error": "bucket not set"})
+
+    bucket = client.bucket(bucket_name)  # type: ignore
+    safe_name = re.sub(r"[^a-zA-Z0-9._-]", "_", file.filename or "image")
+    object_name = f"covers/{uid}/{int(datetime.utcnow().timestamp())}_{safe_name}"
+    blob = bucket.blob(object_name)
+    blob.cache_control = "public, max-age=31536000, immutable"
+    blob.content_type = file.content_type
+    blob.upload_from_file(file.file)  # type: ignore
+    try:
+        blob.make_public()
+        url = blob.public_url
+    except Exception:
+        url = blob.generate_signed_url(expiration=60 * 60 * 24 * 365)
+
+    return {"url": url, "alt": alt}

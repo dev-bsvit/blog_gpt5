@@ -6,6 +6,7 @@ import PublishControls from "@/components/PublishControls";
 import LikeButton from "@/components/LikeButton";
 import BookmarkButton from "@/components/BookmarkButton";
 import { formatDate } from "@/lib/date";
+import Image from "next/image";
 
 type Article = {
   slug: string;
@@ -20,6 +21,9 @@ type Article = {
   tags?: string[];
   category?: string;
   reading_time_minutes?: number;
+  cover_url?: string;
+  cover_alt?: string;
+  cover_caption?: string;
 };
 
 export const revalidate = 60;
@@ -72,6 +76,12 @@ export default async function ArticlePage({
 
   return (
     <main className="mx-auto max-w-2xl p-6 space-y-4">
+      {article.cover_url && (
+        <figure className="relative mb-4 overflow-hidden rounded-2xl aspect-[16/9]">
+          <Image src={article.cover_url} alt={article.cover_alt || article.title || article.slug} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
+          {article.cover_caption && <figcaption className="mt-2 text-xs text-gray-500">{article.cover_caption}</figcaption>}
+        </figure>
+      )}
       <h1 className="text-3xl font-semibold">{article.title ?? article.slug}</h1>
       {article.subtitle && <p className="text-gray-500">{article.subtitle}</p>}
       <div className="text-sm text-gray-400">slug: {article.slug}</div>

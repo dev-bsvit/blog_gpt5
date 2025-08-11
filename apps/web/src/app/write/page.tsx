@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import RichEditor from "@/components/RichEditor";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/api";
+import Image from "next/image";
 import { onAuthStateChanged } from "firebase/auth";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
 
@@ -14,10 +15,29 @@ export default function WritePage() {
   const [category, setCategory] = useState<string>("Технологии");
   const [tagsInput, setTagsInput] = useState<string>("");
   const [readingMinutes, setReadingMinutes] = useState<string>("");
+  const [coverUrl, setCoverUrl] = useState<string>("");
+  const [coverAlt, setCoverAlt] = useState<string>("");
+  const [coverCaption, setCoverCaption] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
   const [publishNow, setPublishNow] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [authChecked, setAuthChecked] = useState(false);
+  async function onCoverChange(file: File) {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("alt", coverAlt || (title || "cover"));
+    setUploading(true);
+    try {
+      const apiBase = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+      const res = await fetch(`${apiBase}/upload/cover`, { method: "POST", body: form });
+      if (!res.ok) throw new Error(`upload ${res.status}`);
+      const data = await res.json();
+      setCoverUrl(String(data.url || ""));
+    } finally {
+      setUploading(false);
+    }
+  }
 
   useEffect(() => {
     if (!hasFirebaseEnv()) {
@@ -52,6 +72,9 @@ export default function WritePage() {
         category,
         tags: tagsInput.split(',').map(s=>s.trim()).filter(Boolean),
         reading_time_minutes: readingMinutes.trim() ? Number(readingMinutes.trim()) : undefined,
+        cover_url: coverUrl || undefined,
+        cover_alt: coverAlt || undefined,
+        cover_caption: coverCaption || undefined,
       });
       router.push(`/article/${res.slug}`);
     } catch (err) {
@@ -95,6 +118,38 @@ export default function WritePage() {
         <div>
           <label className="block text-sm mb-1">Текст</label>
           <RichEditor value={content} onChange={setContent} placeholder="Черновик..." />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold">Обложка</h3>
+          {coverUrl ? (
+            <div className="relative rounded-xl overflow-hidden border border-white/10">
+              <div className="relative aspect-[16/9]">
+                <Image src={coverUrl} alt={coverAlt || title || "cover"} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
+              </div>
+              <div className="p-2 flex gap-2">
+                <button type="button" className="px-3 py-1 rounded bg-zinc-700 text-white" onClick={()=>{setCoverUrl("")}}>Удалить</button>
+                <label className="px-3 py-1 rounded bg-zinc-700 text-white cursor-pointer">
+                  Заменить<input type="file" className="hidden" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if(f) onCoverChange(f);}} />
+                </label>
+              </div>
+            </div>
+          ) : (
+            <label className="block border border-dashed rounded-xl p-6 text-center cursor-pointer">
+              <div className="text-sm">Перетащите файл или нажмите для выбора</div>
+              <input type="file" className="hidden" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if(f) onCoverChange(f);}} />
+            </label>
+          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm mb-1">Alt‑текст</label>
+              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverAlt} onChange={(e)=>setCoverAlt(e.target.value)} placeholder="Описание изображения (обязательно для SEO)" />
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Подпись (caption)</label>
+              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverCaption} onChange={(e)=>setCoverCaption(e.target.value)} placeholder="Необязательно" />
+            </div>
+          </div>
+          {uploading && <div className="text-xs text-gray-500">Загрузка…</div>}
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">

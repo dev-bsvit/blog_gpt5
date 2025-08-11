@@ -4,6 +4,7 @@ import BookmarkButton from "./BookmarkButton";
 import SubscribeButton from "./SubscribeButton";
 import { formatDate } from "@/lib/date";
 import Link from "next/link";
+import Image from "next/image";
 
 export type ArticleListItem = {
   slug: string;
@@ -28,8 +29,12 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
   return (
     <article className="group overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 shadow-sm ring-1 ring-white/5 transition hover:shadow-lg">
       {/* Cover */}
-      <Link href={`/article/${a.slug}`} className="block relative aspect-[16/9] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-700 transition-transform duration-300 group-hover:scale-105" />
+      <Link href={`/article/${a.slug}`} className="block relative aspect-[4/3] overflow-hidden">
+        {a as any && (a as any).cover_url ? (
+          <Image src={(a as any).cover_url as string} alt={(a as any).cover_alt || a.title || a.slug || "cover"} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover transition-transform duration-300 group-hover:scale-105" />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-700 transition-transform duration-300 group-hover:scale-105" />
+        )}
         {/* Chips top-right */}
         <div className="pointer-events-none absolute right-3 top-3 flex gap-2 text-[11px]">
           <span className="rounded bg-black/60 px-2 py-1 text-white/90">💬 {a.comments_count ?? 0}</span>
