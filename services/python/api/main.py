@@ -46,48 +46,49 @@ def _load_firestore_client():
     if firestore is None:
         return None
 
+    def client_from_json(json_text: str):
+        try:
+            info = json.loads(json_text)
+            creds = service_account.Credentials.from_service_account_info(info)
+            project_id = info.get("project_id")
+            return firestore.Client(project=project_id, credentials=creds)
+        except Exception:
+            return None
+
     # 1) Preferred: env var with full JSON
     json_str = (os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON") or "").strip()
+    client = client_from_json(json_str) if json_str else None
 
     # 2) Alternative: env var with a file path
-    if not json_str:
+    if client is None:
         json_path = (os.getenv("FIREBASE_SERVICE_ACCOUNT_FILE") or "").strip()
         if json_path:
             try:
                 json_str = Path(json_path).read_text(encoding="utf-8").strip()
+                client = client_from_json(json_str)
             except Exception:
-                json_str = ""
+                client = None
 
     # 3) Render Secret Files default mount: /etc/secrets/<filename>
-    if not json_str:
+    if client is None:
         try:
             secrets_dir = Path("/etc/secrets")
             if secrets_dir.exists():
-                # Prefer *.json, otherwise take the first file
                 candidates = list(secrets_dir.glob("*.json")) or list(secrets_dir.iterdir())
                 for p in candidates:
-                    if p.is_file():
-                        try:
-                            json_str = p.read_text(encoding="utf-8").strip()
-                            # ensure it's JSON
-                            _ = json.loads(json_str)
+                    if not p.is_file():
+                        continue
+                    try:
+                        json_str = p.read_text(encoding="utf-8").strip()
+                        client = client_from_json(json_str)
+                        if client is not None:
                             break
-                        except Exception:
-                            continue
+                    except Exception:
+                        continue
         except Exception:
-            json_str = ""
+            client = None
 
-    if not json_str:
-        return None
-
-    try:
-        info = json.loads(json_str)
-        creds = service_account.Credentials.from_service_account_info(info)
-        project_id = info.get("project_id")
-        client = firestore.Client(project=project_id, credentials=creds)
-        return client
-    except Exception:
-        return None
+    return client
 
 
 _fs_client = None  # type: ignore
