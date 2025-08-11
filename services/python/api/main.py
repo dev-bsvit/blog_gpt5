@@ -7,6 +7,7 @@ from datetime import datetime
 import re
 import json
 import os
+from pathlib import Path
 
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
@@ -42,9 +43,43 @@ app.add_middleware(GZipMiddleware, minimum_size=500)
 
 # Firestore client (lazy)
 def _load_firestore_client():
-    json_str = (os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON") or "").strip()
-    if not json_str or firestore is None:
+    if firestore is None:
         return None
+
+    # 1) Preferred: env var with full JSON
+    json_str = (os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON") or "").strip()
+
+    # 2) Alternative: env var with a file path
+    if not json_str:
+        json_path = (os.getenv("FIREBASE_SERVICE_ACCOUNT_FILE") or "").strip()
+        if json_path:
+            try:
+                json_str = Path(json_path).read_text(encoding="utf-8").strip()
+            except Exception:
+                json_str = ""
+
+    # 3) Render Secret Files default mount: /etc/secrets/<filename>
+    if not json_str:
+        try:
+            secrets_dir = Path("/etc/secrets")
+            if secrets_dir.exists():
+                # Prefer *.json, otherwise take the first file
+                candidates = list(secrets_dir.glob("*.json")) or list(secrets_dir.iterdir())
+                for p in candidates:
+                    if p.is_file():
+                        try:
+                            json_str = p.read_text(encoding="utf-8").strip()
+                            # ensure it's JSON
+                            _ = json.loads(json_str)
+                            break
+                        except Exception:
+                            continue
+        except Exception:
+            json_str = ""
+
+    if not json_str:
+        return None
+
     try:
         info = json.loads(json_str)
         creds = service_account.Credentials.from_service_account_info(info)
