@@ -5,6 +5,7 @@ import AuthButton from "@/components/AuthButton";
 import FancyLoader from "@/components/FancyLoader";
 import Link from "next/link";
 import SWRProvider from "@/components/SWRProvider";
+import WriteGuardLink from "@/components/WriteGuardLink";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,7 +60,7 @@ export default function RootLayout({
           <div className="max-w-5xl mx-auto flex items-center justify-between p-4">
             <Link href="/" className="font-semibold">Blog MVP</Link>
             <nav className="flex items-center gap-4 text-sm">
-              <Link href="/write" className="underline">Написать</Link>
+              <WriteGuardLink />
               <Link href="/drafts" className="underline hidden sm:inline">Черновики</Link>
               <Link href="/bookmarks" className="underline hidden sm:inline">Закладки</Link>
               <Link href="/my" className="underline hidden sm:inline">Мои статьи</Link>
