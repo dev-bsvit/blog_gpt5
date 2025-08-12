@@ -36,11 +36,17 @@ export default async function AuthorPage({
         <div className="ty-meta">Пока нет статей.</div>
       ) : (
         <div className="puk-grid">
-          {items.map((a) => (
-            <div key={a.slug} className="puk-col-12 md:puk-col-6 lg:puk-col-4">
-              <ArticleCard a={a} />
+          <div className="hidden lg:block puk-col-3" />
+          <div className="puk-col-14 lg:puk-col-8">
+            <div className="puk-grid">
+              {items.map((a) => (
+                <div key={a.slug} className="puk-col-12 md:puk-col-6">
+                  <ArticleCard a={a} />
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+          <div className="hidden lg:block puk-col-3" />
         </div>
       )}
       {/* SSR страницы автора может подтягиваться долго — покажем loader на клиенте при навигации */}

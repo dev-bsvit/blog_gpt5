@@ -1,11 +1,23 @@
+"use client";
+import useSWR from "swr";
+
+type NewsItem = { title: string; created_at?: string };
+
+function formatRelative(iso?: string): string {
+  if (!iso) return "";
+  const date = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 60) return `${min} мин`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h} ч`;
+  return date.toLocaleDateString();
+}
+
 export default function NewsList() {
-  // Static placeholder per Figma; wire to API later
-  const items = [
-    { time: "6 ч", title: "Инсайдер показал все цвета iPhone 17 и 17 Pro" },
-    { time: "22 ч", title: "Студия А. Лебедева обновила упаковку Бургер Кинга" },
-    { time: "28 июля", title: "В Москве обновили дизайн схемы метро" },
-    { time: "28 июля", title: "Дизайнерс, давайте общаться!" },
-  ];
+  const { data } = useSWR<NewsItem[]>("/articles", null, { suspense: false });
+  const items = Array.isArray(data) ? data.slice(0, 6) : [];
   return (
     <aside className="rounded-3xl border border-divider bg-block shadow-1 pad-4d">
       <div className="flex items-center justify-between mb-3d">
@@ -15,7 +27,7 @@ export default function NewsList() {
       <ul className="flex flex-col gap-3d">
         {items.map((n) => (
           <li key={n.title}>
-            <div className="ty-meta">{n.time}</div>
+            <div className="ty-meta">{formatRelative(n.created_at)}</div>
             <div className="ty-title">{n.title}</div>
           </li>
         ))}
