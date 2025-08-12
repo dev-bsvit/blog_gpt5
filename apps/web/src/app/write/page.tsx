@@ -31,6 +31,8 @@ export default function WritePage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [banner, setBanner] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [savingNow, setSavingNow] = useState(false);
   async function onCoverChange(file: File) {
     const form = new FormData();
     form.append("file", file);
@@ -133,9 +135,27 @@ export default function WritePage() {
       setDirty(false);
       try { localStorage.setItem("draft.write", JSON.stringify({ title: (titleRef.current?.value ?? title), contentHtml, draftSlug: slug })); } catch {}
     } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
       setAutoStatus("Ошибка автосохранения");
+      setBanner({ type: "error", text: msg || "Не удалось сохранить" });
     }
   }, [authorized, draftSlug, title, contentHtml, tags]);
+
+  async function saveNow() {
+    if (!authorized) { router.push("/login"); return; }
+    setSavingNow(true);
+    setBanner(null);
+    try {
+      await runAutosave();
+      setBanner({ type: "success", text: "Черновик сохранён" });
+      setTimeout(() => setBanner(null), 2500);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setBanner({ type: "error", text: msg || "Не удалось сохранить" });
+    } finally {
+      setSavingNow(false);
+    }
+  }
 
   useEffect(() => {
     if (!dirty) return;
@@ -226,6 +246,7 @@ export default function WritePage() {
           )}
         </div>
         <div className="flex items-center gap-2">
+          <button className="px-2 py-1 rounded bg-zinc-800" onClick={saveNow} disabled={savingNow}>{savingNow?"Сохраняю…":"Сохранить черновик"}</button>
           <button className="px-2 py-1 rounded bg-zinc-800" onClick={()=>setPreviewOpen(true)}>👁 Предпросмотр</button>
           {step === 1 ? (
             <button className={`px-3 py-2 rounded ${canNext?"bg-blue-600 text-white":"bg-zinc-700 text-gray-400"}`} disabled={!canNext} onClick={()=>setStep(2)}>Далее</button>
@@ -237,6 +258,10 @@ export default function WritePage() {
           )}
         </div>
       </header>
+
+      {banner && (
+        <div className={`text-sm rounded px-3 py-2 ${banner.type==="success"?"bg-emerald-700 text-white":"bg-red-700 text-white"}`}>{banner.text}</div>
+      )}
 
       {step === 1 && (
         <section className="space-y-3">
