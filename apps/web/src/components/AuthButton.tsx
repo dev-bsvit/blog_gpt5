@@ -17,7 +17,7 @@ export default function AuthButton() {
       getRedirectResult(auth).catch(() => {});
       setAuthReady(true);
       return () => unsub();
-    } catch (e) {
+    } catch {
       /* noop */
     }
   }, [envOk]);

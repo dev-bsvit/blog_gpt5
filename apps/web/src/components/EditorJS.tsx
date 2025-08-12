@@ -40,7 +40,7 @@ export default function EditorJS({ value, onChange, placeholder }: {
     });
     ref.current = editor;
     return () => { editor.isReady.then(()=>editor.destroy()).catch(()=>{}); };
-  }, [holderId]);
+  }, [holderId, onChange, placeholder, value]);
 
   return (
     <div className="border rounded-xl bg-transparent">
