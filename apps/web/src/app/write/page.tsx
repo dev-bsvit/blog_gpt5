@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import EditorJS, { EditorJSData } from "@/components/EditorJS";
-import RenderEditorJS from "@/components/RenderEditorJS";
+import dynamic from "next/dynamic";
+const TrixEditor = dynamic(() => import("@/components/TrixEditor"), { ssr: false });
 import { useRouter } from "next/navigation";
 import { apiPost, apiPut } from "@/lib/api";
 import Image from "next/image";
@@ -14,7 +14,8 @@ export default function WritePage() {
   const [authorized, setAuthorized] = useState<boolean>(false);
   // Stage 1
   const [title, setTitle] = useState<string>("");
-  const [contentJson, setContentJson] = useState<EditorJSData>({ blocks: [] });
+  const titleRef = useRef<HTMLInputElement | null>(null);
+  const [contentHtml, setContentHtml] = useState<string>("");
   const [autoStatus, setAutoStatus] = useState<string>("—");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -73,7 +74,7 @@ export default function WritePage() {
       if (raw) {
         const j = JSON.parse(raw);
         if (typeof j.title === "string") setTitle(j.title);
-        if (j.contentJson && Array.isArray(j.contentJson.blocks)) setContentJson(j.contentJson);
+        if (typeof j.contentHtml === "string") setContentHtml(j.contentHtml);
         if (typeof j.draftSlug === "string") setDraftSlug(j.draftSlug);
       }
     } catch {}
@@ -92,13 +93,13 @@ export default function WritePage() {
 
   // Validation
   const titleValid = useMemo(() => {
-    const t = (title || "").trim();
+    const t = ((titleRef.current?.value ?? title) || "").trim();
     return t.length >= 3 && t.length <= 120;
   }, [title]);
   const contentHasMeaning = useMemo(() => {
-    const blocks = (contentJson.blocks || []).filter(b => ["paragraph","header","list","quote","checklist","image"].includes(b.type));
-    return blocks.length >= 1;
-  }, [contentJson]);
+    const text = (contentHtml || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").trim();
+    return text.length >= 1; // хотя бы один непустой символ
+  }, [contentHtml]);
   const canNext = titleValid && contentHasMeaning;
 
   // Autosave (first POST draft, then PUT updates)
@@ -109,9 +110,9 @@ export default function WritePage() {
       let slug = draftSlug;
       if (!slug) {
         const created = await apiPost<{ slug: string; updated_at?: string }>("/articles", {
-          title: title.trim() || "Untitled",
+          title: ((titleRef.current?.value ?? title) || "Untitled").trim(),
           subtitle: "",
-          content: JSON.stringify(contentJson),
+          content: contentHtml,
           is_published: false,
           tags: [],
           category: tags[0] || "Технологии",
@@ -121,8 +122,8 @@ export default function WritePage() {
         // setServerUpdatedAt(created.updated_at || null);
       } else {
         const updated = await apiPut<{ updated_at?: string }>(`/articles/${slug}`, {
-          title: title.trim() || "Untitled",
-          content: JSON.stringify(contentJson),
+          title: ((titleRef.current?.value ?? title) || "Untitled").trim(),
+          content: contentHtml,
           is_published: false,
         });
         // setServerUpdatedAt((updated as { updated_at?: string }).updated_at || null);
@@ -130,11 +131,11 @@ export default function WritePage() {
       const now = new Date();
       setAutoStatus(`Сохранено в ${now.toLocaleTimeString()}`);
       setDirty(false);
-      try { localStorage.setItem("draft.write", JSON.stringify({ title, contentJson, draftSlug: slug })); } catch {}
+      try { localStorage.setItem("draft.write", JSON.stringify({ title: (titleRef.current?.value ?? title), contentHtml, draftSlug: slug })); } catch {}
     } catch (e) {
       setAutoStatus("Ошибка автосохранения");
     }
-  }, [authorized, draftSlug, title, contentJson, tags]);
+  }, [authorized, draftSlug, title, contentHtml, tags]);
 
   useEffect(() => {
     if (!dirty) return;
@@ -163,7 +164,7 @@ export default function WritePage() {
   function resetDraft() {
     setDraftSlug(null);
     setTitle("");
-    setContentJson({ blocks: [] });
+    setContentHtml("");
     setCoverUrl("");
     setCoverAlt("");
     setCoverCaption("");
@@ -183,8 +184,8 @@ export default function WritePage() {
       let slug = draftSlug;
       if (!slug) {
         const created = await apiPost<{ slug: string }>("/articles", {
-          title: title.trim() || "Untitled",
-          content: JSON.stringify(contentJson),
+          title: ((titleRef.current?.value ?? title) || "Untitled").trim(),
+          content: contentHtml,
           is_published: false,
           tags,
           category: tags[0] || "Технологии",
@@ -196,8 +197,8 @@ export default function WritePage() {
         setDraftSlug(slug);
       }
       const updated = await apiPut<{ slug: string }>(`/articles/${slug}`, {
-        title: title.trim() || "Untitled",
-        content: JSON.stringify(contentJson),
+        title: ((titleRef.current?.value ?? title) || "Untitled").trim(),
+        content: contentHtml,
         is_published: true,
         tags,
         category: tags[0] || "Технологии",
@@ -243,13 +244,14 @@ export default function WritePage() {
             autoFocus
             className="w-full text-3xl font-semibold bg-transparent outline-none border-b border-white/10 pb-2"
             placeholder="Заголовок"
-            value={title}
+            defaultValue={title}
+            ref={titleRef}
             onChange={(e)=>{ setTitle(e.target.value); setDirty(true); setAutoStatus("—"); }}
             aria-invalid={!titleValid}
           />
           {!titleValid && <div className="text-sm text-red-400">Заголовок 3–120 символов</div>}
           <div className="rounded-xl border border-white/10">
-            <EditorJS value={contentJson} onChange={(d)=>{ setContentJson(d); setDirty(true); setAutoStatus("—"); }} placeholder="Начните писать…" />
+            <TrixEditor value={contentHtml} onChange={(html)=>{ setContentHtml(html); setDirty(true); setAutoStatus("—"); }} placeholder="Начните писать…" />
           </div>
           <div className="text-xs text-gray-500">Автосохранение: {autoStatus}</div>
         </section>
@@ -295,9 +297,7 @@ export default function WritePage() {
             </div>
             {tags.length>3 && <div className="text-xs text-red-400">Можно выбрать до 3 тегов</div>}
             <div className="mt-4 text-sm text-gray-400">Предпросмотр</div>
-            <div className="rounded-xl border border-white/10 p-3 prose prose-invert max-w-none">
-              {contentJson?.blocks ? <RenderEditorJS data={contentJson} /> : <div>Нет содержимого</div>}
-            </div>
+            <div className="rounded-xl border border-white/10 p-3 prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentHtml || "<div>Нет содержимого</div>" }} />
             {error && <div className="text-sm text-red-500 mt-2">{error}</div>}
           </div>
         </section>
@@ -316,9 +316,7 @@ export default function WritePage() {
               </figure>
             )}
             <h1 className="text-2xl font-semibold mb-2">{title || "Без названия"}</h1>
-            <div className="prose prose-invert max-w-none">
-              {contentJson?.blocks ? <RenderEditorJS data={contentJson} /> : <div>Нет содержимого</div>}
-            </div>
+            <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentHtml || "<div>Нет содержимого</div>" }} />
           </div>
         </div>
       )}

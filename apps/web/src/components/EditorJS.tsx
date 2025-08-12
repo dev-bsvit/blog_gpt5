@@ -22,6 +22,7 @@ export default function EditorJS({ value, onChange, placeholder }: {
   type CaretApi = { setToLastBlock?: () => void };
   type EditorInstance = { isReady?: Promise<void>; destroy?: () => void; blocks?: BlocksApi; caret?: CaretApi } | null;
   const ref = useRef<EditorInstance>(null);
+  const lastOutboundJsonRef = useRef<string>("");
 
   useEffect(() => {
     let mounted = true;
@@ -88,6 +89,9 @@ export default function EditorJS({ value, onChange, placeholder }: {
       data: value || { blocks: [] },
         async onChange(api: { saver: { save: () => Promise<EditorJSData> } }) {
           const data = await api.saver.save();
+          try {
+            lastOutboundJsonRef.current = JSON.stringify(data || { blocks: [] });
+          } catch { lastOutboundJsonRef.current = ""; }
           onChange(data);
       },
       };
@@ -106,7 +110,9 @@ export default function EditorJS({ value, onChange, placeholder }: {
         } catch {}
       }
     };
-  }, [holderId, onChange, placeholder]);
+  // Intentionally DO NOT depend on onChange to avoid re-initializing editor on each render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [holderId, placeholder]);
 
   // Render external value without пересоздания инстанса
   useEffect(() => {
@@ -114,7 +120,11 @@ export default function EditorJS({ value, onChange, placeholder }: {
     try {
       const runtime = ref.current as unknown as { render?: (d: unknown) => void };
       if (typeof runtime?.render === "function") {
-        runtime.render(value || { blocks: [] });
+        // Render external value only if it differs from the last value emitted by editor (avoid caret jumps)
+        const inbound = (() => { try { return JSON.stringify(value || { blocks: [] }); } catch { return ""; } })();
+        if (inbound && inbound !== lastOutboundJsonRef.current) {
+          runtime.render(value || { blocks: [] });
+        }
       }
     } catch {}
   }, [value]);

@@ -40,6 +40,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Trix editor assets */}
+        <link rel="stylesheet" href="https://unpkg.com/trix@2.0.0/dist/trix.css" />
+        <script src="https://unpkg.com/trix@2.0.0/dist/trix.umd.min.js" defer />
         {apiOrigin && (
           <>
             <link rel="preconnect" href={apiOrigin} crossOrigin="" />
