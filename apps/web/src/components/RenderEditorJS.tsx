@@ -27,7 +27,7 @@ export default function RenderEditorJS({ data }: { data: EditorJSData }) {
         if (b.type === "header") {
           const d = b.data as HeaderData;
           const level = Math.min(Math.max(Number(d.level ?? 2), 2), 3);
-          const Tag = (`h${level}` as keyof JSX.IntrinsicElements);
+          const Tag = (level === 3 ? "h3" : "h2") as "h2" | "h3";
           const text = String(d.text ?? "");
           return <Tag key={idx} dangerouslySetInnerHTML={{ __html: text }} />;
         }
