@@ -276,7 +276,7 @@ export default function WritePage() {
           />
           {!titleValid && <div className="text-sm text-red-400">Заголовок 3–120 символов</div>}
           <div className="trix-sheet">
-            <TrixEditor value={contentHtml} onChange={(html)=>{ setContentHtml(html); setDirty(true); setAutoStatus("—"); }} placeholder="Начните писать…" />
+            <TrixEditor value={contentHtml} onChange={(html)=>{ setContentHtml(html); setDirty(true); setAutoStatus("—"); }} placeholder="Начните писать…" onError={(m)=> setBanner({ type: "error", text: m })} />
           </div>
           <div className="text-xs text-gray-500">Автосохранение: {autoStatus}</div>
         </section>

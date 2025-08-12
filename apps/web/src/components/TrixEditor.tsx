@@ -7,9 +7,10 @@ type Props = {
   value?: string;
   onChange: (html: string) => void;
   placeholder?: string;
+  onError?: (message: string) => void;
 };
 
-export default function TrixEditor({ value, onChange, placeholder }: Props) {
+export default function TrixEditor({ value, onChange, placeholder, onError }: Props) {
   const inputIdRef = useRef<string>(`trix-${Math.random().toString(36).slice(2)}`);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const editorRef = useRef<HTMLElement | null>(null);
@@ -43,13 +44,20 @@ export default function TrixEditor({ value, onChange, placeholder }: Props) {
             fd.append("user_id", user.uid);
           }
         } catch {}
+        if (!headers) {
+          onError?.("Требуется вход для загрузки изображений");
+          // remove placeholder attachment
+          (att as unknown as { remove?: ()=>void })?.remove?.();
+          return;
+        }
         const r = await fetch(`${base}/upload/cover`, { method: "POST", body: fd, headers });
         if (!r.ok) throw new Error("upload failed");
         const j = await r.json();
         // Trix typings отсутствуют в проекте
         (att as unknown as { setAttributes?: (a: Record<string,string>)=>void })?.setAttributes?.({ url: j.url, href: j.url });
       } catch {
-        // swallow
+        onError?.("Не удалось загрузить изображение");
+        (att as unknown as { remove?: ()=>void })?.remove?.();
       }
     }
 
