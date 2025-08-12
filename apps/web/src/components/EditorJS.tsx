@@ -15,7 +15,12 @@ export default function EditorJS({ value, onChange, placeholder }: {
   placeholder?: string;
 }) {
   const holderId = useMemo(() => `ej-${Math.random().toString(36).slice(2)}`, []);
-  type EditorInstance = { isReady?: Promise<void>; destroy?: () => void } | null;
+  type BlocksApi = {
+    insert: (type: string, data?: unknown, config?: unknown, index?: number) => void;
+    getBlocksCount: () => number;
+  };
+  type CaretApi = { setToLastBlock?: () => void };
+  type EditorInstance = { isReady?: Promise<void>; destroy?: () => void; blocks?: BlocksApi; caret?: CaretApi } | null;
   const ref = useRef<EditorInstance>(null);
 
   useEffect(() => {
@@ -78,14 +83,15 @@ export default function EditorJS({ value, onChange, placeholder }: {
     <div className="border rounded-xl bg-transparent">
       <div className="flex items-center gap-2 p-2 border-b border-white/10">
         <EditorJSMenu onPick={(a: BlockAction) => {
-          const ed: any = (ref.current as unknown);
+          const ed = ref.current as EditorInstance;
           if (!ed || !ed.blocks) return;
+          const idx = ed.blocks.getBlocksCount();
           switch (a.type) {
-            case "paragraph": ed.blocks.insert("paragraph", undefined, undefined, ed.blocks.getBlocksCount()); break;
-            case "header": ed.blocks.insert("header", { level: a.level }, undefined, ed.blocks.getBlocksCount()); break;
-            case "list": ed.blocks.insert("list", { style: a.style }, undefined, ed.blocks.getBlocksCount()); break;
-            case "checklist": ed.blocks.insert("checklist", undefined, undefined, ed.blocks.getBlocksCount()); break;
-            case "quote": ed.blocks.insert("quote", undefined, undefined, ed.blocks.getBlocksCount()); break;
+            case "paragraph": ed.blocks.insert("paragraph", undefined, undefined, idx); break;
+            case "header": ed.blocks.insert("header", { level: a.level }, undefined, idx); break;
+            case "list": ed.blocks.insert("list", { style: a.style }, undefined, idx); break;
+            case "checklist": ed.blocks.insert("checklist", undefined, undefined, idx); break;
+            case "quote": ed.blocks.insert("quote", undefined, undefined, idx); break;
           }
           ed.caret?.setToLastBlock?.();
         }} />
