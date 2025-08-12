@@ -7,14 +7,16 @@ import { apiGet, apiPost, apiPut } from "@/lib/api";
 import Image from "next/image";
 import PageLoader from "@/components/PageLoader";
 import FancyLoader from "@/components/FancyLoader";
-import { getIdToken, onAuthStateChanged } from "firebase/auth";
-import { getFirebaseAuth } from "@/lib/firebaseClient";
+import { getIdToken, onAuthStateChanged, signInWithPopup } from "firebase/auth";
+import { getFirebaseAuth, googleProvider } from "@/lib/firebaseClient";
 
 export default function WritePage() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
   const [authorized, setAuthorized] = useState<boolean>(false);
   const [currentUid, setCurrentUid] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   // Stage 1
   const [title, setTitle] = useState<string>("");
   const titleRef = useRef<HTMLInputElement | null>(null);
@@ -67,9 +69,19 @@ export default function WritePage() {
   useEffect(() => {
     try {
       const auth = getFirebaseAuth();
-      const unsub = onAuthStateChanged(auth, (u) => { setAuthorized(Boolean(u)); setCurrentUid(u?.uid || null); });
+      const unsub = onAuthStateChanged(auth, (u) => {
+        setAuthorized(Boolean(u));
+        setCurrentUid(u?.uid || null);
+        setAuthChecked(true);
+        if (!u) setShowLogin(true);
+      });
       return () => unsub();
-    } catch { setAuthorized(false); setCurrentUid(null); }
+    } catch {
+      setAuthorized(false);
+      setCurrentUid(null);
+      setAuthChecked(true);
+      setShowLogin(true);
+    }
   }, []);
 
   // Restore draft from localStorage (title/content only)
@@ -379,6 +391,19 @@ export default function WritePage() {
             )}
             <h1 className="text-2xl font-semibold mb-2">{title || "Без названия"}</h1>
             <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentHtml || "<div>Нет содержимого</div>" }} />
+          </div>
+        </div>
+      )}
+
+      {authChecked && !authorized && showLogin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-sm rounded-xl bg-zinc-900 p-5 border border-white/10 shadow-xl">
+            <h3 className="text-lg font-semibold mb-2">Нужна авторизация</h3>
+            <p className="text-sm text-gray-400 mb-4">Войдите через Google, чтобы написать статью.</p>
+            <div className="flex items-center justify-end gap-2">
+              <button className="px-3 py-2 rounded bg-zinc-700" onClick={()=>setShowLogin(false)}>Позже</button>
+              <button className="px-3 py-2 rounded bg-blue-600 text-white" onClick={async ()=>{ try { const auth = getFirebaseAuth(); await signInWithPopup(auth, googleProvider); setShowLogin(false);} catch {} }}>Войти с Google</button>
+            </div>
           </div>
         </div>
       )}
