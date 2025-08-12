@@ -25,8 +25,8 @@ export default function MyArticlesPage() {
     return () => { if (unsub) unsub(); };
   }, []);
 
-  const { data, isLoading, error: swrError } = useSWR(user ? "/users/me/articles" : null, undefined, { shouldRetryOnError: false });
-  const { data: allData } = useSWR(user ? "/articles" : null, undefined, { shouldRetryOnError: false });
+  const { data, isLoading, error: swrError } = useSWR(user ? "/users/me/articles" : null, null, { shouldRetryOnError: false });
+  const { data: allData } = useSWR(user ? "/articles" : null, null, { shouldRetryOnError: false });
   useEffect(() => {
     if (!user) return;
     setLoading(isLoading);
