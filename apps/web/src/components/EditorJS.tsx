@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef } from "react";
 
 // Editor.js dynamically imported to avoid SSR issues
-import EditorJSClass from "@editorjs/editorjs";
+import EditorJSClass, { type ToolConstructable } from "@editorjs/editorjs";
 import Header from "@editorjs/header";
 import List from "@editorjs/list";
 import Quote from "@editorjs/quote";
@@ -28,10 +28,10 @@ export default function EditorJS({ value, onChange, placeholder }: {
       placeholder: placeholder || "Начните писать...",
       autofocus: true,
       tools: {
-        header: { class: Header, inlineToolbar: true, config: { levels: [2,3], defaultLevel: 2 } },
-        list: { class: List, inlineToolbar: true },
-        quote: { class: Quote, inlineToolbar: true },
-      },
+        header: { class: Header as unknown as ToolConstructable, inlineToolbar: true, config: { levels: [2,3], defaultLevel: 2 } },
+        list: { class: List as unknown as ToolConstructable, inlineToolbar: true },
+        quote: { class: Quote as unknown as ToolConstructable, inlineToolbar: true },
+      } as EditorJSClass["configuration"]["tools"],
       data: value || { blocks: [] },
       async onChange(api) {
         const data = await api.saver.save();
