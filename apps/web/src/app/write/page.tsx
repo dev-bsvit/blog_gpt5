@@ -8,7 +8,7 @@ import Image from "next/image";
 import PageLoader from "@/components/PageLoader";
 import FancyLoader from "@/components/FancyLoader";
 import { getIdToken, onAuthStateChanged } from "firebase/auth";
-import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
+import { getFirebaseAuth } from "@/lib/firebaseClient";
 
 export default function WritePage() {
   const router = useRouter();
@@ -90,7 +90,7 @@ export default function WritePage() {
     (async () => {
       if (!currentUid || !draftSlug) return;
       try {
-        const a = await apiGet<any>(`/articles/${draftSlug}`);
+        const a = await apiGet<{ created_by?: string }>(`/articles/${draftSlug}`);
         const owner = (a?.created_by || "").trim();
         if (owner && owner !== currentUid) {
           setDraftSlug(null);
