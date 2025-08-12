@@ -34,11 +34,15 @@ export default function EditorJS({ value, onChange, placeholder }: {
       holder: holderId,
       placeholder: placeholder || "Начните писать...",
       autofocus: true,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         tools: {
-          header: { class: Header as unknown as ToolConstructable, inlineToolbar: true, config: { levels: [2, 3], defaultLevel: 2 } },
-          list: { class: List as unknown as ToolConstructable, inlineToolbar: true },
-          quote: { class: Quote as unknown as ToolConstructable, inlineToolbar: true },
-        },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          header: { class: Header as any, inlineToolbar: true, config: { levels: [2, 3], defaultLevel: 2 } },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          list: { class: List as any, inlineToolbar: true },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          quote: { class: Quote as any, inlineToolbar: true },
+        } as any,
       data: value || { blocks: [] },
       async onChange(api) {
         const data = await api.saver.save();
