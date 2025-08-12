@@ -1,32 +1,35 @@
 "use client";
-import { useEffect, useState } from "react";
-// import RichEditor from "@/components/RichEditor";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import EditorJS, { EditorJSData } from "@/components/EditorJS";
+import RenderEditorJS from "@/components/RenderEditorJS";
 import { useRouter } from "next/navigation";
-import { apiPost } from "@/lib/api";
+import { apiPost, apiPut } from "@/lib/api";
 import Image from "next/image";
 import { getIdToken, onAuthStateChanged } from "firebase/auth";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
-import PublishModal, { type CoverInfo } from "@/components/PublishModal";
 
 export default function WritePage() {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
-  const [content, setContent] = useState<string>("");
+  const [step, setStep] = useState<1 | 2>(1);
+  const [authorized, setAuthorized] = useState<boolean>(false);
+  // Stage 1
+  const [title, setTitle] = useState<string>("");
   const [contentJson, setContentJson] = useState<EditorJSData>({ blocks: [] });
-  const [category, setCategory] = useState<string>("Технологии");
-  const [tagsInput, setTagsInput] = useState<string>("");
-  const [readingMinutes, setReadingMinutes] = useState<string>("");
+  const [autoStatus, setAutoStatus] = useState<string>("—");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [draftSlug, setDraftSlug] = useState<string | null>(null);
+  // const [serverUpdatedAt, setServerUpdatedAt] = useState<string | null>(null);
+  // Stage 2
   const [coverUrl, setCoverUrl] = useState<string>("");
   const [coverAlt, setCoverAlt] = useState<string>("");
   const [coverCaption, setCoverCaption] = useState<string>("");
+  const [tags, setTags] = useState<string[]>([]);
+  const tagOptions = ["Технологии", "Дизайн", "Бизнес", "AI", "Frontend"]; // можно расширить
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string>("");
-  const [showPublish, setShowPublish] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [authChecked, setAuthChecked] = useState(false);
   async function onCoverChange(file: File) {
     const form = new FormData();
     form.append("file", file);
@@ -56,186 +59,248 @@ export default function WritePage() {
   }
 
   useEffect(() => {
-    if (!hasFirebaseEnv()) {
-      router.replace("/login");
-      return;
-    }
     try {
       const auth = getFirebaseAuth();
-      const unsub = onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          router.replace("/login");
-        } else {
-          setAuthChecked(true);
-        }
-      });
+      const unsub = onAuthStateChanged(auth, (u) => setAuthorized(Boolean(u)));
       return () => unsub();
-    } catch {
-      router.replace("/login");
-    }
-  }, [router]);
+    } catch { setAuthorized(false); }
+  }, []);
 
-  async function saveDraft() {
-    setLoading(true);
-    setError("");
+  // Restore draft from localStorage (title/content only)
+  useEffect(() => {
     try {
-      const res = await apiPost<{ slug: string }>("/articles", {
+      const raw = localStorage.getItem("draft.write");
+      if (raw) {
+        const j = JSON.parse(raw);
+        if (typeof j.title === "string") setTitle(j.title);
+        if (j.contentJson && Array.isArray(j.contentJson.blocks)) setContentJson(j.contentJson);
+        if (typeof j.draftSlug === "string") setDraftSlug(j.draftSlug);
+      }
+    } catch {}
+  }, []);
+
+  // Before unload confirmation when dirty
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!dirty) return;
+      e.preventDefault();
+      e.returnValue = "Есть несохранённые изменения";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
+
+  // Validation
+  const titleValid = useMemo(() => {
+    const t = (title || "").trim();
+    return t.length >= 3 && t.length <= 120;
+  }, [title]);
+  const contentHasMeaning = useMemo(() => {
+    const blocks = (contentJson.blocks || []).filter(b => ["paragraph","header","list","quote","checklist","image"].includes(b.type));
+    return blocks.length >= 1;
+  }, [contentJson]);
+  const canNext = titleValid && contentHasMeaning;
+
+  // Autosave (first POST draft, then PUT updates)
+  const runAutosave = useCallback(async () => {
+    if (!authorized) { setAutoStatus("—"); return; }
+    setAutoStatus("Сохраняю…");
+    try {
+      let slug = draftSlug;
+      if (!slug) {
+        const created = await apiPost<{ slug: string; updated_at?: string }>("/articles", {
+          title: title.trim() || "Untitled",
+          subtitle: "",
+          content: JSON.stringify(contentJson),
+          is_published: false,
+          tags: [],
+          category: tags[0] || "Технологии",
+        });
+        slug = created.slug;
+        setDraftSlug(slug);
+        // setServerUpdatedAt(created.updated_at || null);
+      } else {
+        const updated = await apiPut<{ updated_at?: string }>(`/articles/${slug}`, {
+          title: title.trim() || "Untitled",
+          content: JSON.stringify(contentJson),
+          is_published: false,
+        });
+        // setServerUpdatedAt((updated as { updated_at?: string }).updated_at || null);
+      }
+      const now = new Date();
+      setAutoStatus(`Сохранено в ${now.toLocaleTimeString()}`);
+      setDirty(false);
+      try { localStorage.setItem("draft.write", JSON.stringify({ title, contentJson, draftSlug: slug })); } catch {}
+    } catch (e) {
+      setAutoStatus("Ошибка автосохранения");
+    }
+  }, [authorized, draftSlug, title, contentJson, tags]);
+
+  useEffect(() => {
+    if (!dirty) return;
+    if (saveTimerRef.current) return;
+    saveTimerRef.current = setTimeout(() => {
+      saveTimerRef.current && clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+      runAutosave();
+    }, 5000);
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+      }
+    };
+  }, [dirty, runAutosave]);
+
+  function toggleTag(t: string) {
+    setTags((prev) => {
+      if (prev.includes(t)) return prev.filter((x) => x !== t);
+      if (prev.length >= 3) return prev; // лимит 3
+      return [...prev, t];
+    });
+  }
+
+  async function publishArticle() {
+    setError("");
+    if (!authorized) { router.push("/login"); return; }
+    if (!canNext) { setStep(1); return; }
+    try {
+      // ensure draft saved
+      if (dirty) await runAutosave();
+      let slug = draftSlug;
+      if (!slug) {
+        const created = await apiPost<{ slug: string }>("/articles", {
+          title: title.trim() || "Untitled",
+          content: JSON.stringify(contentJson),
+          is_published: false,
+          tags,
+          category: tags[0] || "Технологии",
+          cover_url: coverUrl || undefined,
+          cover_alt: coverAlt || undefined,
+          cover_caption: coverCaption || undefined,
+        });
+        slug = created.slug;
+        setDraftSlug(slug);
+      }
+      const updated = await apiPut<{ slug: string }>(`/articles/${slug}`, {
         title: title.trim() || "Untitled",
-        subtitle: subtitle.trim(),
-        content: content || JSON.stringify(contentJson),
-        is_published: false,
-        category,
-        tags: tagsInput.split(',').map(s=>s.trim()).filter(Boolean),
-        reading_time_minutes: readingMinutes.trim() ? Number(readingMinutes.trim()) : undefined,
+        content: JSON.stringify(contentJson),
+        is_published: true,
+        tags,
+        category: tags[0] || "Технологии",
         cover_url: coverUrl || undefined,
         cover_alt: coverAlt || undefined,
         cover_caption: coverCaption || undefined,
       });
-      router.push(`/article/${res.slug}/edit`);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(msg || "Ошибка сохранения черновика");
-    } finally {
-      setLoading(false);
+      router.push(`/article/${slug}`);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg || "Не удалось опубликовать");
     }
-  }
-
-  async function publishNow(payload: { cover: CoverInfo; tags: string[] }) {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await apiPost<{ slug: string }>("/articles", {
-        title: title.trim() || "Untitled",
-        subtitle: subtitle.trim(),
-        content: content || JSON.stringify(contentJson),
-        is_published: true,
-        category,
-        tags: (payload.tags && payload.tags.length > 0)
-          ? payload.tags
-          : tagsInput.split(',').map(s=>s.trim()).filter(Boolean),
-        reading_time_minutes: readingMinutes.trim() ? Number(readingMinutes.trim()) : undefined,
-        cover_url: payload.cover?.url || coverUrl || undefined,
-        cover_alt: payload.cover?.alt || coverAlt || undefined,
-        cover_caption: payload.cover?.caption || coverCaption || undefined,
-      });
-      router.push(`/article/${res.slug}`);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(msg || "Ошибка публикации");
-    } finally {
-      setLoading(false);
-      setShowPublish(false);
-    }
-  }
-
-  if (!authChecked) {
-    return null;
   }
 
   return (
-    <main className="mx-auto max-w-2xl p-6">
-      <h1 className="text-2xl font-semibold mb-6">Написать статью</h1>
-      <form onSubmit={(e)=>{e.preventDefault(); saveDraft();}} className="space-y-4">
-        <div>
-          <label className="block text-sm mb-1">Заголовок</label>
-          <input
-            className="w-full border rounded px-3 py-2 bg-transparent"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Заголовок статьи"
-          />
-        </div>
-        {/* Публикация переносится в модалку */}
-        <div>
-          <label className="block text-sm mb-1">Подзаголовок</label>
-          <input
-            className="w-full border rounded px-3 py-2 bg-transparent"
-            value={subtitle}
-            onChange={(e) => setSubtitle(e.target.value)}
-            placeholder="Короткое описание"
-          />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Текст (Editor.js)</label>
-          <EditorJS value={contentJson} onChange={setContentJson} placeholder="Черновик..." />
-        </div>
-        <div className="space-y-2">
-          <h3 className="text-sm font-semibold">Обложка</h3>
-          {coverUrl ? (
-            <div className="relative rounded-xl overflow-hidden border border-white/10">
-              <div className="relative aspect-[16/9]">
-                <Image src={coverUrl} alt={coverAlt || title || "cover"} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
-              </div>
-              <div className="p-2 flex gap-2">
-                <button type="button" className="px-3 py-1 rounded bg-zinc-700 text-white" onClick={()=>{setCoverUrl("")}}>Удалить</button>
-                <label className="px-3 py-1 rounded bg-zinc-700 text-white cursor-pointer">
-                  Заменить<input type="file" className="hidden" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if(f) onCoverChange(f);}} />
-                </label>
-              </div>
-            </div>
+    <main className="mx-auto max-w-3xl p-6 space-y-6">
+      <header className="flex items-center justify-between">
+        <div className="text-sm text-gray-400">Тип: Статья</div>
+        <div className="flex items-center gap-2">
+          <button className="px-2 py-1 rounded bg-zinc-800" onClick={()=>setPreviewOpen(true)}>👁 Предпросмотр</button>
+          {step === 1 ? (
+            <button className={`px-3 py-2 rounded ${canNext?"bg-blue-600 text-white":"bg-zinc-700 text-gray-400"}`} disabled={!canNext} onClick={()=>setStep(2)}>Далее</button>
           ) : (
-            <label className="block border border-dashed rounded-xl p-6 text-center cursor-pointer">
-              <div className="text-sm">Перетащите файл или нажмите для выбора</div>
-              <input type="file" className="hidden" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if(f) onCoverChange(f);}} />
-            </label>
+            <>
+              <button className="px-3 py-2 rounded bg-zinc-700" onClick={()=>setStep(1)}>Назад</button>
+              <button className={`px-3 py-2 rounded ${canNext?"bg-blue-600 text-white":"bg-zinc-700 text-gray-400"}`} disabled={!canNext} onClick={publishArticle}>Опубликовать</button>
+            </>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm mb-1">Alt‑текст</label>
-              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverAlt} onChange={(e)=>setCoverAlt(e.target.value)} placeholder="Описание изображения (обязательно для SEO)" />
+        </div>
+      </header>
+
+      {step === 1 && (
+        <section className="space-y-3">
+          <input
+            autoFocus
+            className="w-full text-3xl font-semibold bg-transparent outline-none border-b border-white/10 pb-2"
+            placeholder="Заголовок"
+            value={title}
+            onChange={(e)=>{ setTitle(e.target.value); setDirty(true); setAutoStatus("—"); }}
+            aria-invalid={!titleValid}
+          />
+          {!titleValid && <div className="text-sm text-red-400">Заголовок 3–120 символов</div>}
+          <div className="rounded-xl border border-white/10">
+            <EditorJS value={contentJson} onChange={(d)=>{ setContentJson(d); setDirty(true); setAutoStatus("—"); }} placeholder="Начните писать…" />
+          </div>
+          <div className="text-xs text-gray-500">Автосохранение: {autoStatus}</div>
+        </section>
+      )}
+
+      {step === 2 && (
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h3 className="text-sm font-semibold mb-2">Обложка (16:9)</h3>
+            {coverUrl ? (
+              <div className="relative rounded-xl overflow-hidden border border-white/10">
+                <div className="relative aspect-[16/9]">
+                  <Image src={coverUrl} alt={coverAlt || title || "cover"} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+                </div>
+                <div className="p-2 flex gap-2">
+                  <button type="button" className="px-3 py-1 rounded bg-zinc-700 text-white" onClick={()=>{setCoverUrl("")}}>Удалить</button>
+                  <label className="px-3 py-1 rounded bg-zinc-700 text-white cursor-pointer">
+                    Заменить<input type="file" className="hidden" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if(f) onCoverChange(f);}} />
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <label className="block border border-dashed rounded-xl p-6 text-center cursor-pointer">
+                <div className="text-sm">+ Загрузить (реком. 1280×720)</div>
+                <input type="file" className="hidden" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if(f) onCoverChange(f);}} />
+              </label>
+            )}
+            {uploading && <div className="text-xs text-gray-500 mt-1">Загрузка…</div>}
+            {uploadError && <div className="text-xs text-red-500 mt-1">{uploadError}</div>}
+            <div className="grid grid-cols-1 gap-2 mt-2">
+              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverAlt} onChange={(e)=>setCoverAlt(e.target.value)} placeholder="Alt‑текст (обязательно)" />
+              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverCaption} onChange={(e)=>setCoverCaption(e.target.value)} placeholder="Подпись (необязательно)" />
             </div>
-            <div>
-              <label className="block text-sm mb-1">Подпись (caption)</label>
-              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverCaption} onChange={(e)=>setCoverCaption(e.target.value)} placeholder="Необязательно" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold mb-2">Теги (до 3)</h3>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {tagOptions.map((t)=> (
+                <button key={t} type="button" className={`px-2 py-1 rounded border ${tags.includes(t)?"bg-emerald-600 text-white":"bg-transparent"}`} onClick={()=>toggleTag(t)} aria-pressed={tags.includes(t)}>
+                  {t}
+                </button>
+              ))}
+            </div>
+            {tags.length>3 && <div className="text-xs text-red-400">Можно выбрать до 3 тегов</div>}
+            <div className="mt-4 text-sm text-gray-400">Предпросмотр</div>
+            <div className="rounded-xl border border-white/10 p-3 prose prose-invert max-w-none">
+              {contentJson?.blocks ? <RenderEditorJS data={contentJson} /> : <div>Нет содержимого</div>}
+            </div>
+            {error && <div className="text-sm text-red-500 mt-2">{error}</div>}
+          </div>
+        </section>
+      )}
+
+      {previewOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={()=>setPreviewOpen(false)}>
+          <div className="w-full max-w-3xl rounded-xl bg-zinc-900 p-4 shadow-xl border border-white/10" onClick={(e)=>e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold">Предпросмотр</h3>
+              <button className="px-2 py-1 rounded bg-zinc-700" onClick={()=>setPreviewOpen(false)}>✕</button>
+            </div>
+            {coverUrl && (
+              <figure className="relative mb-3 overflow-hidden rounded-xl aspect-[16/9]">
+                <Image src={coverUrl} alt={coverAlt || title || "cover"} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+              </figure>
+            )}
+            <h1 className="text-2xl font-semibold mb-2">{title || "Без названия"}</h1>
+            <div className="prose prose-invert max-w-none">
+              {contentJson?.blocks ? <RenderEditorJS data={contentJson} /> : <div>Нет содержимого</div>}
             </div>
           </div>
-        {uploading && <div className="text-xs text-gray-500">Загрузка…</div>}
-        {uploadError && <div className="text-xs text-red-500">{uploadError}</div>}
         </div>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <label className="block text-sm mb-1">Категория</label>
-            <select className="w-full border rounded px-3 py-2 bg-transparent" value={category} onChange={(e)=>setCategory(e.target.value)}>
-              <option>Технологии</option>
-              <option>Дизайн</option>
-              <option>Бизнес</option>
-            </select>
-          </div>
-          <div className="flex-1">
-            <label className="block text-sm mb-1">Теги (через запятую)</label>
-            <input className="w-full border rounded px-3 py-2 bg-transparent" value={tagsInput} onChange={(e)=>setTagsInput(e.target.value)} placeholder="например: nextjs, fastapi" />
-          </div>
-          <div className="flex-1">
-            <label className="block text-sm mb-1">Время чтения (мин)</label>
-            <input type="number" min={1} className="w-full border rounded px-3 py-2 bg-transparent" value={readingMinutes} onChange={(e)=>setReadingMinutes(e.target.value)} placeholder="напр. 5" />
-          </div>
-        </div>
-        {error && <div className="text-sm text-red-500">{error}</div>}
-        <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 rounded bg-zinc-700 text-white disabled:opacity-50"
-          >
-            {loading ? "Сохраняю..." : "Сохранить черновик"}
-          </button>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={()=>setShowPublish(true)}
-            className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-50"
-          >
-            Опубликовать
-          </button>
-        </div>
-      </form>
-      <PublishModal
-        open={showPublish}
-        onClose={()=>setShowPublish(false)}
-        onPublish={publishNow}
-        onSaveDraft={async ()=>{ await saveDraft(); setShowPublish(false);} }
-        initialAlt={title || "cover"}
-      />
+      )}
     </main>
   );
 }
