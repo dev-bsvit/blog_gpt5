@@ -50,9 +50,16 @@ export default function TrixEditor({ value, onChange, placeholder, onError }: Pr
           (att as unknown as { remove?: ()=>void })?.remove?.();
           return;
         }
-        const r = await fetch(`${base}/upload/cover`, { method: "POST", body: fd, headers });
-        if (!r.ok) throw new Error("upload failed");
-        const j = await r.json();
+        async function tryUpload(attempt = 1): Promise<{ url: string }> {
+          const r = await fetch(`${base}/upload/cover`, { method: "POST", body: fd, headers });
+          if (r.ok) return r.json();
+          if (attempt < 3 && r.status >= 500) {
+            await new Promise(res => setTimeout(res, 300 * attempt));
+            return tryUpload(attempt + 1);
+          }
+          throw new Error(`upload ${r.status}`);
+        }
+        const j = await tryUpload();
         // Trix typings отсутствуют в проекте
         (att as unknown as { setAttributes?: (a: Record<string,string>)=>void })?.setAttributes?.({ url: j.url, href: j.url });
       } catch {

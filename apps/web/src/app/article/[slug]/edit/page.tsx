@@ -5,8 +5,8 @@ import { apiDelete, apiGet, apiPut } from "@/lib/api";
 import Image from "next/image";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
 import { getIdToken, onAuthStateChanged } from "firebase/auth";
-// import RichEditor from "@/components/RichEditor";
-import EditorJS, { EditorJSData } from "@/components/EditorJS";
+import dynamic from "next/dynamic";
+const TrixEditor = dynamic(() => import("@/components/TrixEditor"), { ssr: false });
 
 type Article = {
   slug: string;
@@ -31,8 +31,7 @@ export default function EditArticlePage() {
   const [error, setError] = useState<string>("");
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
-  const [content, setContent] = useState("");
-  const [contentJson, setContentJson] = useState<EditorJSData>({ blocks: [] });
+  const [contentHtml, setContentHtml] = useState("");
   const [isPublished, setIsPublished] = useState(true);
   const [category, setCategory] = useState<string>("Технологии");
   const [tagsInput, setTagsInput] = useState<string>("");
@@ -58,7 +57,7 @@ export default function EditArticlePage() {
         const a = await apiGet<Article>(`/articles/${slug}`);
         setTitle(a.title || "");
         setSubtitle(a.subtitle || "");
-        setContent(a.content || "");
+        setContentHtml(a.content || "");
         setIsPublished(a.is_published !== false);
         setCategory(a.category || "Технологии");
         setTagsInput(Array.isArray(a.tags) ? a.tags.join(', ') : "");
@@ -84,7 +83,7 @@ export default function EditArticlePage() {
       const updated = await apiPut<Article>(`/articles/${slug}`, {
         title: title.trim() || "Untitled",
         subtitle: subtitle.trim(),
-        content: content || JSON.stringify(contentJson),
+        content: contentHtml,
         is_published: isPublished,
         category,
         tags: tagsInput.split(',').map(s=>s.trim()).filter(Boolean),
@@ -163,8 +162,10 @@ export default function EditArticlePage() {
           <input className="w-full border rounded px-3 py-2 bg-transparent" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
         </div>
         <div>
-          <label className="block text-sm mb-1">Текст (Editor.js)</label>
-          <EditorJS value={contentJson} onChange={setContentJson} />
+          <label className="block text-sm mb-1">Текст</label>
+          <div className="trix-sheet">
+            <TrixEditor value={contentHtml} onChange={setContentHtml} />
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
