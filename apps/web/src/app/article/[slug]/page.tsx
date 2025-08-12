@@ -89,13 +89,21 @@ export default async function ArticlePage({
       {(() => {
         const raw = article.content as unknown;
         if (typeof raw === "string") {
-          // Try parse Editor.js JSON; fallback to Markdown
+          // 1) Trix HTML → render as HTML
+          const isLikelyHtml = /<\w+[\s\S]*>/i.test(raw);
+          if (isLikelyHtml) {
+            return (
+              <article className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: raw }} />
+            );
+          }
+          // 2) Editor.js JSON → legacy renderer
           try {
             const data = JSON.parse(raw);
             if (data && Array.isArray(data.blocks)) {
               return <RenderEditorJS data={data} />;
             }
           } catch {}
+          // 3) Markdown fallback
           if (raw.trim().length > 0) {
             return (
               <article className="prose prose-invert max-w-none">
