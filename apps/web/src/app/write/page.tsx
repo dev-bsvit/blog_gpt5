@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { apiPost, apiPut } from "@/lib/api";
 import Image from "next/image";
 import PageLoader from "@/components/PageLoader";
+import FancyLoader from "@/components/FancyLoader";
 import { getIdToken, onAuthStateChanged } from "firebase/auth";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
 
@@ -264,6 +265,7 @@ export default function WritePage() {
         <div className={`text-sm rounded px-3 py-2 ${banner.type==="success"?"bg-emerald-700 text-white":"bg-red-700 text-white"}`}>{banner.text}</div>
       )}
       <PageLoader active={savingNow || uploading} />
+      <FancyLoader active={savingNow || uploading} duration={800} />
 
       {step === 1 && (
         <section className="space-y-3">

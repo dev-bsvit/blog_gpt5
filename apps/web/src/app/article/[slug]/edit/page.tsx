@@ -6,6 +6,7 @@ import Image from "next/image";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
 import { getIdToken, onAuthStateChanged } from "firebase/auth";
 import dynamic from "next/dynamic";
+import FancyLoader from "@/components/FancyLoader";
 const TrixEditor = dynamic(() => import("@/components/TrixEditor"), { ssr: false });
 
 type Article = {
@@ -249,6 +250,7 @@ export default function EditArticlePage() {
         </section>
       )}
 
+      <FancyLoader active={saving || uploading || deleting} duration={800} />
       {previewOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={()=>setPreviewOpen(false)}>
           <div className="w-full max-w-3xl rounded-xl bg-zinc-900 p-4 shadow-xl border border-white/10" onClick={(e)=>e.stopPropagation()}>

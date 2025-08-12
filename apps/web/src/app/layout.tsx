@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthButton from "@/components/AuthButton";
 import PageLoader from "@/components/PageLoader";
+import FancyLoader from "@/components/FancyLoader";
 import Link from "next/link";
 import SWRProvider from "@/components/SWRProvider";
 
@@ -54,6 +55,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <FancyLoader route />
         <header className="border-b sticky top-0 backdrop-blur bg-white/60 dark:bg-black/40 z-10">
           <div className="max-w-5xl mx-auto flex items-center justify-between p-4">
             <Link href="/" className="font-semibold">Blog MVP</Link>
