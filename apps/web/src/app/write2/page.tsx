@@ -15,6 +15,7 @@ export default function Write2() {
   const [title, setTitle] = useState("");
   const [data, setData] = useState<EditorData>({ blocks: [] });
   const [dirty, setDirty] = useState(false);
+  const saveTimer = useRef<NodeJS.Timeout | null>(null);
   const [saving, setSaving] = useState(false);
   const [openPublish, setOpenPublish] = useState(false);
   const key = useMemo(()=>"draft.write2",[]);
@@ -38,16 +39,16 @@ export default function Write2() {
     } catch {}
   }, [key]);
 
-  // autosave
+  // autosave (throttle 5s)
   useEffect(() => {
     if (!dirty) return;
-    const t = setTimeout(() => {
-      try {
-        localStorage.setItem(key, JSON.stringify({ title, data }));
-      } catch {}
+    if (saveTimer.current) return;
+    saveTimer.current = setTimeout(() => {
+      try { localStorage.setItem(key, JSON.stringify({ title, data })); } catch {}
       setDirty(false);
+      saveTimer.current && clearTimeout(saveTimer.current);
+      saveTimer.current = null;
     }, 5000);
-    return () => clearTimeout(t);
   }, [dirty, title, data, key]);
 
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function Write2() {
       <div className="flex items-center justify-between">
         <button className="px-2 py-1 rounded bg-zinc-800" onClick={()=>history.back()}>Назад</button>
         <div className="flex items-center gap-2">
-          <button className="px-2 py-1 rounded bg-zinc-800" onClick={()=>setOpenPublish(true)} disabled={!canNext}>Далее</button>
+          <button className={`px-2 py-1 rounded ${canNext?"bg-blue-600 text-white":"bg-zinc-800 text-gray-400"}`} onClick={()=>setOpenPublish(true)} disabled={!canNext}>Далее</button>
         </div>
       </div>
       <input

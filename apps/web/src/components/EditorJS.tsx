@@ -60,8 +60,8 @@ export default function EditorJS({ value, onChange, placeholder }: {
 
       const options: EditorConfig = {
       holder: holderId,
-      placeholder: placeholder || "Начните писать...",
-      autofocus: true,
+        placeholder: placeholder || "Начните писать...",
+        autofocus: false,
         tools: {
           header: { class: Header as unknown as ToolConstructable, inlineToolbar: true, config: { levels: [2, 3], defaultLevel: 2 } },
           list: { class: List as unknown as ToolConstructable, inlineToolbar: true },
