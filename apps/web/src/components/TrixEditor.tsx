@@ -69,13 +69,13 @@ export default function TrixEditor({ value, onChange, placeholder }: Props) {
   }, [value]);
 
   return (
-    <div className="border rounded-xl bg-transparent">
+    <div className="trix-container">
       <input id={inputIdRef.current} type="hidden" ref={inputRef} defaultValue={value || ""} />
       {/* @ts-expect-error trix custom element */}
       <trix-editor
         ref={editorRef}
         input={inputIdRef.current}
-        class={"prose prose-invert max-w-none p-3"}
+        class={"trix-content"}
         placeholder={placeholder || "Начните писать…"}
       />
     </div>
