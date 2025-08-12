@@ -25,13 +25,19 @@ export default function MyArticlesPage() {
     return () => { if (unsub) unsub(); };
   }, []);
 
-  const { data, isLoading } = useSWR(user ? "/users/me/articles" : null);
+  const { data, isLoading, error: swrError } = useSWR(user ? "/users/me/articles" : null, undefined, { shouldRetryOnError: false });
+  const { data: allData } = useSWR(user ? "/articles" : null, undefined, { shouldRetryOnError: false });
   useEffect(() => {
     if (!user) return;
     setLoading(isLoading);
-    setError(null);
-    setItems(Array.isArray(data) ? (data as Article[]) : []);
-  }, [user, data, isLoading]);
+    setError(swrError ? (swrError instanceof Error ? swrError.message : String(swrError)) : null);
+    let arr: Article[] = Array.isArray(data) ? (data as Article[]) : [];
+    if ((!arr || arr.length === 0) && Array.isArray(allData)) {
+      const uid = user.uid;
+      arr = (allData as Article[]).filter(a => (a as unknown as { created_by?: string }).created_by === uid);
+    }
+    setItems(arr || []);
+  }, [user, data, allData, isLoading, swrError]);
 
   return (
     <main className="mx-auto max-w-2xl p-6 space-y-4">
