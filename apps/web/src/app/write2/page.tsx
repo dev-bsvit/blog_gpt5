@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import PublishModal from "@/components/PublishModal";
+import { getApiBase } from "@/lib/api";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -95,8 +96,20 @@ export default function Write2() {
       <PublishModal
         open={openPublish}
         onClose={()=>setOpenPublish(false)}
-        onPublish={async ()=>{ setOpenPublish(false); alert("Пока заглушка публикации"); }}
-        onSaveDraft={async ()=>{ setOpenPublish(false); alert("Сохранено как черновик"); }}
+        onPublish={async ({ cover, tags })=>{
+          setOpenPublish(false);
+          // Создаём/обновляем пост. Для MVP используем существующие API: /articles
+          const base = getApiBase();
+          const r = await fetch(`${base}/articles`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, subtitle: '', content: JSON.stringify(data), is_published: true, category: tags[0] || 'Технологии', tags }) });
+          const j = await r.json();
+          location.href = `/article/${j.slug}`;
+        }}
+        onSaveDraft={async ({ cover, tags })=>{
+          setOpenPublish(false);
+          const base = getApiBase();
+          await fetch(`${base}/articles`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, subtitle: '', content: JSON.stringify(data), is_published: false, category: tags[0] || 'Технологии', tags }) });
+          alert('Сохранено как черновик');
+        }}
         initialAlt={title}
       />
     </main>

@@ -31,7 +31,9 @@
     "@editorjs/list": "^1.8.0",
     "@editorjs/quote": "^2.7.4",
     "@editorjs/checklist": "^1.4.0",
-    "@editorjs/image": "^2.9.0"
+    "@editorjs/image": "^2.9.0",
+    "@editorjs/embed": "^2.7.5",
+    "@editorjs/delimiter": "^1.3.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -26,12 +26,24 @@ export default function EditorJS({ value, onChange, placeholder }: {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const [{ default: EditorJSClass }, { default: Header }, { default: List }, { default: Quote }, { default: Checklist }] = await Promise.all([
+      const [
+        { default: EditorJSClass },
+        { default: Header },
+        { default: List },
+        { default: Quote },
+        { default: Checklist },
+        { default: ImageTool },
+        { default: Embed },
+        { default: Delimiter },
+      ] = await Promise.all([
         import("@editorjs/editorjs"),
         import("@editorjs/header"),
         import("@editorjs/list"),
         import("@editorjs/quote"),
         import("@editorjs/checklist"),
+        import("@editorjs/image"),
+        import("@editorjs/embed"),
+        import("@editorjs/delimiter"),
       ]);
 
       if (!mounted) return;
@@ -55,6 +67,23 @@ export default function EditorJS({ value, onChange, placeholder }: {
           list: { class: List as unknown as ToolConstructable, inlineToolbar: true },
           quote: { class: Quote as unknown as ToolConstructable, inlineToolbar: true },
           checklist: { class: Checklist as unknown as ToolConstructable, inlineToolbar: true },
+          image: {
+            class: ImageTool as unknown as ToolConstructable,
+            config: {
+              uploader: {
+                async uploadByFile(file: File) {
+                  const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+                  const fd = new FormData();
+                  fd.append("file", file);
+                  const r = await fetch(`${base}/upload/cover`, { method: "POST", body: fd });
+                  const j = await r.json();
+                  return { success: 1, file: { url: j.url } } as unknown as { success: 1; file: { url: string } };
+                },
+              },
+            },
+          },
+          embed: { class: Embed as unknown as ToolConstructable },
+          delimiter: { class: Delimiter as unknown as ToolConstructable },
         } as Record<string, unknown>,
       data: value || { blocks: [] },
         async onChange(api: { saver: { save: () => Promise<EditorJSData> } }) {
