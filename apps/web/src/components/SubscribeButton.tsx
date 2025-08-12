@@ -38,7 +38,7 @@ export default function SubscribeButton({ authorId }: { authorId?: string }) {
       type="button"
       onClick={toggle}
       disabled={loading}
-      className={`px-2 py-1 rounded text-xs ${subscribed ? "bg-emerald-700 text-white" : "bg-zinc-700 text-white"} disabled:opacity-50`}
+      className={`px-2 py-1 rounded text-xs disabled:opacity-50 ${subscribed ? "bg-success text-inv" : "btn-secondary"}`}
       title={authorId ? `Автор: ${authorId}` : undefined}
     >
       {subscribed ? "✓ Подписан" : "+ Подписаться"}{count !== null ? ` (${count})` : ""}

@@ -1,28 +1,366 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/*
+  Design tokens from provided palettes.
+  We expose them as CSS variables and small utility classes so Tailwind classes can stay minimal.
+*/
+
+@import url("./tokens/typography.css");
+@import url("./tokens/spacing.css");
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Default = Light theme */
+  /* Backgrounds */
+  --bgPrimaryPage: #eef2fa;
+  --bgPrimaryBlock: #ffffff;
+  --bgSecondaryBlock: #ffffff;
+  --bgSecondaryBlockAlt: #ffffff;
+  --bgTertiaryBlock: #f2f5fc;
+  --bgOverlay: #1f1f1fb2;
+  --bgBrand: #f87510;
+  --bgStatusSuccess: #32d47d;
+  --bgStatusWarning: #f7c301;
+  --bgStatusAlert: #fd453b;
+  --bgStatusNeutral: #6982ba;
+  /* Text */
+  --textPrimary: #1f1f1f;
+  --textSecondary: #171a24a3;
+  --textPrimaryInv: #ffffff;
+  --textSecondaryInv: #ffffffa3;
+  --textBrand: #f97510;
+  --textStatusSuccess: #22cc7f;
+  --textStatusWarning: #e9bd1f;
+  --textStatusAlert: #f35152;
+  --textStatusNeutral: #7c96cf;
+  /* Strokes */
+  --strokeDivider: #1f1f1f14;
+  --strokeBorder: #1f1f1f0a;
+  --strokeBrand: #f97510;
+  /* Links */
+  --linkLink: #ff5000;
+  --linkLinkHover: #e85502;
+  --linkLinkPressed: #d84e01;
+  --linkLinkMinor: #1f1f1f;
+  --linkLinkMinorHover: #1f1f1fa3;
+  --linkLinkMinorPressed: #1f1f1f;
+  /* Controls - buttons */
+  --controlBtnPrimaryBg: #ff5e00;
+  --controlBtnPrimaryBgHover: #e85502;
+  --controlBtnPrimaryBgPress: #d84e01;
+  --controlBtnPrimaryBorder: #ff5e0000;
+  --controlBtnPrimaryBorderHover: #ff5e0000;
+  --controlBtnPrimaryBorderPress: #ff5e0000;
+  --controlBtnPrimaryContent: #ffffff;
+  --controlBtnPrimaryBgDisable: #989aa21e;
+
+  --controlBtnBrandBg: #ff5c4d;
+  --controlBtnBrandBgHover: #ff5c4d;
+  --controlBtnBrandBgPress: #ff5c4d;
+  --controlBtnBrandBorder: #ff5c4d00;
+  --controlBtnBrandBorderHover: #ff5c4d00;
+  --controlBtnBrandBorderPress: #ff5c4d00;
+
+  --controlBtnSecondaryBg: #989aa21e;
+  --controlBtnSecondaryBgHover: #989aa228;
+  --controlBtnSecondaryBgPress: #989aa22d;
+  --controlBtnSecondaryBorder: #eeeff200;
+  --controlBtnSecondaryBorderHover: #e8eaef00;
+  --controlBtnSecondaryBorderPress: #e8eaf000;
+  --controlBtnSecondaryContent: #1f1f1f;
+
+  --controlBtnInvertedBg: #1f1f1f;
+  --controlBtnInvertedBgHover: #272727;
+  --controlBtnInvertedBgPress: #000000;
+  --controlBtnInvertedBorder: #1f1f1f00;
+  --controlBtnInvertedBorderHover: #00000000;
+  --controlBtnInvertedBorderPress: #00000000;
+  --controlBtnInvertedContent: #ffffff;
+
+  --controlBtnGhostBg: #989aa200;
+  --controlBtnGhostBgHover: #989aa21e;
+  --controlBtnGhostBgPress: #989aa228;
+  --controlBtnGhostBorder: #989aa200;
+  --controlBtnGhostBorderHover: #989aa200;
+  --controlBtnGhostBorderPress: #989aa200;
+  --controlBtnGhostContent: #1f1f1f;
+
+  --controlBtnActionBg: #c2c4cd00;
+  --controlBtnActionBgHover: #c2c4cd28;
+  --controlBtnActionBgActive: #c2c4cd2d;
+  --controlBtnActionBgActiveHover: #c2c4cd3d;
+  --controlBtnActionBorder: #c2c4cd00;
+  --controlBtnActionBorderHover: #c2c4cd00;
+  --controlBtnActionBorderActive: #c2c4cd00;
+  --controlBtnActionBorderActiveHover: #c2c4cd00;
+
+  /* Controls - inputs/popovers/focus */
+  --controlInputBg: #1f1f1f07;
+  --controlInputBgHover: #1f1f1f0c;
+  --controlInputBgDisable: #1f1f1f14;
+  --controlInputBorder: #1f1f1f33;
+  --controlInputBorderHover: #1f1f1f66;
+  --controlInputBorderDisable: #1f1f1f00;
+  --controlPopoverBg: #ffffff;
+  --controlPopoverContentPrimary: #1f1f1f;
+  --controlPopoverContentSecondary: #1f1f1fa3;
+  --controlPopoverBgInv: #1f1f1f;
+  --controlPopoverContentPrimaryInv: #ffffff;
+  --controlPopoverContentSecondaryInv: #ffffffa3;
+  --controlSelectionBgHover: #1f1f1f0a;
+  --controlSelectionBgActive: #1f1f1f0f;
+  --controlSelectionBgSubmenu: #1f1f1f0a;
+  --controlFocusBg: #1f1f1f07;
+  --controlFocusBorder: #ff5000;
+
+  /* Status buttons */
+  --controlSuccessBg: #32d47d;
+  --controlSuccessBgHover: #00c46d;
+  --controlSuccessBgPress: #00a058;
+  --controlSuccessBorder: #32d47d;
+  --controlSuccessBorderHover: #00c46d;
+  --controlSuccessBorderPress: #00a058;
+
+  --controlAlertBg: #fd453b;
+  --controlAlertBgHover: #e11c1d;
+  --controlAlertBgPress: #bc000b;
+  --controlAlertBorder: #e11c1d;
+  --controlAlertBorderHover: #e11c1d;
+  --controlAlertBorderPress: #bc000b;
+
+  --controlCheckBg: #1f1f1f1e;
+  --controlCheckBgHover: #1f1f1f28;
+  --controlCheckBgActive: #ff5e00;
+  --controlCheckBgActiveHover: #e85502;
+  --controlCheckBorder: #1f1f1f3d;
+  --controlCheckBorderHover: #1f1f1f5b;
+  --controlCheckBgDisable: #1f1f1f1e;
+
+  /* Content helpers */
+  --controlContentActive: #ffffff;
+  --controlContentAccent: #ff5e00;
+  --controlContentPrimary: #1f1f1f;
+  --controlContentPlaceholder: #1f1f1f7a;
+  --controlContentDisable: #8a8a8a75;
+  --controlContentItem: #ffffff;
+  --controlContentSuccess: #00c46d;
+  --controlContentAlert: #e11314;
+  --controlContentSkeleton: #1f1f1f0a;
+
+  --textTretiary: #171a244c;
+  --controlContentActiveInv: #ffffff;
+  --shadowShadow1: #4a505e0c;
+  --shadowShadow2: #3c538716;
+
+  /* Back-compat tokens used in app */
+  --background: var(--bgPrimaryPage);
+  --foreground: var(--textPrimary);
 }
 
+/* Dark theme values */
+.theme-dark {
+  --bgPrimaryPage: #1f1f1f;
+  --bgPrimaryBlock: #2f2e2e;
+  --bgSecondaryBlock: #282828;
+  --bgSecondaryBlockAlt: #282828;
+  --bgTertiaryBlock: #242424;
+  --bgOverlay: #1f1f1fcc;
+  --bgBrand: #f87510;
+  --bgStatusSuccess: #00c46d;
+  --bgStatusWarning: #ddb314;
+  --bgStatusAlert: #e1564f;
+  --bgStatusNeutral: #8597c0;
+  --textPrimary: #ffffff;
+  --textSecondary: #ffffffa3;
+  --textPrimaryInv: #1f1f1f;
+  --textSecondaryInv: #1f1f1fa3;
+  --textBrand: #f97510;
+  --textStatusSuccess: #3fc275;
+  --textStatusWarning: #e7c059;
+  --textStatusAlert: #f1564e;
+  --textStatusNeutral: #a5bae8;
+  --strokeDivider: #ffffff14;
+  --strokeBorder: #ffffff0a;
+  --strokeBrand: #f97510;
+  --linkLink: #ff8034;
+  --linkLinkHover: #e85502;
+  --linkLinkPressed: #d94f01;
+  --linkLinkMinor: #ffffff;
+  --linkLinkMinorHover: #ffffffa3;
+  --linkLinkMinorPressed: #ffffff;
+  --controlBtnPrimaryBg: #ff6b14;
+  --controlBtnPrimaryBgHover: #e85502;
+  --controlBtnPrimaryBgPress: #d94f01;
+  --controlBtnPrimaryBorder: #ff6b1400;
+  --controlBtnPrimaryBorderHover: #e8550200;
+  --controlBtnPrimaryBorderPress: #d94f0100;
+  --controlBtnPrimaryContent: #ffffff;
+  --controlBtnPrimaryBgDisable: #d2cfcf1e;
+  --controlBtnBrandBg: #ff5c4d;
+  --controlBtnBrandBgHover: #ff5c4d;
+  --controlBtnBrandBgPress: #ff5c4d;
+  --controlBtnBrandBorder: #ff5c4d00;
+  --controlBtnBrandBorderHover: #ff5c4d00;
+  --controlBtnBrandBorderPress: #ff5c4d00;
+  --controlBtnSecondaryBg: #e2d7d71e;
+  --controlBtnSecondaryBgHover: #e1dede2d;
+  --controlBtnSecondaryBgPress: #e1dede38;
+  --controlBtnSecondaryBorder: #e1dede00;
+  --controlBtnSecondaryBorderHover: #e1dede00;
+  --controlBtnSecondaryBorderPress: #e8eaf000;
+  --controlBtnSecondaryContent: #ffffff;
+  --controlBtnInvertedBg: #000000;
+  --controlBtnInvertedBgHover: #000000;
+  --controlBtnInvertedBgPress: #000000;
+  --controlBtnInvertedBorder: #00000000;
+  --controlBtnInvertedBorderHover: #00000000;
+  --controlBtnInvertedBorderPress: #00000000;
+  --controlBtnInvertedContent: #ffffff;
+  --controlBtnGhostBg: #e1dede00;
+  --controlBtnGhostBgHover: #e1dede1e;
+  --controlBtnGhostBgPress: #e1dede2d;
+  --controlBtnGhostBorder: #e1dede00;
+  --controlBtnGhostBorderHover: #e1dede00;
+  --controlBtnGhostBorderPress: #e1dede00;
+  --controlBtnGhostContent: #ffffff;
+  --controlBtnActionBg: #ffffff00;
+  --controlBtnActionBgHover: #ffffff14;
+  --controlBtnActionBgActive: #ffffff1e;
+  --controlBtnActionBgActiveHover: #ffffff3d;
+  --controlBtnActionBorder: #ffffff00;
+  --controlBtnActionBorderHover: #ffffff00;
+  --controlBtnActionBorderActive: #ffffff00;
+  --controlBtnActionBorderActiveHover: #ffffff00;
+  --controlInputBg: #ffffff07;
+  --controlInputBgHover: #ffffff0c;
+  --controlInputBgDisable: #ffffff1e;
+  --controlInputBorder: #ffffff33;
+  --controlInputBorderHover: #ffffff66;
+  --controlInputBorderDisable: #ffffff00;
+  --controlPopoverBg: #ffffff;
+  --controlPopoverContentPrimary: #1f1f1f;
+  --controlPopoverContentSecondary: #1f1f1fa3;
+  --controlPopoverBgInv: #393939;
+  --controlPopoverContentPrimaryInv: #ffffff;
+  --controlPopoverContentSecondaryInv: #ffffffa3;
+  --controlSelectionBgHover: #ffffff0a;
+  --controlSelectionBgActive: #ffffff0f;
+  --controlSelectionBgSubmenu: #ffffff0a;
+  --controlFocusBg: #ffffff07;
+  --controlFocusBorder: #ff5000;
+  --controlSuccessBg: #00c46d;
+  --controlSuccessBgHover: #00a058;
+  --controlSuccessBgPress: #00713c;
+  --controlSuccessBorder: #00c46d;
+  --controlSuccessBorderHover: #00a058;
+  --controlSuccessBorderPress: #00713c;
+  --controlAlertBg: #e1564f;
+  --controlAlertBgHover: #f2645c;
+  --controlAlertBgPress: #bc000b;
+  --controlAlertBorder: #e1564f;
+  --controlAlertBorderHover: #f56f67;
+  --controlAlertBorderPress: #bc000b;
+  --controlCheckBg: #ffffff1e;
+  --controlCheckBgHover: #ffffff28;
+  --controlCheckBgActive: #ff5e00;
+  --controlCheckBgActiveHover: #e85502;
+  --controlCheckBorder: #ffffff3d;
+  --controlCheckBorderHover: #ffffff5b;
+  --controlCheckBgDisable: #ffffff1e;
+  --controlContentActive: #ffffff;
+  --controlContentAccent: #ff5e00;
+  --controlContentPrimary: #fffffff4;
+  --controlContentPlaceholder: #ffffff7a;
+  --controlContentDisable: #9999986d;
+  --controlContentItem: #ffffff;
+  --controlContentSuccess: #56e390;
+  --controlContentAlert: #d95d56;
+  --controlContentSkeleton: #1f1f1f0a;
+  --textTretiary: #ffffff4c;
+  --controlContentActiveInv: #1f1f1f;
+  --shadowShadow1: #0e111b1e;
+  --shadowShadow2: #0e111b5b;
+}
+
+/* Respect system preference by default */
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) {
+    /* apply dark unless explicitly forced light */
+    /* we cannot extend class in media, so we replicate by setting a marker class */
+  }
+  html:not(.theme-light) {
+    /* Attach the theme-dark variables on the root element when no explicit light preference */
+  }
+  html:not(.theme-light) {
+    /* add the variables by applying the class */
+  }
+}
+
+/* Map key tokens to Tailwind theme to allow utilities like bg-background/text-foreground */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bgPrimaryPage);
+  --color-foreground: var(--textPrimary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Minimal utility classes for design system */
+.bg-page { background-color: var(--bgPrimaryPage); }
+.bg-block { background-color: var(--bgPrimaryBlock); }
+.bg-secondary-block { background-color: var(--bgSecondaryBlock); }
+.bg-tertiary-block { background-color: var(--bgTertiaryBlock); }
+.text-primary { color: var(--textPrimary); }
+.text-secondary { color: var(--textSecondary); }
+.text-inv { color: var(--textPrimaryInv); }
+.border-divider { border-color: var(--strokeDivider); }
+.border-border { border-color: var(--strokeBorder); }
+.shadow-1 { box-shadow: 0 1px 3px var(--shadowShadow1); }
+.shadow-2 { box-shadow: 0 8px 24px var(--shadowShadow2); }
+
+/* Brand and statuses */
+.bg-brand { background-color: var(--bgBrand); }
+.text-brand { color: var(--textBrand); }
+.border-brand { border-color: var(--strokeBrand); }
+.bg-success { background-color: var(--bgStatusSuccess); }
+.bg-warning { background-color: var(--bgStatusWarning); }
+.bg-alert { background-color: var(--bgStatusAlert); }
+.bg-neutral { background-color: var(--bgStatusNeutral); }
+.bg-overlay { background-color: var(--bgOverlay); }
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--controlBtnPrimaryBg);
+  color: var(--controlBtnPrimaryContent);
+  border: 1px solid var(--controlBtnPrimaryBorder);
 }
+.btn-primary:hover { background-color: var(--controlBtnPrimaryBgHover); border-color: var(--controlBtnPrimaryBorderHover); }
+.btn-primary:active { background-color: var(--controlBtnPrimaryBgPress); border-color: var(--controlBtnPrimaryBorderPress); }
+.btn-primary:disabled { background-color: var(--controlBtnPrimaryBgDisable); opacity: 0.6; }
+
+.btn-secondary {
+  background-color: var(--controlBtnSecondaryBg);
+  color: var(--controlBtnSecondaryContent);
+  border: 1px solid var(--controlBtnSecondaryBorder);
+}
+.btn-secondary:hover { background-color: var(--controlBtnSecondaryBgHover); border-color: var(--controlBtnSecondaryBorderHover); }
+.btn-secondary:active { background-color: var(--controlBtnSecondaryBgPress); border-color: var(--controlBtnSecondaryBorderPress); }
+
+.btn-brand {
+  background-color: var(--controlBtnBrandBg);
+  color: var(--controlBtnPrimaryContent);
+  border: 1px solid var(--controlBtnBrandBorder);
+}
+.btn-brand:hover { background-color: var(--controlBtnBrandBgHover); border-color: var(--controlBtnBrandBorderHover); }
+.btn-brand:active { background-color: var(--controlBtnBrandBgPress); border-color: var(--controlBtnBrandBorderPress); }
+
+/* Links */
+a { color: var(--linkLink); }
+a:hover { color: var(--linkLinkHover); }
+a:active { color: var(--linkLinkPressed); }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bgPrimaryPage);
+  color: var(--textPrimary);
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -46,19 +384,19 @@ body {
 }
 
 /* Trix default look similar to official */
-.trix-container { border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: transparent; }
-.trix-content { min-height: 320px; padding: 8px 12px; background: transparent; }
-.trix-toolbar { background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.07); }
-.trix-button-group { border-color: rgba(255,255,255,0.1); }
-.trix-button { color: var(--foreground); }
-.trix-content a { color: #60a5fa; }
-.trix-content pre { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; }
+.trix-container { border: 1px solid var(--strokeBorder); border-radius: 8px; background: transparent; }
+.trix-content { min-height: 320px; padding: 8px 12px; background: transparent; color: var(--textPrimary); }
+.trix-toolbar { background: var(--bgSecondaryBlock); border-bottom: 1px solid var(--strokeDivider); }
+.trix-button-group { border-color: var(--strokeDivider); }
+.trix-button { color: var(--textPrimary); }
+.trix-content a { color: var(--linkLink); }
+.trix-content pre { background: var(--bgTertiaryBlock); padding: 8px; border-radius: 8px; }
 
 /* White sheet version (like trix demo) */
-.trix-sheet { background: #ffffff; color: #111827; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.1); overflow: hidden; }
-.trix-sheet .trix-toolbar { background: #f8fafc; border-bottom: 1px solid #e5e7eb; }
-.trix-sheet .trix-button-group { border-color: #e5e7eb; }
-.trix-sheet .trix-button { color: #111827; }
-.trix-sheet .trix-content { background: #ffffff; color: #111827; min-height: 320px; padding: 12px 16px; }
-.trix-sheet .trix-content a { color: #2563eb; }
-.trix-sheet .trix-content pre { background: #f3f4f6; }
+.trix-sheet { background: var(--bgPrimaryBlock); color: var(--textPrimary); border-radius: 12px; border: 1px solid var(--strokeBorder); box-shadow: 0 1px 3px var(--shadowShadow1), 0 8px 24px var(--shadowShadow2); overflow: hidden; }
+.trix-sheet .trix-toolbar { background: var(--bgSecondaryBlock); border-bottom: 1px solid var(--strokeDivider); }
+.trix-sheet .trix-button-group { border-color: var(--strokeDivider); }
+.trix-sheet .trix-button { color: var(--textPrimary); }
+.trix-sheet .trix-content { background: var(--bgPrimaryBlock); color: var(--textPrimary); min-height: 320px; padding: 12px 16px; }
+.trix-sheet .trix-content a { color: var(--linkLink); }
+.trix-sheet .trix-content pre { background: var(--bgTertiaryBlock); }

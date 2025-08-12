@@ -171,7 +171,7 @@ export default function EditArticlePage() {
   return (
     <main className="mx-auto max-w-3xl p-6 space-y-6">
       <header className="flex items-center justify-between">
-        <div className="flex items-center gap-3 text-sm text-gray-400">
+        <div className="flex items-center gap-3 text-sm text-secondary">
           <span>Редактировать</span>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={isPublished} onChange={(e)=>setIsPublished(e.target.checked)} />
@@ -179,25 +179,25 @@ export default function EditArticlePage() {
           </label>
         </div>
         <div className="flex items-center gap-2">
-          <button className="px-3 py-2 rounded bg-blue-600 text-white disabled:opacity-50" onClick={onSave} disabled={saving || !canEdit}>{saving?"Сохраняю…":"Сохранить"}</button>
-          <button className="px-3 py-2 rounded bg-red-700 text-white disabled:opacity-50" onClick={onDelete} disabled={deleting || !canEdit}>{deleting?"Удаляю…":"Удалить"}</button>
-          <button className="px-2 py-1 rounded bg-zinc-800" onClick={()=>setPreviewOpen(true)}>👁 Предпросмотр</button>
+          <button className="px-3 py-2 rounded btn-primary disabled:opacity-50" onClick={onSave} disabled={saving || !canEdit}>{saving?"Сохраняю…":"Сохранить"}</button>
+          <button className="px-3 py-2 rounded bg-alert text-inv disabled:opacity-50" onClick={onDelete} disabled={deleting || !canEdit}>{deleting?"Удаляю…":"Удалить"}</button>
+          <button className="px-2 py-1 rounded btn-secondary" onClick={()=>setPreviewOpen(true)}>👁 Предпросмотр</button>
           {step===1 ? (
-            <button className="px-3 py-2 rounded bg-zinc-700 text-white" onClick={()=>setStep(2)}>Далее</button>
+            <button className="px-3 py-2 rounded btn-secondary" onClick={()=>setStep(2)}>Далее</button>
           ) : (
-            <button className="px-3 py-2 rounded bg-zinc-700 text-white" onClick={()=>setStep(1)}>Назад</button>
+            <button className="px-3 py-2 rounded btn-secondary" onClick={()=>setStep(1)}>Назад</button>
           )}
         </div>
       </header>
 
       {banner && (
-        <div className={`text-sm rounded px-3 py-2 ${banner.type==="success"?"bg-emerald-700 text-white":"bg-red-700 text-white"}`}>{banner.text}</div>
+        <div className={`text-sm rounded px-3 py-2 ${banner.type==="success"?"bg-success text-inv":"bg-alert text-inv"}`}>{banner.text}</div>
       )}
 
       {step===1 && (
         <section className="space-y-3">
-          <input className="w-full text-3xl font-semibold bg-transparent outline-none border-b border-white/10 pb-2" placeholder="Заголовок" defaultValue={title} ref={titleRef} onChange={(e)=>setTitle(e.target.value)} readOnly={!canEdit} />
-          <input className="w-full bg-transparent outline-none border-b border-white/10 pb-2" placeholder="Подзаголовок" value={subtitle} onChange={(e)=>setSubtitle(e.target.value)} readOnly={!canEdit} />
+          <input className="w-full text-3xl font-semibold bg-transparent outline-none border-b border-divider pb-2" placeholder="Заголовок" defaultValue={title} ref={titleRef} onChange={(e)=>setTitle(e.target.value)} readOnly={!canEdit} />
+          <input className="w-full bg-transparent outline-none border-b border-divider pb-2" placeholder="Подзаголовок" value={subtitle} onChange={(e)=>setSubtitle(e.target.value)} readOnly={!canEdit} />
           <div className="trix-sheet">
             <TrixEditor value={contentHtml} onChange={setContentHtml} onError={(m)=> setBanner({ type: "error", text: m })} />
           </div>
@@ -209,53 +209,53 @@ export default function EditArticlePage() {
           <div>
             <h3 className="text-sm font-semibold mb-2">Обложка (16:9)</h3>
             {coverUrl ? (
-              <div className="relative rounded-xl overflow-hidden border border-white/10">
+              <div className="relative rounded-xl overflow-hidden border border-divider">
                 <div className="relative aspect-[16/9]">
                   <Image src={coverUrl} alt={coverAlt || title || slug} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                 </div>
                 <div className="p-2 flex gap-2">
-                  <button type="button" className="px-3 py-1 rounded bg-zinc-700 text-white" onClick={()=>{setCoverUrl("")}}>Удалить</button>
-                  <label className="px-3 py-1 rounded bg-zinc-700 text-white cursor-pointer">
+                  <button type="button" className="px-3 py-1 rounded btn-secondary" onClick={()=>{setCoverUrl("")}}>Удалить</button>
+                  <label className="px-3 py-1 rounded btn-secondary cursor-pointer">
                     Заменить<input type="file" className="hidden" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if(f) onCoverChange(f);}} />
                   </label>
                 </div>
               </div>
             ) : (
-              <label className="block border border-dashed rounded-xl p-6 text-center cursor-pointer">
+              <label className="block border border-dashed border-divider rounded-xl p-6 text-center cursor-pointer">
                 <div className="text-sm">+ Загрузить (реком. 1280×720)</div>
                 <input type="file" className="hidden" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if(f) onCoverChange(f);}} />
               </label>
             )}
-            {uploading && <div className="text-xs text-gray-500 mt-1">Загрузка…</div>}
-            {uploadError && <div className="text-xs text-red-500 mt-1">{uploadError}</div>}
+            {uploading && <div className="text-xs text-secondary mt-1">Загрузка…</div>}
+            {uploadError && <div className="text-xs" style={{ color: "var(--textStatusAlert)" }}>{uploadError}</div>}
             <div className="grid grid-cols-1 gap-2 mt-2">
-              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverAlt} onChange={(e)=>setCoverAlt(e.target.value)} placeholder="Alt‑текст (обязательно)" readOnly={!canEdit} />
-              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverCaption} onChange={(e)=>setCoverCaption(e.target.value)} placeholder="Подпись (необязательно)" readOnly={!canEdit} />
+              <input className="w-full border border-divider rounded px-3 py-2 bg-transparent" value={coverAlt} onChange={(e)=>setCoverAlt(e.target.value)} placeholder="Alt‑текст (обязательно)" readOnly={!canEdit} />
+              <input className="w-full border border-divider rounded px-3 py-2 bg-transparent" value={coverCaption} onChange={(e)=>setCoverCaption(e.target.value)} placeholder="Подпись (необязательно)" readOnly={!canEdit} />
             </div>
           </div>
           <div>
             <h3 className="text-sm font-semibold mb-2">Теги (до 3)</h3>
             <div className="flex flex-wrap gap-2 mb-2">
               {tagOptions.map((t)=> (
-                <button key={t} type="button" className={`px-2 py-1 rounded border ${tags.includes(t)?"bg-emerald-600 text-white":"bg-transparent"}`} onClick={()=> canEdit && setTags(prev => prev.includes(t)? prev.filter(x=>x!==t) : (prev.length<3? [...prev, t]: prev))} aria-pressed={tags.includes(t)} disabled={!canEdit}>
+                <button key={t} type="button" className={`px-2 py-1 rounded border border-divider ${tags.includes(t)?"bg-success text-inv":"bg-transparent"}`} onClick={()=> canEdit && setTags(prev => prev.includes(t)? prev.filter(x=>x!==t) : (prev.length<3? [...prev, t]: prev))} aria-pressed={tags.includes(t)} disabled={!canEdit}>
                   {t}
                 </button>
               ))}
             </div>
-            <div className="mt-4 text-sm text-gray-400">Предпросмотр</div>
-            <div className="rounded-xl border border-white/10 p-3 prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentHtml || "<div>Нет содержимого</div>" }} />
-            {error && <div className="text-sm text-red-500 mt-2">{error}</div>}
+            <div className="mt-4 text-sm text-secondary">Предпросмотр</div>
+            <div className="rounded-xl border border-divider p-3 prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: contentHtml || "<div>Нет содержимого</div>" }} />
+            {error && <div className="text-sm" style={{ color: "var(--textStatusAlert)" }}>{error}</div>}
           </div>
         </section>
       )}
 
       {/* Removed circular blur loader; top progress bar and inline states remain */}
       {previewOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={()=>setPreviewOpen(false)}>
-          <div className="w-full max-w-3xl rounded-xl bg-zinc-900 p-4 shadow-xl border border-white/10" onClick={(e)=>e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay" onClick={()=>setPreviewOpen(false)}>
+          <div className="w-full max-w-3xl rounded-xl bg-block p-4 shadow-2 border border-divider" onClick={(e)=>e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold">Предпросмотр</h3>
-              <button className="px-2 py-1 rounded bg-zinc-700" onClick={()=>setPreviewOpen(false)}>✕</button>
+              <button className="px-2 py-1 rounded btn-secondary" onClick={()=>setPreviewOpen(false)}>✕</button>
             </div>
             {coverUrl && (
               <figure className="relative mb-3 overflow-hidden rounded-xl aspect-[16/9]">

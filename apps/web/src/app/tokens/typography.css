@@ -1,0 +1,35 @@
+/* Typography tokens and utilities (theme-agnostic) */
+
+:root {
+  /* Font sizes */
+  --fs-xs: 12px;
+  --fs-sm: 14px;
+  --fs-base: 16px;
+  --fs-lg: 18px;
+  --fs-xl: 20px;
+  --fs-2xl: 24px;
+  --fs-3xl: 30px;
+  --fs-4xl: 36px;
+
+  /* Line heights */
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.7;
+
+  /* Weights */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+}
+
+/* Utilities */
+.ty-h1 { font-size: var(--fs-3xl); line-height: var(--lh-tight); font-weight: var(--fw-bold); }
+.ty-h2 { font-size: var(--fs-2xl); line-height: var(--lh-tight); font-weight: var(--fw-bold); }
+.ty-h3 { font-size: var(--fs-xl); line-height: var(--lh-tight); font-weight: var(--fw-semibold); }
+.ty-title { font-size: var(--fs-lg); line-height: var(--lh-tight); font-weight: var(--fw-semibold); }
+.ty-subtitle { font-size: var(--fs-sm); line-height: var(--lh-normal); color: var(--textSecondary); }
+.ty-body { font-size: var(--fs-base); line-height: var(--lh-relaxed); }
+.ty-meta { font-size: var(--fs-xs); line-height: var(--lh-normal); color: var(--textSecondary); }
+
+

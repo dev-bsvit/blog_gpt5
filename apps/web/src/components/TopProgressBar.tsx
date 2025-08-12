@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
-export default function TopProgressBar({ height = 5, color = "#3b82f6" }: { height?: number; color?: string }) {
+export default function TopProgressBar({ height = 5, color = undefined as string | undefined }: { height?: number; color?: string }) {
   const pathname = usePathname();
   const prev = useRef<string | null>(null);
   const [progress, setProgress] = useState(0);
@@ -30,11 +30,12 @@ export default function TopProgressBar({ height = 5, color = "#3b82f6" }: { heig
 
   if (!visible) return null;
 
+  const barColor = color || (typeof document !== "undefined" ? getComputedStyle(document.documentElement).getPropertyValue("--strokeBrand") : "#ff5000");
   return (
     <div className="absolute bottom-0 left-0 w-full" style={{ height }}>
       <div
         className="h-full transition-all ease-out"
-        style={{ width: `${progress}%`, backgroundColor: color }}
+        style={{ width: `${progress}%`, backgroundColor: barColor.trim() }}
       />
     </div>
   );

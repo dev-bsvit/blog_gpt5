@@ -63,7 +63,7 @@ export default function AuthButton() {
 
   if (user && authReady) {
     return (
-      <button onClick={handleLogout} className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300">
+      <button onClick={handleLogout} className="px-3 py-2 rounded btn-secondary">
         Выйти ({user.displayName || user.email})
       </button>
     );
@@ -73,12 +73,12 @@ export default function AuthButton() {
       <button
         onClick={handleLogin}
         disabled={!envOk}
-        className="px-3 py-2 rounded bg-black text-white hover:bg-gray-800 disabled:opacity-50"
+        className="px-3 py-2 rounded btn-primary disabled:opacity-50"
       >
         Войти с Google
       </button>
       {!envOk && (
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-secondary">
           Firebase не настроен. Заполните `.env.local` и перезапустите dev.
         </div>
       )}

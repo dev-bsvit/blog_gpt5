@@ -1,0 +1,39 @@
+/* Spacing scale (theme-agnostic) */
+
+:root {
+  --sp-0: 0px;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+}
+
+/* Utilities */
+.gap-1d { gap: var(--sp-1); }
+.gap-2d { gap: var(--sp-2); }
+.gap-3d { gap: var(--sp-3); }
+.gap-4d { gap: var(--sp-4); }
+.gap-6d { gap: var(--sp-6); }
+.gap-8d { gap: var(--sp-8); }
+
+.pad-2d { padding: var(--sp-2); }
+.pad-3d { padding: var(--sp-3); }
+.pad-4d { padding: var(--sp-4); }
+.pad-6d { padding: var(--sp-6); }
+
+.px-3d { padding-left: var(--sp-3); padding-right: var(--sp-3); }
+.px-4d { padding-left: var(--sp-4); padding-right: var(--sp-4); }
+.py-2d { padding-top: var(--sp-2); padding-bottom: var(--sp-2); }
+.py-3d { padding-top: var(--sp-3); padding-bottom: var(--sp-3); }
+
+.mt-2d { margin-top: var(--sp-2); }
+.mt-3d { margin-top: var(--sp-3); }
+.mt-4d { margin-top: var(--sp-4); }
+.mt-6d { margin-top: var(--sp-6); }
+
+
