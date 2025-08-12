@@ -31,7 +31,7 @@ export default function EditorJS({ value, onChange, placeholder }: {
         header: { class: Header as unknown as ToolConstructable, inlineToolbar: true, config: { levels: [2,3], defaultLevel: 2 } },
         list: { class: List as unknown as ToolConstructable, inlineToolbar: true },
         quote: { class: Quote as unknown as ToolConstructable, inlineToolbar: true },
-      } as EditorJSClass["configuration"]["tools"],
+      },
       data: value || { blocks: [] },
       async onChange(api) {
         const data = await api.saver.save();
