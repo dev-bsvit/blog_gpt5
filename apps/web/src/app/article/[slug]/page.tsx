@@ -111,7 +111,9 @@ export default async function ArticlePage({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={article.created_by_photo} alt={article.created_by_name || "Автор"} className="w-8 h-8 rounded-full object-cover" />
         )}
-        <span>{article.created_by_name || article.created_by || "Автор"}</span>
+        <a href={article.created_by ? `/author/${article.created_by}` : "#"} className="underline">
+          {article.created_by_name || article.created_by || "Автор"}
+        </a>
         {article.created_at && <span className="text-gray-400">· {formatDate(article.created_at)}</span>}
       </div>
       {(article.tags || article.category || article.reading_time_minutes) && (

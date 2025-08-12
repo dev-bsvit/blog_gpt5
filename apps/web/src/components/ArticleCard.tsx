@@ -59,7 +59,9 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={a.created_by_photo} alt={author} className="w-6 h-6 rounded-full object-cover" />
               )}
-              <span className="text-sm text-gray-200">{author}</span>
+              <Link href={a.created_by ? `/author/${a.created_by}` : "#"} className="text-sm text-gray-200 underline decoration-transparent hover:decoration-inherit">
+                {author}
+              </Link>
               {a.created_at && <span className="ml-2">· {formatDate(a.created_at)}</span>}
               <SubscribeButton authorId={a.created_by} />
             </div>

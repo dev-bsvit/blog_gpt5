@@ -112,9 +112,9 @@ export default function EditorJS({ value, onChange, placeholder }: {
   useEffect(() => {
     if (!ref.current) return;
     try {
-      // @ts-expect-error editorjs runtime API
-      if ((ref.current as unknown as { render?: (d: unknown)=>void }).render) {
-        (ref.current as unknown as { render: (d: unknown)=>void }).render(value || { blocks: [] });
+      const runtime = ref.current as unknown as { render?: (d: unknown) => void };
+      if (typeof runtime?.render === "function") {
+        runtime.render(value || { blocks: [] });
       }
     } catch {}
   }, [value]);

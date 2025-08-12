@@ -5,6 +5,16 @@ info:
 servers:
   - url: /api/v1
 paths:
+  /health:
+    get:
+      summary: API health
+      responses:
+        '200': { description: OK }
+  /articles/health:
+    get:
+      summary: Articles health
+      responses:
+        '200': { description: OK }
   /articles:
     get:
       summary: List articles
@@ -17,7 +27,7 @@ paths:
                 type: array
                 items: { $ref: '#/components/schemas/Article' }
     post:
-      summary: Create draft
+      summary: Create article
       security: [{ firebase: [] }]
       requestBody:
         required: true
@@ -54,6 +64,9 @@ paths:
               $ref: '#/components/schemas/ArticleUpdate'
       responses:
         '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Article' } } } }
+        '404': { description: Not Found }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
     delete:
       summary: Delete by slug
       security: [{ firebase: [] }]
@@ -64,50 +77,154 @@ paths:
           schema: { type: string }
       responses:
         '204': { description: Deleted }
-  /articles/{id}/publish:
-    post:
-      summary: Publish
-      security: [{ firebase: [] }]
-      responses:
-        '204': { description: Published }
-  /articles/health:
+        '404': { description: Not Found }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+  /search:
     get:
-      summary: Health check
+      summary: Search articles
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema: { type: string }
       responses:
-        '200': { description: OK }
-  /articles/{id}/view:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Article' }
+  /articles/{slug}/comments:
+    get:
+      summary: List comments
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Comment' } } } } }
+        '404': { description: Not Found }
     post:
-      summary: Add view
+      summary: Add comment
+      security: [{ firebase: [] }]
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommentCreate' }
       responses:
-        '204': { description: Counted }
-  /articles/{id}/like:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Comment' } } } }
+        '401': { description: Unauthorized }
+  /articles/{slug}/likes:
+    get:
+      summary: Get likes state
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { likes: { type: integer }, liked: { type: boolean } } } } } }
+        '404': { description: Not Found }
     post:
       summary: Toggle like
       security: [{ firebase: [] }]
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
       responses:
-        '200': { description: State, content: { application/json: { schema: { type: object, properties: { liked: { type: boolean } } } } } }
-  /articles/{id}/bookmark:
+        '200': { description: State, content: { application/json: { schema: { type: object, properties: { likes: { type: integer }, liked: { type: boolean } } } } } }
+        '401': { description: Unauthorized }
+        '404': { description: Not Found }
+  /articles/{slug}/bookmark:
+    get:
+      summary: Get bookmark state
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { bookmarked: { type: boolean } } } } } }
+        '404': { description: Not Found }
     post:
-      summary: Add bookmark
+      summary: Toggle bookmark
       security: [{ firebase: [] }]
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
       responses:
-        '204': { description: Added }
-    delete:
-      summary: Remove bookmark
-      security: [{ firebase: [] }]
+        '200': { description: State, content: { application/json: { schema: { type: object, properties: { bookmarked: { type: boolean } } } } } }
+        '401': { description: Unauthorized }
+        '404': { description: Not Found }
+  /authors/{authorId}/subscription:
+    get:
+      summary: Get subscription state and count
+      parameters:
+        - in: path
+          name: authorId
+          required: true
+          schema: { type: string }
       responses:
-        '204': { description: Removed }
-  /authors/{authorId}/follow:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { subscribed: { type: boolean }, count: { type: integer } } } } } }
     post:
-      summary: Follow author
+      summary: Toggle subscription
+      security: [{ firebase: [] }]
+      parameters:
+        - in: path
+          name: authorId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: State, content: { application/json: { schema: { type: object, properties: { subscribed: { type: boolean }, count: { type: integer } } } } } }
+        '401': { description: Unauthorized }
+  /users/me/bookmarks:
+    get:
+      summary: List my bookmarks
       security: [{ firebase: [] }]
       responses:
-        '204': { description: Followed }
-    delete:
-      summary: Unfollow author
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Article' } } } } }
+        '401': { description: Unauthorized }
+  /users/me/articles:
+    get:
+      summary: List my articles
       security: [{ firebase: [] }]
       responses:
-        '204': { description: Unfollowed }
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Article' } } } } }
+        '401': { description: Unauthorized }
+  /upload/cover:
+    post:
+      summary: Upload cover image
+      security: [{ firebase: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, alt]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                alt:
+                  type: string
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { url: { type: string }, alt: { type: string } } } } } }
+        '401': { description: Unauthorized }
+        '500': { description: Storage not configured }
 components:
   securitySchemes:
     firebase:
@@ -122,22 +239,34 @@ components:
         title: { type: string }
         subtitle: { type: string }
         content: { type: string }
-        cover_url: { type: string, nullable: true }
-        author_id: { type: string, nullable: true }
-        tags: { type: array, items: { type: string } }
         is_published: { type: boolean }
         created_at: { type: string }
         updated_at: { type: string }
+        created_by: { type: string }
+        created_by_name: { type: string }
+        created_by_email: { type: string }
+        created_by_photo: { type: string }
+        likes: { type: integer }
+        views: { type: integer }
+        tags: { type: array, items: { type: string } }
+        category: { type: string }
+        reading_time_minutes: { type: integer }
+        cover_url: { type: string }
+        cover_alt: { type: string }
+        cover_caption: { type: string }
     ArticleCreate:
       type: object
-      required: [title]
       properties:
         title: { type: string }
         subtitle: { type: string }
         content: { type: string }
         is_published: { type: boolean }
         tags: { type: array, items: { type: string } }
+        category: { type: string }
+        reading_time_minutes: { type: integer }
         cover_url: { type: string }
+        cover_alt: { type: string }
+        cover_caption: { type: string }
     ArticleUpdate:
       type: object
       properties:
@@ -146,4 +275,21 @@ components:
         content: { type: string }
         is_published: { type: boolean }
         tags: { type: array, items: { type: string } }
+        category: { type: string }
+        reading_time_minutes: { type: integer }
         cover_url: { type: string }
+        cover_alt: { type: string }
+        cover_caption: { type: string }
+    Comment:
+      type: object
+      properties:
+        id: { type: string }
+        text: { type: string }
+        author: { type: string }
+        created_at: { type: string }
+    CommentCreate:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string }
+        author: { type: string }

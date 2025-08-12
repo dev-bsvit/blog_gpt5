@@ -7,6 +7,7 @@ import { apiPost } from "@/lib/api";
 import Image from "next/image";
 import { getIdToken, onAuthStateChanged } from "firebase/auth";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
+import PublishModal, { type CoverInfo } from "@/components/PublishModal";
 
 export default function WritePage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function WritePage() {
   const [coverCaption, setCoverCaption] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string>("");
-  const [publishNow, setPublishNow] = useState(true);
+  const [showPublish, setShowPublish] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [authChecked, setAuthChecked] = useState(false);
@@ -74,8 +75,7 @@ export default function WritePage() {
     }
   }, [router]);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function saveDraft() {
     setLoading(true);
     setError("");
     try {
@@ -83,7 +83,7 @@ export default function WritePage() {
         title: title.trim() || "Untitled",
         subtitle: subtitle.trim(),
         content: content || JSON.stringify(contentJson),
-        is_published: publishNow,
+        is_published: false,
         category,
         tags: tagsInput.split(',').map(s=>s.trim()).filter(Boolean),
         reading_time_minutes: readingMinutes.trim() ? Number(readingMinutes.trim()) : undefined,
@@ -91,12 +91,40 @@ export default function WritePage() {
         cover_alt: coverAlt || undefined,
         cover_caption: coverCaption || undefined,
       });
+      router.push(`/article/${res.slug}/edit`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || "Ошибка сохранения черновика");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function publishNow(payload: { cover: CoverInfo; tags: string[] }) {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await apiPost<{ slug: string }>("/articles", {
+        title: title.trim() || "Untitled",
+        subtitle: subtitle.trim(),
+        content: content || JSON.stringify(contentJson),
+        is_published: true,
+        category,
+        tags: (payload.tags && payload.tags.length > 0)
+          ? payload.tags
+          : tagsInput.split(',').map(s=>s.trim()).filter(Boolean),
+        reading_time_minutes: readingMinutes.trim() ? Number(readingMinutes.trim()) : undefined,
+        cover_url: payload.cover?.url || coverUrl || undefined,
+        cover_alt: payload.cover?.alt || coverAlt || undefined,
+        cover_caption: payload.cover?.caption || coverCaption || undefined,
+      });
       router.push(`/article/${res.slug}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg || "Ошибка сохранения");
+      setError(msg || "Ошибка публикации");
     } finally {
       setLoading(false);
+      setShowPublish(false);
     }
   }
 
@@ -107,7 +135,7 @@ export default function WritePage() {
   return (
     <main className="mx-auto max-w-2xl p-6">
       <h1 className="text-2xl font-semibold mb-6">Написать статью</h1>
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={(e)=>{e.preventDefault(); saveDraft();}} className="space-y-4">
         <div>
           <label className="block text-sm mb-1">Заголовок</label>
           <input
@@ -117,10 +145,7 @@ export default function WritePage() {
             placeholder="Заголовок статьи"
           />
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={publishNow} onChange={(e) => setPublishNow(e.target.checked)} />
-          Сразу опубликовать
-        </label>
+        {/* Публикация переносится в модалку */}
         <div>
           <label className="block text-sm mb-1">Подзаголовок</label>
           <input
@@ -186,14 +211,31 @@ export default function WritePage() {
           </div>
         </div>
         {error && <div className="text-sm text-red-500">{error}</div>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-50"
-        >
-          {loading ? "Сохраняю..." : "Сохранить черновик"}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 rounded bg-zinc-700 text-white disabled:opacity-50"
+          >
+            {loading ? "Сохраняю..." : "Сохранить черновик"}
+          </button>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={()=>setShowPublish(true)}
+            className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-50"
+          >
+            Опубликовать
+          </button>
+        </div>
       </form>
+      <PublishModal
+        open={showPublish}
+        onClose={()=>setShowPublish(false)}
+        onPublish={publishNow}
+        onSaveDraft={async ()=>{ await saveDraft(); setShowPublish(false);} }
+        initialAlt={title || "cover"}
+      />
     </main>
   );
 }
