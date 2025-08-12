@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
 import { getIdToken } from "firebase/auth";
@@ -26,7 +26,7 @@ export default function PublishModal({
   onSaveDraft: (data: { cover?: CoverInfo | null; tags: string[] }) => Promise<void> | void;
   initialAlt?: string;
 }) {
-  const [file, setFile] = useState<File | null>(null);
+  // const [file, setFile] = useState<File | null>(null);
   const [coverUrl, setCoverUrl] = useState<string>("");
   const [alt, setAlt] = useState<string>(initialAlt || "");
   const [caption, setCaption] = useState<string>("");
@@ -127,7 +127,7 @@ export default function PublishModal({
             <div className="mt-2 text-xs text-gray-500">Рекомендованный размер — 1280×720</div>
             <div className="mt-2 flex gap-2">
               <label className="px-3 py-1 rounded bg-zinc-700 text-white cursor-pointer">
-                + Загрузить<input className="hidden" type="file" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if (f) { setFile(f); uploadSelected(f);} }} />
+                + Загрузить<input className="hidden" type="file" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if (f) { uploadSelected(f);} }} />
               </label>
               {uploading && <div className="text-xs text-gray-400">Загрузка…</div>}
             </div>
