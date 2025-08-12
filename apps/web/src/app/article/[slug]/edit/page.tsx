@@ -45,6 +45,8 @@ export default function EditArticlePage() {
   const [uploadError, setUploadError] = useState<string>("");
   const [banner, setBanner] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [currentUid, setCurrentUid] = useState<string | null>(null);
+  const [ownerUid, setOwnerUid] = useState<string | null>(null);
 
   useEffect(() => {
     if (!hasFirebaseEnv()) {
@@ -57,6 +59,7 @@ export default function EditArticlePage() {
         router.replace("/login");
         return;
       }
+      setCurrentUid(user.uid);
       try {
         const a = await apiGet<Article>(`/articles/${slug}`);
         setTitle(a.title || "");
@@ -68,6 +71,8 @@ export default function EditArticlePage() {
         setCoverUrl(a.cover_url || "");
         setCoverAlt(a.cover_alt || "");
         setCoverCaption(a.cover_caption || "");
+        // @ts-expect-error created_by may be present
+        setOwnerUid((a as unknown as { created_by?: string }).created_by || null);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         setError(msg || "Не удалось загрузить статью");
@@ -78,10 +83,16 @@ export default function EditArticlePage() {
     return () => unsub();
   }, [router, slug]);
 
+  const canEdit = Boolean(currentUid && ownerUid && currentUid === ownerUid);
+
   async function onSave() {
     setSaving(true);
     setError("");
     try {
+      if (!canEdit) {
+        setBanner({ type: "error", text: "Нет прав на редактирование" });
+        return;
+      }
       const updated = await apiPut<Article>(`/articles/${slug}`, {
         title: (titleRef.current?.value || title || "Untitled").trim(),
         subtitle: subtitle.trim(),
@@ -106,9 +117,13 @@ export default function EditArticlePage() {
   }
 
   async function onCoverChange(file: File) {
+    if (!canEdit) { setBanner({ type: "error", text: "Нет прав на изменение обложки" }); return; }
     const form = new FormData();
     form.append("file", file);
-    form.append("alt", coverAlt || (title || slug));
+    // alt 10-140
+    const baseAlt = (coverAlt || title || slug || "").toString();
+    const safeAlt = baseAlt.length < 10 ? `${baseAlt} — обложка` : baseAlt.slice(0, 140);
+    form.append("alt", safeAlt);
     setUploading(true);
     try {
       const apiBase = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
@@ -123,7 +138,11 @@ export default function EditArticlePage() {
         }
       } catch {}
       const res = await fetch(`${apiBase}/upload/cover`, { method: "POST", body: form, headers });
-      if (!res.ok) throw new Error(`upload ${res.status}`);
+      if (!res.ok) {
+        let msg = `upload ${res.status}`;
+        try { const j = await res.json(); msg = (j?.detail?.error || msg); } catch {}
+        throw new Error(msg);
+      }
       const data = await res.json();
       setCoverUrl(String(data.url || ""));
       setUploadError("");
@@ -160,8 +179,8 @@ export default function EditArticlePage() {
           </label>
         </div>
         <div className="flex items-center gap-2">
-          <button className="px-3 py-2 rounded bg-blue-600 text-white disabled:opacity-50" onClick={onSave} disabled={saving}>{saving?"Сохраняю…":"Сохранить"}</button>
-          <button className="px-3 py-2 rounded bg-red-700 text-white disabled:opacity-50" onClick={onDelete} disabled={deleting}>{deleting?"Удаляю…":"Удалить"}</button>
+          <button className="px-3 py-2 rounded bg-blue-600 text-white disabled:opacity-50" onClick={onSave} disabled={saving || !canEdit}>{saving?"Сохраняю…":"Сохранить"}</button>
+          <button className="px-3 py-2 rounded bg-red-700 text-white disabled:opacity-50" onClick={onDelete} disabled={deleting || !canEdit}>{deleting?"Удаляю…":"Удалить"}</button>
           <button className="px-2 py-1 rounded bg-zinc-800" onClick={()=>setPreviewOpen(true)}>👁 Предпросмотр</button>
           {step===1 ? (
             <button className="px-3 py-2 rounded bg-zinc-700 text-white" onClick={()=>setStep(2)}>Далее</button>
@@ -177,8 +196,8 @@ export default function EditArticlePage() {
 
       {step===1 && (
         <section className="space-y-3">
-          <input className="w-full text-3xl font-semibold bg-transparent outline-none border-b border-white/10 pb-2" placeholder="Заголовок" defaultValue={title} ref={titleRef} onChange={(e)=>setTitle(e.target.value)} />
-          <input className="w-full bg-transparent outline-none border-b border-white/10 pb-2" placeholder="Подзаголовок" value={subtitle} onChange={(e)=>setSubtitle(e.target.value)} />
+          <input className="w-full text-3xl font-semibold bg-transparent outline-none border-b border-white/10 pb-2" placeholder="Заголовок" defaultValue={title} ref={titleRef} onChange={(e)=>setTitle(e.target.value)} readOnly={!canEdit} />
+          <input className="w-full bg-transparent outline-none border-b border-white/10 pb-2" placeholder="Подзаголовок" value={subtitle} onChange={(e)=>setSubtitle(e.target.value)} readOnly={!canEdit} />
           <div className="trix-sheet">
             <TrixEditor value={contentHtml} onChange={setContentHtml} onError={(m)=> setBanner({ type: "error", text: m })} />
           </div>
@@ -210,15 +229,15 @@ export default function EditArticlePage() {
             {uploading && <div className="text-xs text-gray-500 mt-1">Загрузка…</div>}
             {uploadError && <div className="text-xs text-red-500 mt-1">{uploadError}</div>}
             <div className="grid grid-cols-1 gap-2 mt-2">
-              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverAlt} onChange={(e)=>setCoverAlt(e.target.value)} placeholder="Alt‑текст (обязательно)" />
-              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverCaption} onChange={(e)=>setCoverCaption(e.target.value)} placeholder="Подпись (необязательно)" />
+              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverAlt} onChange={(e)=>setCoverAlt(e.target.value)} placeholder="Alt‑текст (обязательно)" readOnly={!canEdit} />
+              <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverCaption} onChange={(e)=>setCoverCaption(e.target.value)} placeholder="Подпись (необязательно)" readOnly={!canEdit} />
             </div>
           </div>
           <div>
             <h3 className="text-sm font-semibold mb-2">Теги (до 3)</h3>
             <div className="flex flex-wrap gap-2 mb-2">
               {tagOptions.map((t)=> (
-                <button key={t} type="button" className={`px-2 py-1 rounded border ${tags.includes(t)?"bg-emerald-600 text-white":"bg-transparent"}`} onClick={()=> setTags(prev => prev.includes(t)? prev.filter(x=>x!==t) : (prev.length<3? [...prev, t]: prev))} aria-pressed={tags.includes(t)}>
+                <button key={t} type="button" className={`px-2 py-1 rounded border ${tags.includes(t)?"bg-emerald-600 text-white":"bg-transparent"}`} onClick={()=> canEdit && setTags(prev => prev.includes(t)? prev.filter(x=>x!==t) : (prev.length<3? [...prev, t]: prev))} aria-pressed={tags.includes(t)} disabled={!canEdit}>
                   {t}
                 </button>
               ))}
