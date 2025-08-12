@@ -4,6 +4,8 @@ import RichEditor from "@/components/RichEditor";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/api";
 import Image from "next/image";
+import { getFirebaseAuth } from "@/lib/firebaseClient";
+import { getIdToken } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
 
@@ -19,6 +21,7 @@ export default function WritePage() {
   const [coverAlt, setCoverAlt] = useState<string>("");
   const [coverCaption, setCoverCaption] = useState<string>("");
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string>("");
   const [publishNow, setPublishNow] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
@@ -30,10 +33,22 @@ export default function WritePage() {
     setUploading(true);
     try {
       const apiBase = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
-      const res = await fetch(`${apiBase}/upload/cover`, { method: "POST", body: form });
+      // Bearer token + uid fallback for backend
+      let headers: Record<string, string> | undefined = undefined;
+      try {
+        const auth = getFirebaseAuth();
+        const user = auth.currentUser;
+        if (user) {
+          const token = await getIdToken(user, true);
+          headers = { Authorization: `Bearer ${token}` };
+          form.append("user_id", user.uid);
+        }
+      } catch {}
+      const res = await fetch(`${apiBase}/upload/cover`, { method: "POST", body: form, headers });
       if (!res.ok) throw new Error(`upload ${res.status}`);
       const data = await res.json();
       setCoverUrl(String(data.url || ""));
+      setUploadError("");
     } finally {
       setUploading(false);
     }
@@ -149,7 +164,8 @@ export default function WritePage() {
               <input className="w-full border rounded px-3 py-2 bg-transparent" value={coverCaption} onChange={(e)=>setCoverCaption(e.target.value)} placeholder="Необязательно" />
             </div>
           </div>
-          {uploading && <div className="text-xs text-gray-500">Загрузка…</div>}
+        {uploading && <div className="text-xs text-gray-500">Загрузка…</div>}
+        {uploadError && <div className="text-xs text-red-500">{uploadError}</div>}
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">

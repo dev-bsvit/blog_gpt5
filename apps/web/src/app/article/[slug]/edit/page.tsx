@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { apiDelete, apiGet, apiPut } from "@/lib/api";
 import Image from "next/image";
-import RichEditor from "@/components/RichEditor";
-import { onAuthStateChanged } from "firebase/auth";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
+import { getIdToken, onAuthStateChanged } from "firebase/auth";
+import RichEditor from "@/components/RichEditor";
 
 type Article = {
   slug: string;
@@ -39,6 +39,7 @@ export default function EditArticlePage() {
   const [coverAlt, setCoverAlt] = useState<string>("");
   const [coverCaption, setCoverCaption] = useState<string>("");
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string>("");
 
   useEffect(() => {
     if (!hasFirebaseEnv()) {
@@ -110,10 +111,21 @@ export default function EditArticlePage() {
     setUploading(true);
     try {
       const apiBase = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
-      const res = await fetch(`${apiBase}/upload/cover`, { method: "POST", body: form });
+      let headers: Record<string, string> | undefined = undefined;
+      try {
+        const auth = getFirebaseAuth();
+        const user = auth.currentUser;
+        if (user) {
+          const token = await getIdToken(user, true);
+          headers = { Authorization: `Bearer ${token}` };
+          form.append("user_id", user.uid);
+        }
+      } catch {}
+      const res = await fetch(`${apiBase}/upload/cover`, { method: "POST", body: form, headers });
       if (!res.ok) throw new Error(`upload ${res.status}`);
       const data = await res.json();
       setCoverUrl(String(data.url || ""));
+      setUploadError("");
     } finally {
       setUploading(false);
     }
@@ -202,6 +214,7 @@ export default function EditArticlePage() {
             </div>
           </div>
           {uploading && <div className="text-xs text-gray-500">Загрузка…</div>}
+          {uploadError && <div className="text-xs text-red-500">{uploadError}</div>}
         </div>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
