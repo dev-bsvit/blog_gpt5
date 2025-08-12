@@ -10,6 +10,7 @@ import BookmarkButton from "@/components/BookmarkButton";
 import { formatDate } from "@/lib/date";
 import Image from "next/image";
 import PageLoader from "@/components/PageLoader";
+import Link from "next/link";
 
 type Article = {
   slug: string;
@@ -78,16 +79,16 @@ export default async function ArticlePage({
   if (!article) return notFound();
 
   return (
-    <main className="mx-auto max-w-2xl p-6 space-y-4">
+    <main className="mx-auto max-w-3xl p-6 space-y-4">
       {article.cover_url && (
         <figure className="relative mb-4 overflow-hidden rounded-2xl aspect-[16/9]">
           <Image src={article.cover_url} alt={article.cover_alt || article.title || article.slug} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
-          {article.cover_caption && <figcaption className="mt-2 text-xs text-gray-500">{article.cover_caption}</figcaption>}
+          {article.cover_caption && <figcaption className="mt-2 ty-meta">{article.cover_caption}</figcaption>}
         </figure>
       )}
-      <h1 className="text-3xl font-semibold">{article.title ?? article.slug}</h1>
-      {article.subtitle && <p className="text-gray-500">{article.subtitle}</p>}
-      <div className="text-sm text-gray-400">slug: {article.slug}</div>
+      <h1 className="ty-h1">{article.title ?? article.slug}</h1>
+      {article.subtitle && <p className="ty-subtitle">{article.subtitle}</p>}
+      <div className="ty-meta">slug: {article.slug}</div>
       {(() => {
         const raw = article.content as unknown;
         if (typeof raw === "string") {
@@ -95,7 +96,7 @@ export default async function ArticlePage({
           const isLikelyHtml = /<\w+[\s\S]*>/i.test(raw);
           if (isLikelyHtml) {
             return (
-              <article className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: raw }} />
+              <article className="prose max-w-none" dangerouslySetInnerHTML={{ __html: raw }} />
             );
           }
           // 2) Editor.js JSON → legacy renderer
@@ -108,35 +109,35 @@ export default async function ArticlePage({
           // 3) Markdown fallback
           if (raw.trim().length > 0) {
             return (
-              <article className="prose prose-invert max-w-none">
+              <article className="prose max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{raw}</ReactMarkdown>
               </article>
             );
           }
         }
-        return <div className="text-sm text-gray-500">Нет содержимого</div>;
+        return <div className="ty-meta">Нет содержимого</div>;
       })()}
       <PageLoader active={false} />
-      <div className="text-sm text-gray-300 flex items-center gap-2">
+      <div className="ty-meta flex items-center gap-2d">
         {article.created_by_photo && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={article.created_by_photo} alt={article.created_by_name || "Автор"} className="w-8 h-8 rounded-full object-cover" />
         )}
-        <a href={article.created_by ? `/author/${article.created_by}` : "#"} className="underline">
+        <Link href={article.created_by ? `/author/${article.created_by}` : "#"} className="underline">
           {article.created_by_name || article.created_by || "Автор"}
-        </a>
-        {article.created_at && <span className="text-gray-400">· {formatDate(article.created_at)}</span>}
+        </Link>
+        {article.created_at && <span>· {formatDate(article.created_at)}</span>}
       </div>
       {(article.tags || article.category || article.reading_time_minutes) && (
-        <div className="mt-2 flex flex-wrap gap-2 text-xs">
+        <div className="mt-2 flex flex-wrap gap-2 ty-meta">
           {article.category && (
-            <span className="px-2 py-1 rounded bg-indigo-700 text-white">{String(article.category)}</span>
+            <span className="px-2 py-1 rounded bg-brand text-inv">{String(article.category)}</span>
           )}
           {Array.isArray(article.tags) && article.tags.map((t: string) => (
-            <span key={t} className="px-2 py-1 rounded bg-zinc-700 text-gray-100">#{t}</span>
+            <span key={t} className="px-2 py-1 rounded-2xl border border-divider text-brand">#{t}</span>
           ))}
           {article.reading_time_minutes && (
-            <span className="px-2 py-1 rounded bg-emerald-700 text-white">{Number(article.reading_time_minutes)} мин чтения</span>
+            <span className="px-2 py-1 rounded bg-success text-inv">{Number(article.reading_time_minutes)} мин чтения</span>
           )}
         </div>
       )}

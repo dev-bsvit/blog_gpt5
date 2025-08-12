@@ -400,3 +400,16 @@ body {
 .trix-sheet .trix-content { background: var(--bgPrimaryBlock); color: var(--textPrimary); min-height: 320px; padding: 12px 16px; }
 .trix-sheet .trix-content a { color: var(--linkLink); }
 .trix-sheet .trix-content pre { background: var(--bgTertiaryBlock); }
+
+/* Typography for rich content */
+.prose {
+  color: var(--textPrimary);
+}
+.prose h1 { font-size: var(--fs-3xl); line-height: var(--lh-tight); font-weight: var(--fw-bold); }
+.prose h2 { font-size: var(--fs-2xl); line-height: var(--lh-tight); font-weight: var(--fw-bold); }
+.prose h3 { font-size: var(--fs-xl); line-height: var(--lh-tight); font-weight: var(--fw-semibold); }
+.prose p, .prose li { font-size: var(--fs-base); line-height: var(--lh-relaxed); }
+.prose a { color: var(--linkLink); text-decoration: underline; }
+.prose blockquote { border-left: 4px solid var(--strokeDivider); color: var(--textSecondary); padding-left: 0.75rem; }
+.prose code { background: var(--bgTertiaryBlock); color: var(--textPrimary); padding: 0.2em 0.35em; border-radius: 6px; }
+.prose pre { background: var(--bgTertiaryBlock); color: var(--textPrimary); padding: 0.75rem; border-radius: 12px; }
