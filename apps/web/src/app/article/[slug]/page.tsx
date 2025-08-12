@@ -9,6 +9,7 @@ import LikeButton from "@/components/LikeButton";
 import BookmarkButton from "@/components/BookmarkButton";
 import { formatDate } from "@/lib/date";
 import Image from "next/image";
+import PageLoader from "@/components/PageLoader";
 
 type Article = {
   slug: string;
@@ -115,6 +116,7 @@ export default async function ArticlePage({
         }
         return <div className="text-sm text-gray-500">Нет содержимого</div>;
       })()}
+      <PageLoader active={false} />
       <div className="text-sm text-gray-300 flex items-center gap-2">
         {article.created_by_photo && (
           // eslint-disable-next-line @next/next/no-img-element

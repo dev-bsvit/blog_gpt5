@@ -1,5 +1,6 @@
 import ArticleCard, { ArticleListItem } from "@/components/ArticleCard";
 import SubscribeButton from "@/components/SubscribeButton";
+import PageLoader from "@/components/PageLoader";
 
 export const revalidate = 60;
 
@@ -42,6 +43,9 @@ export default async function AuthorPage({
           ))}
         </ul>
       )}
+      {/* SSR страницы автора может подтягиваться долго — покажем loader на клиенте при навигации */}
+      {/* PageLoader здесь на SSR не активен, но пригодится при клиентских переходах */}
+      <PageLoader active={false} />
     </main>
   );
 }
