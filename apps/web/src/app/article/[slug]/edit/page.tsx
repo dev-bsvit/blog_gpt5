@@ -20,6 +20,7 @@ type Article = {
   cover_url?: string;
   cover_alt?: string;
   cover_caption?: string;
+  created_by?: string;
 };
 
 export default function EditArticlePage() {
@@ -71,8 +72,7 @@ export default function EditArticlePage() {
         setCoverUrl(a.cover_url || "");
         setCoverAlt(a.cover_alt || "");
         setCoverCaption(a.cover_caption || "");
-        // @ts-expect-error created_by may be present
-        setOwnerUid((a as unknown as { created_by?: string }).created_by || null);
+        setOwnerUid(a.created_by || null);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         setError(msg || "Не удалось загрузить статью");

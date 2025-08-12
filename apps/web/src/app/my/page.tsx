@@ -43,7 +43,7 @@ export default function MyArticlesPage() {
         </div>
       )}
       {error && user && <div className="text-sm text-red-400">{error}</div>}
-      {user && (
+      {user && Array.isArray(items) && (
         <>
           <div>
             <a href="/write" className="px-3 py-2 rounded bg-blue-600 text-white">Написать</a>

@@ -74,7 +74,7 @@ export default function TrixEditor({ value, onChange, placeholder, onError }: Pr
       el.removeEventListener("trix-change", handleChange as EventListener);
       el.removeEventListener("trix-attachment-add", handleAttachmentAdd as EventListener);
     };
-  }, [onChange]);
+  }, [onChange, onError]);
 
   useEffect(() => {
     // Keep input value in sync from props
