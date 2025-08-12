@@ -1,3 +1,19 @@
+# Environments & Flags
+
+## API (FastAPI)
+
+- ALLOW_UNAUTH_WRITE: default false. When true (local/dev), API may accept fallback `X-User-Id` for comments and uploads.
+- UPLOAD_MAX_BYTES: default 10485760 (10MB).
+- RATE_LIMIT_RPS: default 5.0
+- RATE_LIMIT_BURST: default 10
+- CORS_ORIGINS: comma-separated list of allowed origins. Must include Vercel domain in prod.
+
+## Frontend (Next.js)
+
+- NEXT_PUBLIC_API_BASE: e.g., `https://<service>.onrender.com/api/v1`
+- NEXT_PUBLIC_SITE_URL: public site URL
+- Firebase public keys
+
 ## Local backend
 
 - Python API (FastAPI) now runs on http://localhost:4000

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any, Set, Tuple
 from datetime import datetime
+import time
 import re
 import json
 import os
@@ -41,6 +42,59 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+# Feature flags and limits (env-configurable)
+def _env_bool(name: str, default: bool = False) -> bool:
+    val = (os.getenv(name) or "").strip().lower()
+    if val in ("1", "true", "yes", "y", "on"):  # common truthy values
+        return True
+    if val in ("0", "false", "no", "n", "off"):
+        return False
+    return default
+
+ALLOW_UNAUTH_WRITE = _env_bool("ALLOW_UNAUTH_WRITE", False)
+UPLOAD_MAX_BYTES = int(os.getenv("UPLOAD_MAX_BYTES") or str(10 * 1024 * 1024))  # 10 MB default
+RATE_LIMIT_RPS = float(os.getenv("RATE_LIMIT_RPS") or "5")
+RATE_LIMIT_BURST = int(os.getenv("RATE_LIMIT_BURST") or "10")
+
+
+# Very small in-memory token bucket (single-process)
+_rate_buckets: Dict[str, Tuple[float, float]] = {}
+
+def _rate_key(request: Request, uid: Optional[str]) -> str:
+    try:
+        ip = request.client.host if request.client else ""
+    except Exception:
+        ip = ""
+    return uid or ip or "anon"
+
+def _rate_allow(key: str) -> bool:
+    if RATE_LIMIT_RPS <= 0:
+        return True
+    now = time.monotonic()
+    tokens, last = _rate_buckets.get(key, (RATE_LIMIT_BURST * 1.0, now))
+    # refill
+    tokens = min(RATE_LIMIT_BURST * 1.0, tokens + (now - last) * RATE_LIMIT_RPS)
+    if tokens >= 1.0:
+        tokens -= 1.0
+        _rate_buckets[key] = (tokens, now)
+        return True
+    _rate_buckets[key] = (tokens, now)
+    return False
+
+
+def _sniff_image_type(head: bytes) -> Optional[str]:
+    """Return a short type label if signature matches: jpg, png, webp, avif"""
+    if len(head) >= 3 and head[0:3] == b"\xFF\xD8\xFF":
+        return "jpeg"
+    if len(head) >= 8 and head[0:8] == b"\x89PNG\r\n\x1a\x0a":
+        return "png"
+    if len(head) >= 12 and head[0:4] == b"RIFF" and head[8:12] == b"WEBP":
+        return "webp"
+    # AVIF is ISOBMFF/MP4 family; look for ftyp box containing 'avif'
+    if len(head) >= 12 and head[4:12] == b"ftypavif":
+        return "avif"
+    # More robust AVIF sniffing would parse boxes; keep MVP simple
+    return None
 
 # GZip for faster payload delivery
 app.add_middleware(GZipMiddleware, minimum_size=500)
@@ -369,9 +423,13 @@ def search_articles(q: str = Query(default="")):
 
 
 @app.post("/api/v1/articles", status_code=201)
-def create_article(body: ArticleCreate, authorization: Optional[str] = Header(default=None)):
+def create_article(body: ArticleCreate, authorization: Optional[str] = Header(default=None), request: Request = None):
     ensure_seed()
     user = _verify_user(authorization)
+    # rate limit per user (fallback IP if missing)
+    uid_key = (user.get("user_id") or user.get("uid") or "").strip()
+    if not _rate_allow(_rate_key(request, uid_key)):
+        raise HTTPException(status_code=429, detail={"error": "rate limit"})
     uid = (user.get("user_id") or user.get("uid") or "").strip()
     author_name = (user.get("name") or user.get("email") or "").strip()
     author_email = (user.get("email") or "").strip()
@@ -482,10 +540,12 @@ def get_article(slug: str):
 
 
 @app.put("/api/v1/articles/{slug}")
-def update_article(slug: str, body: ArticleUpdate, authorization: Optional[str] = Header(default=None)):
+def update_article(slug: str, body: ArticleUpdate, authorization: Optional[str] = Header(default=None), request: Request = None):
     ensure_seed()
     user = _verify_user(authorization)
     uid = (user.get("user_id") or user.get("uid") or "").strip()
+    if not _rate_allow(_rate_key(request, uid)):
+        raise HTTPException(status_code=429, detail={"error": "rate limit"})
 
     if using_firestore():
         client = fs_client()
@@ -595,10 +655,12 @@ def update_article(slug: str, body: ArticleUpdate, authorization: Optional[str] 
 
 
 @app.delete("/api/v1/articles/{slug}", status_code=204)
-def delete_article(slug: str, authorization: Optional[str] = Header(default=None)):
+def delete_article(slug: str, authorization: Optional[str] = Header(default=None), request: Request = None):
     ensure_seed()
     user = _verify_user(authorization)
     uid = (user.get("user_id") or user.get("uid") or "").strip()
+    if not _rate_allow(_rate_key(request, uid)):
+        raise HTTPException(status_code=429, detail={"error": "rate limit"})
     if using_firestore():
         client = fs_client()
         assert client is not None
@@ -661,17 +723,26 @@ def add_comment(
     body: CommentCreate,
     authorization: Optional[str] = Header(default=None),
     x_user_id: Optional[str] = Header(default=None, alias="X-User-Id"),
+    request: Request = None,
 ):
     ensure_seed()
-    # Prefer verified Firebase user; fallback to X-User-Id for MVP if token недоступен
+    # Prefer verified Firebase user; fallback to X-User-Id only if explicitly allowed
+    user: Dict[str, Any]
     try:
         user = _verify_user(authorization)
     except HTTPException:
-        user = {"uid": (x_user_id or "").strip()}
+        if ALLOW_UNAUTH_WRITE and x_user_id:
+            user = {"uid": (x_user_id or "").strip()}
+        else:
+            # Re-raise unauthorized in prod by default
+            raise
     text = (body.text or "").strip()
     if not text:
         raise HTTPException(status_code=400, detail={"error": "text is required"})
     author = (body.author or user.get("name") or user.get("email") or "User").strip()
+    uid_for_rl = (user.get("user_id") or user.get("uid") or "").strip()
+    if not _rate_allow(_rate_key(request, uid_for_rl)):
+        raise HTTPException(status_code=429, detail={"error": "rate limit"})
     c = {
         "id": datetime.utcnow().timestamp().__repr__().replace(".", ""),
         "text": text,
@@ -741,12 +812,14 @@ def get_likes(slug: str, x_user_id: Optional[str] = Header(default=None, alias="
 
 
 @app.post("/api/v1/articles/{slug}/likes")
-def toggle_like(slug: str, authorization: Optional[str] = Header(default=None), body: Optional[Dict[str, Any]] = None):
+def toggle_like(slug: str, authorization: Optional[str] = Header(default=None), body: Optional[Dict[str, Any]] = None, request: Request = None):
     ensure_seed()
     claims = _verify_user(authorization)
     user_id = (claims.get("user_id") or claims.get("uid") or "").strip()
     if not user_id:
         raise HTTPException(status_code=401, detail={"error": "user_id required"})
+    if not _rate_allow(_rate_key(request, user_id)):
+        raise HTTPException(status_code=429, detail={"error": "rate limit"})
     if using_firestore():
         client = fs_client()
         assert client is not None
@@ -851,12 +924,14 @@ def get_subscription(author_id: str, authorization: Optional[str] = Header(defau
 
 
 @app.post("/api/v1/authors/{author_id}/subscription")
-def toggle_subscription(author_id: str, authorization: Optional[str] = Header(default=None)):
+def toggle_subscription(author_id: str, authorization: Optional[str] = Header(default=None), request: Request = None):
     ensure_seed()
     claims = _verify_user(authorization)
     uid = (claims.get("user_id") or claims.get("uid") or "").strip()
     if not uid:
         raise HTTPException(status_code=401, detail={"error": "user_id required"})
+    if not _rate_allow(_rate_key(request, uid)):
+        raise HTTPException(status_code=429, detail={"error": "rate limit"})
     if using_firestore():
         client = fs_client()
         assert client is not None
@@ -905,12 +980,14 @@ def list_my_subscriptions(authorization: Optional[str] = Header(default=None)):
 
 
 @app.post("/api/v1/articles/{slug}/bookmark")
-def toggle_bookmark(slug: str, authorization: Optional[str] = Header(default=None)):
+def toggle_bookmark(slug: str, authorization: Optional[str] = Header(default=None), request: Request = None):
     ensure_seed()
     claims = _verify_user(authorization)
     uid = (claims.get("user_id") or claims.get("uid") or "").strip()
     if not uid:
         raise HTTPException(status_code=401, detail={"error": "user_id required"})
+    if not _rate_allow(_rate_key(request, uid)):
+        raise HTTPException(status_code=429, detail={"error": "rate limit"})
     if using_firestore():
         client = fs_client()
         assert client is not None
@@ -1022,6 +1099,7 @@ async def upload_cover(
     alt: str = Form(...),
     user_id: Optional[str] = Form(default=None),
     authorization: Optional[str] = Header(default=None),
+    request: Request = None,
 ):
     if file.content_type not in ("image/jpeg", "image/png", "image/webp", "image/avif"):
         raise HTTPException(status_code=400, detail={"error": "unsupported file type"})
@@ -1032,9 +1110,32 @@ async def upload_cover(
         claims = _verify_user(authorization)
         uid = (claims.get("user_id") or claims.get("uid") or "").strip()
     except HTTPException:
-        uid = (user_id or "").strip()
+        if ALLOW_UNAUTH_WRITE:
+            uid = (user_id or "").strip()
+        else:
+            uid = ""
     if not uid:
         raise HTTPException(status_code=401, detail={"error": "auth required"})
+
+    # Rate limit uploads per user/IP
+    if not _rate_allow(_rate_key(request, uid)):
+        raise HTTPException(status_code=429, detail={"error": "rate limit"})
+
+    # Enforce server-side size limit and basic signature checks
+    try:
+        # Read up to MAX+1 to detect overflow
+        head = await file.read(min(UPLOAD_MAX_BYTES + 1, 1024 * 1024 * 2))  # read up to 2MB for sniffing
+        if len(head) > UPLOAD_MAX_BYTES:
+            raise HTTPException(status_code=413, detail={"error": "file too large"})
+        sig = _sniff_image_type(head)
+        if sig is None:
+            raise HTTPException(status_code=400, detail={"error": "invalid image signature"})
+        # Reset stream for upload
+        await file.seek(0)
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=400, detail={"error": "invalid upload"})
 
     client = gcs_client()
     if client is None:
