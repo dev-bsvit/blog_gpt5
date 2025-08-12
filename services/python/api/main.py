@@ -279,6 +279,23 @@ subscriptions_by_author: Dict[str, Set[str]] = {}
 
 def slugify(title: str) -> str:
     s = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+    # Avoid reserved slug 'untitled' collision by appending number for new articles
+    if s == "untitled":
+        idx = 1
+        base = s
+        # Check in-memory store
+        if not using_firestore():
+            while f"{base}-{idx}" in articles_by_slug:
+                idx += 1
+            return f"{base}-{idx}"
+        # Firestore mode
+        client = fs_client()
+        try:
+            while client and client.collection("articles").document(f"{base}-{idx}").get().exists:
+                idx += 1
+        except Exception:
+            pass
+        return f"{base}-{idx}"
     return s or "untitled"
 
 

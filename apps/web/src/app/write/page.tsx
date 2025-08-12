@@ -160,6 +160,19 @@ export default function WritePage() {
     });
   }
 
+  function resetDraft() {
+    setDraftSlug(null);
+    setTitle("");
+    setContentJson({ blocks: [] });
+    setCoverUrl("");
+    setCoverAlt("");
+    setCoverCaption("");
+    setTags([]);
+    setDirty(false);
+    setAutoStatus("—");
+    try { localStorage.removeItem("draft.write"); } catch {}
+  }
+
   async function publishArticle() {
     setError("");
     if (!authorized) { router.push("/login"); return; }
@@ -192,6 +205,7 @@ export default function WritePage() {
         cover_alt: coverAlt || undefined,
         cover_caption: coverCaption || undefined,
       });
+      try { localStorage.removeItem("draft.write"); } catch {}
       router.push(`/article/${slug}`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -202,7 +216,14 @@ export default function WritePage() {
   return (
     <main className="mx-auto max-w-3xl p-6 space-y-6">
       <header className="flex items-center justify-between">
-        <div className="text-sm text-gray-400">Тип: Статья</div>
+        <div className="flex items-center gap-3 text-sm text-gray-400">
+          <span>Тип: Статья</span>
+          {draftSlug && (
+            <button type="button" className="px-2 py-1 rounded bg-zinc-800" onClick={resetDraft} title="Начать новый черновик">
+              Новый черновик
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <button className="px-2 py-1 rounded bg-zinc-800" onClick={()=>setPreviewOpen(true)}>👁 Предпросмотр</button>
           {step === 1 ? (
