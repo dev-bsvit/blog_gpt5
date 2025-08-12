@@ -5,9 +5,7 @@ import EditorJS, { EditorJSData } from "@/components/EditorJS";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/api";
 import Image from "next/image";
-import { getFirebaseAuth } from "@/lib/firebaseClient";
-import { getIdToken } from "firebase/auth";
-import { onAuthStateChanged } from "firebase/auth";
+import { getIdToken, onAuthStateChanged } from "firebase/auth";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
 
 export default function WritePage() {
