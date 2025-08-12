@@ -1,5 +1,6 @@
 import HomeClient from "@/components/HomeClient";
 import HomeTabs from "@/components/HomeTabs";
+import { Suspense } from "react";
 
 export const revalidate = 30;
 
@@ -20,7 +21,9 @@ export default async function Home() {
         <main className="mx-auto max-w-5xl p-6 space-y-6">
           <div className="flex items-center justify-between">
             <h1 className="ty-h2">Лента</h1>
-            <HomeTabs />
+            <Suspense fallback={<div className="ty-meta">…</div>}>
+              <HomeTabs />
+            </Suspense>
           </div>
         </main>
         <HomeClient initialArticles={list} initialHealth={health?.status || "ok"} />
