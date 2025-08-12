@@ -50,11 +50,11 @@ export default function MyArticlesPage() {
   }, [loading, user, items, router]);
 
   return (
-    <main className="mx-auto max-w-2xl p-6 space-y-4">
-      <h1 className="text-2xl font-semibold">Мои статьи</h1>
+    <main className="puk-container p-6 space-y-4">
+      <h1 className="ty-h2">Мои статьи</h1>
       <PageLoader active={loading} />
       {!loading && !user && (
-        <div className="text-sm text-gray-400">
+        <div className="ty-meta">
           Требуется вход. Перейдите на страницу <a className="underline" href="/login">Вход</a>.
         </div>
       )}
@@ -62,9 +62,9 @@ export default function MyArticlesPage() {
       {user && Array.isArray(items) && items.length === 0 && (
         <>
           <div>
-            <a href="/write" className="px-3 py-2 rounded bg-blue-600 text-white">Написать</a>
+            <a href="/write" className="px-3d py-2d rounded-2xl btn-primary">Написать</a>
           </div>
-          <div className="text-sm text-gray-500">Пока нет статей. Начните с первой публикации.</div>
+          <div className="ty-meta">Пока нет статей. Начните с первой публикации.</div>
         </>
       )}
     </main>
