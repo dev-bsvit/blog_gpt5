@@ -7,6 +7,8 @@ import Link from "next/link";
 import SWRProvider from "@/components/SWRProvider";
 import WriteGuardLink from "@/components/WriteGuardLink";
 import TopProgressBar from "@/components/TopProgressBar";
+import HeaderSearch from "@/components/HeaderSearch";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -69,15 +71,17 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <header className="border-b border-divider sticky top-0 z-10 backdrop-blur bg-block">
-          <div className="max-w-5xl mx-auto flex items-center justify-between pad-4d">
-            <Link href="/" className="ty-title">Blog MVP</Link>
-            <nav className="flex items-center gap-4d ty-body">
+          <div className="max-w-6xl mx-auto grid grid-cols-3 items-center gap-4d pad-4d">
+            <div className="flex items-center gap-4d">
+              <Link href="/" className="ty-title">Блог</Link>
+              <Link href="/rss.xml" className="underline hidden md:inline" title="RSS">RSS</Link>
+            </div>
+            <div className="flex justify-center">
+              <HeaderSearch />
+            </div>
+            <nav className="flex items-center justify-end gap-3d ty-body">
               <WriteGuardLink />
-              <Link href="/drafts" className="underline hidden sm:inline">Черновики</Link>
-              <Link href="/bookmarks" className="underline hidden sm:inline">Закладки</Link>
-              <Link href="/my" className="underline hidden sm:inline">Мои статьи</Link>
-              <Link href="/search" className="underline hidden sm:inline">Поиск</Link>
-              <Link href="/rss.xml" className="underline hidden sm:inline" title="RSS">RSS</Link>
+              <Link href="/write" className="px-3d py-2d rounded-2xl btn-secondary hidden sm:inline">Написать</Link>
               <Link href="/login" className="underline hidden sm:inline">Вход</Link>
               <AuthButton />
               <ThemeToggle />
@@ -86,6 +90,7 @@ export default function RootLayout({
           <TopProgressBar />
         </header>
         <SWRProvider>{children}</SWRProvider>
+        <Footer />
       </body>
     </html>
   );
