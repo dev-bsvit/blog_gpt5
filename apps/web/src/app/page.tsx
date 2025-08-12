@@ -18,7 +18,7 @@ export default async function Home() {
     const list = await listRes.json();
     return (
       <>
-        <main className="mx-auto max-w-5xl p-6 space-y-6">
+        <main className="puk-container p-6 space-y-6">
           <div className="flex items-center justify-between">
             <h1 className="ty-h2">Лента</h1>
             <Suspense fallback={<div className="ty-meta">…</div>}>

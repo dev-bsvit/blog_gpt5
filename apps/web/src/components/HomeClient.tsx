@@ -14,13 +14,13 @@ export default function HomeClient({ initialArticles, initialHealth }: { initial
   // function createTestArticle() { /* dev helper removed for prod build */ }
 
   return (
-    <main className="mx-auto max-w-2xl p-6 space-y-6">
+    <main className="puk-container p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Последние статьи</h1>
-        <div className="text-sm text-gray-500">API: {apiStatus}</div>
+        <h2 className="ty-h3">Последние статьи</h2>
+        <div className="ty-meta">API: {apiStatus}</div>
       </div>
       {createResult && (
-        <div className="text-sm text-gray-600">
+        <div className="ty-meta">
           {createResult}
           {createResult.startsWith("Создано: ") && (
             <a className="ml-2 underline" href={`/article/${createResult.replace("Создано: ", "")}`}>открыть</a>
@@ -28,15 +28,15 @@ export default function HomeClient({ initialArticles, initialHealth }: { initial
         </div>
       )}
       {articles.length === 0 ? (
-        <div className="text-sm text-gray-500">Пока пусто. Напишите первую статью.</div>
+        <div className="ty-meta">Пока пусто. Напишите первую статью.</div>
       ) : (
-        <ul className="space-y-3">
+        <div className="puk-grid">
           {articles.map((a: ArticleListItem) => (
-            <li key={a.slug}>
+            <div key={a.slug} className="puk-col-12 md:puk-col-6 lg:puk-col-4">
               <ArticleCard a={a} />
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </main>
   );

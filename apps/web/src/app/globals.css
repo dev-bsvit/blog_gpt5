@@ -155,6 +155,13 @@
   /* Back-compat tokens used in app */
   --background: var(--bgPrimaryPage);
   --foreground: var(--textPrimary);
+  
+  /* Grid (Puksel-like) */
+  --grid-columns: 12;
+  --grid-gutter: 24px;
+  --grid-row-gap: 16px;
+  --container-max: 1200px;
+  --container-padding: 16px;
 }
 
 /* Dark theme values */
@@ -316,6 +323,17 @@
 .border-border { border-color: var(--strokeBorder); }
 .shadow-1 { box-shadow: 0 1px 3px var(--shadowShadow1); }
 .shadow-2 { box-shadow: 0 8px 24px var(--shadowShadow2); }
+
+/* Grid utilities */
+.puk-container { width: 100%; max-width: calc(var(--container-max) + 2 * var(--container-padding)); margin-left: auto; margin-right: auto; padding-left: var(--container-padding); padding-right: var(--container-padding); }
+@media (min-width: 768px) { .puk-container { --container-padding: 20px; } }
+@media (min-width: 1024px) { .puk-container { --container-padding: 24px; } }
+
+.puk-grid { display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr)); column-gap: var(--grid-gutter); row-gap: var(--grid-row-gap); }
+.puk-col-12 { grid-column: span 12 / span 12; }
+.puk-col-6 { grid-column: span 6 / span 6; }
+.puk-col-4 { grid-column: span 4 / span 4; }
+.puk-col-3 { grid-column: span 3 / span 3; }
 
 /* Brand and statuses */
 .bg-brand { background-color: var(--bgBrand); }
