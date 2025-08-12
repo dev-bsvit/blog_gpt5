@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import PageLoader from "@/components/PageLoader";
 // import { apiGet } from "@/lib/api";
 import useSWR from "swr";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
@@ -51,13 +52,13 @@ export default function MyArticlesPage() {
   return (
     <main className="mx-auto max-w-2xl p-6 space-y-4">
       <h1 className="text-2xl font-semibold">Мои статьи</h1>
-      {loading && <div className="text-sm text-gray-500">Загрузка…</div>}
+      <PageLoader active={loading} />
       {!loading && !user && (
         <div className="text-sm text-gray-400">
           Требуется вход. Перейдите на страницу <a className="underline" href="/login">Вход</a>.
         </div>
       )}
-      {error && user && <div className="text-sm text-red-400">{error}</div>}
+      {error && user && null}
       {user && Array.isArray(items) && items.length === 0 && (
         <>
           <div>
