@@ -5,7 +5,8 @@ import { apiDelete, apiGet, apiPut } from "@/lib/api";
 import Image from "next/image";
 import { getFirebaseAuth, hasFirebaseEnv } from "@/lib/firebaseClient";
 import { getIdToken, onAuthStateChanged } from "firebase/auth";
-import RichEditor from "@/components/RichEditor";
+// import RichEditor from "@/components/RichEditor";
+import EditorJS, { EditorJSData } from "@/components/EditorJS";
 
 type Article = {
   slug: string;
@@ -31,6 +32,7 @@ export default function EditArticlePage() {
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [content, setContent] = useState("");
+  const [contentJson, setContentJson] = useState<EditorJSData>({ blocks: [] });
   const [isPublished, setIsPublished] = useState(true);
   const [category, setCategory] = useState<string>("Технологии");
   const [tagsInput, setTagsInput] = useState<string>("");
@@ -82,7 +84,7 @@ export default function EditArticlePage() {
       const updated = await apiPut<Article>(`/articles/${slug}`, {
         title: title.trim() || "Untitled",
         subtitle: subtitle.trim(),
-        content,
+        content: content || JSON.stringify(contentJson),
         is_published: isPublished,
         category,
         tags: tagsInput.split(',').map(s=>s.trim()).filter(Boolean),
@@ -161,8 +163,8 @@ export default function EditArticlePage() {
           <input className="w-full border rounded px-3 py-2 bg-transparent" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
         </div>
         <div>
-          <label className="block text-sm mb-1">Текст</label>
-          <RichEditor value={content} onChange={setContent} />
+          <label className="block text-sm mb-1">Текст (Editor.js)</label>
+          <EditorJS value={contentJson} onChange={setContentJson} />
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">

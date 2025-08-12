@@ -25,7 +25,12 @@
     "react-markdown": "^9.1.0",
     "remark-gfm": "^4.0.1",
     "tiptap-markdown": "^0.8.10",
-    "swr": "^2.2.5"
+    "swr": "^2.2.5",
+    "@editorjs/editorjs": "^2.30.6",
+    "@editorjs/header": "^2.8.1",
+    "@editorjs/list": "^2.8.2",
+    "@editorjs/quote": "^2.7.4",
+    "@editorjs/image": "^2.9.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

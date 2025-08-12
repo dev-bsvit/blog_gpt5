@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import RichEditor from "@/components/RichEditor";
+// import RichEditor from "@/components/RichEditor";
+import EditorJS, { EditorJSData } from "@/components/EditorJS";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/api";
 import Image from "next/image";
@@ -13,7 +14,8 @@ export default function WritePage() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState<string>("");
+  const [contentJson, setContentJson] = useState<EditorJSData>({ blocks: [] });
   const [category, setCategory] = useState<string>("Технологии");
   const [tagsInput, setTagsInput] = useState<string>("");
   const [readingMinutes, setReadingMinutes] = useState<string>("");
@@ -82,7 +84,7 @@ export default function WritePage() {
       const res = await apiPost<{ slug: string }>("/articles", {
         title: title.trim() || "Untitled",
         subtitle: subtitle.trim(),
-        content,
+        content: content || JSON.stringify(contentJson),
         is_published: publishNow,
         category,
         tags: tagsInput.split(',').map(s=>s.trim()).filter(Boolean),
@@ -131,8 +133,8 @@ export default function WritePage() {
           />
         </div>
         <div>
-          <label className="block text-sm mb-1">Текст</label>
-          <RichEditor value={content} onChange={setContent} placeholder="Черновик..." />
+          <label className="block text-sm mb-1">Текст (Editor.js)</label>
+          <EditorJS value={contentJson} onChange={setContentJson} placeholder="Черновик..." />
         </div>
         <div className="space-y-2">
           <h3 className="text-sm font-semibold">Обложка</h3>

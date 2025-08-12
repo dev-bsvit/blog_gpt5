@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import RenderEditorJS from "@/components/RenderEditorJS";
 import Comments from "@/components/Comments";
 import PublishControls from "@/components/PublishControls";
 import LikeButton from "@/components/LikeButton";
@@ -85,13 +86,26 @@ export default async function ArticlePage({
       <h1 className="text-3xl font-semibold">{article.title ?? article.slug}</h1>
       {article.subtitle && <p className="text-gray-500">{article.subtitle}</p>}
       <div className="text-sm text-gray-400">slug: {article.slug}</div>
-      {typeof article.content === 'string' && (article.content as string).trim().length > 0 ? (
-        <article className="prose prose-invert max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{String(article.content)}</ReactMarkdown>
-        </article>
-      ) : (
-        <div className="text-sm text-gray-500">Нет содержимого</div>
-      )}
+      {(() => {
+        const raw = article.content as unknown;
+        if (typeof raw === "string") {
+          // Try parse Editor.js JSON; fallback to Markdown
+          try {
+            const data = JSON.parse(raw);
+            if (data && Array.isArray(data.blocks)) {
+              return <RenderEditorJS data={data} />;
+            }
+          } catch {}
+          if (raw.trim().length > 0) {
+            return (
+              <article className="prose prose-invert max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{raw}</ReactMarkdown>
+              </article>
+            );
+          }
+        }
+        return <div className="text-sm text-gray-500">Нет содержимого</div>;
+      })()}
       <div className="text-sm text-gray-300 flex items-center gap-2">
         {article.created_by_photo && (
           // eslint-disable-next-line @next/next/no-img-element
