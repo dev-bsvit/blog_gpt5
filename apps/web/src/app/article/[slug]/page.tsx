@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import RenderEditorJS from "@/components/RenderEditorJS";
 import Comments from "@/components/Comments";
 import PublishControls from "@/components/PublishControls";
+import EditOwnerLink from "@/components/EditOwnerLink";
 import LikeButton from "@/components/LikeButton";
 import BookmarkButton from "@/components/BookmarkButton";
 import { formatDate } from "@/lib/date";
@@ -138,7 +139,7 @@ export default async function ArticlePage({
         </div>
       )}
       <div className="flex gap-3 pt-2 items-center">
-        <a className="underline" href={`/article/${article.slug}/edit`}>Редактировать</a>
+        <EditOwnerLink slug={article.slug} createdBy={article.created_by} />
         <PublishControls slug={article.slug} isPublished={Boolean((article as unknown as { is_published?: boolean }).is_published)} createdBy={article.created_by} />
         <LikeButton slug={article.slug} />
         <BookmarkButton slug={article.slug} />
