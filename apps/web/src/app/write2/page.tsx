@@ -16,7 +16,7 @@ export default function Write2() {
   const [data, setData] = useState<EditorData>({ blocks: [] });
   const [dirty, setDirty] = useState(false);
   const saveTimer = useRef<NodeJS.Timeout | null>(null);
-  const [saving, setSaving] = useState(false);
+  // const [saving, setSaving] = useState(false);
   const [openPublish, setOpenPublish] = useState(false);
   const key = useMemo(()=>"draft.write2",[]);
 

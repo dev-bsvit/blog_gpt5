@@ -113,7 +113,9 @@ export default function EditorJS({ value, onChange, placeholder }: {
     if (!ref.current) return;
     try {
       // @ts-expect-error editorjs runtime API
-      ref.current.render && (ref.current as any).render(value || { blocks: [] });
+      if ((ref.current as unknown as { render?: (d: unknown)=>void }).render) {
+        (ref.current as unknown as { render: (d: unknown)=>void }).render(value || { blocks: [] });
+      }
     } catch {}
   }, [value]);
 
