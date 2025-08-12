@@ -250,7 +250,7 @@ export default function WritePage() {
             aria-invalid={!titleValid}
           />
           {!titleValid && <div className="text-sm text-red-400">Заголовок 3–120 символов</div>}
-          <div className="rounded-xl border border-white/10">
+          <div className="trix-sheet">
             <TrixEditor value={contentHtml} onChange={(html)=>{ setContentHtml(html); setDirty(true); setAutoStatus("—"); }} placeholder="Начните писать…" />
           </div>
           <div className="text-xs text-gray-500">Автосохранение: {autoStatus}</div>
