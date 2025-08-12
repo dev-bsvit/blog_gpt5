@@ -30,7 +30,16 @@ export default function EditorJS({ value, onChange, placeholder }: {
       if (!mounted) return;
       // Minimal local types to satisfy TS
       type ToolConstructable = new (...args: unknown[]) => unknown;
-      const options = {
+      type EditorConfig = {
+        holder: string;
+        placeholder?: string;
+        autofocus?: boolean;
+        tools?: Record<string, unknown>;
+        data?: EditorJSData | { blocks: unknown[] };
+        onChange?: (api: { saver: { save: () => Promise<EditorJSData> } }) => void;
+      };
+
+      const options: EditorConfig = {
       holder: holderId,
       placeholder: placeholder || "Начните писать...",
       autofocus: true,
@@ -40,13 +49,14 @@ export default function EditorJS({ value, onChange, placeholder }: {
           quote: { class: Quote as unknown as ToolConstructable, inlineToolbar: true },
         } as Record<string, unknown>,
       data: value || { blocks: [] },
-      async onChange(api) {
-        const data = await api.saver.save();
-        onChange(data as EditorJSData);
+        async onChange(api: { saver: { save: () => Promise<EditorJSData> } }) {
+          const data = await api.saver.save();
+          onChange(data);
       },
-      } as unknown as object;
-      // Cast whole options to any to avoid Editor.js type friction in CI
-      const editor = new EditorJSClass(options as any);
+      };
+      // Cast constructor target to a compatible signature to satisfy TS without any
+      const EditorCtor = EditorJSClass as unknown as { new (cfg: EditorConfig): { isReady?: Promise<void>; destroy?: () => void } };
+      const editor = new EditorCtor(options);
       ref.current = editor as unknown as EditorInstance;
     })();
 
