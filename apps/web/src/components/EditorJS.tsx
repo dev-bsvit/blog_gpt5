@@ -14,7 +14,8 @@ export default function EditorJS({ value, onChange, placeholder }: {
   placeholder?: string;
 }) {
   const holderId = useMemo(() => `ej-${Math.random().toString(36).slice(2)}`, []);
-  const ref = useRef<any>(null);
+  type EditorInstance = { isReady?: Promise<void>; destroy?: () => void } | null;
+  const ref = useRef<EditorInstance>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -27,14 +28,16 @@ export default function EditorJS({ value, onChange, placeholder }: {
       ]);
 
       if (!mounted) return;
+      // Minimal local ToolConstructable type to satisfy TS without using any
+      type ToolConstructable = new (...args: unknown[]) => unknown;
       const editor = new EditorJSClass({
       holder: holderId,
       placeholder: placeholder || "Начните писать...",
       autofocus: true,
         tools: {
-          header: { class: Header as any, inlineToolbar: true, config: { levels: [2, 3], defaultLevel: 2 } },
-          list: { class: List as any, inlineToolbar: true },
-          quote: { class: Quote as any, inlineToolbar: true },
+          header: { class: Header as unknown as ToolConstructable, inlineToolbar: true, config: { levels: [2, 3], defaultLevel: 2 } },
+          list: { class: List as unknown as ToolConstructable, inlineToolbar: true },
+          quote: { class: Quote as unknown as ToolConstructable, inlineToolbar: true },
         },
       data: value || { blocks: [] },
       async onChange(api) {
@@ -42,15 +45,15 @@ export default function EditorJS({ value, onChange, placeholder }: {
         onChange(data as EditorJSData);
       },
       });
-      ref.current = editor;
+      ref.current = editor as unknown as EditorInstance;
     })();
 
     return () => {
       mounted = false;
-      const ed: any = ref.current;
-      if (ed) {
+      const ed = ref.current;
+      if (ed && typeof ed === "object") {
         try {
-          ed.isReady?.then(() => ed.destroy()).catch(() => {});
+          ed.isReady?.then(() => ed.destroy && ed.destroy()).catch(() => {});
         } catch {}
       }
     };
