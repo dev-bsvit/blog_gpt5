@@ -106,7 +106,16 @@ export default function EditorJS({ value, onChange, placeholder }: {
         } catch {}
       }
     };
-  }, [holderId, onChange, placeholder, value]);
+  }, [holderId, onChange, placeholder]);
+
+  // Render external value without пересоздания инстанса
+  useEffect(() => {
+    if (!ref.current) return;
+    try {
+      // @ts-expect-error editorjs runtime API
+      ref.current.render && (ref.current as any).render(value || { blocks: [] });
+    } catch {}
+  }, [value]);
 
   return (
     <div className="border rounded-xl bg-transparent">

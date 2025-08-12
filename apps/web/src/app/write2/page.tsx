@@ -72,7 +72,8 @@ export default function Write2() {
     const blocks = d.blocks.filter(b => ["paragraph","header","list","quote"].includes(b.type)).length;
     return { chars, blocks };
   }
-  const canNext = isValidTitle(title) && (()=>{const s = contentStats(data); return (s.blocks>=1) && (s.chars>=600 || s.blocks>=3);})();
+  const stats = useMemo(()=>contentStats(data), [data]);
+  const canNext = isValidTitle(title) && (stats.blocks>=1) && (stats.chars>=600 || stats.blocks>=3);
 
   if (!authorized) return <main className="p-6">Требуется вход</main>;
 
