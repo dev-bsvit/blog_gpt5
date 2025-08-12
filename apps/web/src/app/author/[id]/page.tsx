@@ -27,21 +27,21 @@ export default async function AuthorPage({
   const authorName = items[0]?.created_by_name || id;
 
   return (
-    <main className="mx-auto max-w-2xl p-6 space-y-4">
+    <main className="puk-container p-6 space-y-4">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Автор: {authorName}</h1>
+        <h1 className="ty-h2">Автор: {authorName}</h1>
         <SubscribeButton authorId={id} />
       </header>
       {items.length === 0 ? (
-        <div className="text-sm text-gray-500">Пока нет статей.</div>
+        <div className="ty-meta">Пока нет статей.</div>
       ) : (
-        <ul className="space-y-3">
+        <div className="puk-grid">
           {items.map((a) => (
-            <li key={a.slug}>
+            <div key={a.slug} className="puk-col-12 md:puk-col-6 lg:puk-col-4">
               <ArticleCard a={a} />
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
       {/* SSR страницы автора может подтягиваться долго — покажем loader на клиенте при навигации */}
       {/* PageLoader здесь на SSR не активен, но пригодится при клиентских переходах */}

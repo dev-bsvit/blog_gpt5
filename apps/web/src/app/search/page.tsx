@@ -26,19 +26,19 @@ export default function SearchPage() {
   useEffect(() => { /* no-op */ }, []);
 
   return (
-    <main className="mx-auto max-w-2xl p-6 space-y-4">
-      <h1 className="text-2xl font-semibold">Поиск</h1>
-      <form onSubmit={(e)=>{e.preventDefault(); run();}} className="flex gap-2">
-        <input className="flex-1 border rounded px-3 py-2 bg-transparent" placeholder="запрос..." value={q} onChange={e=>setQ(e.target.value)} />
-        <button className="px-3 py-2 rounded bg-blue-600 text-white" disabled={loading}>Найти</button>
+    <main className="puk-container p-6 space-y-4">
+      <h1 className="ty-h2">Поиск</h1>
+      <form onSubmit={(e)=>{e.preventDefault(); run();}} className="flex gap-2d">
+        <input className="flex-1 border border-divider rounded-2xl px-3d py-2d bg-transparent" placeholder="запрос..." value={q} onChange={e=>setQ(e.target.value)} />
+        <button className="px-3d py-2d rounded-2xl btn-primary" disabled={loading}>Найти</button>
       </form>
-      <ul className="space-y-3">
+      <div className="puk-grid">
         {items.map(a=> (
-          <li key={a.slug}>
+          <div key={a.slug} className="puk-col-12 md:puk-col-6 lg:puk-col-4">
             <ArticleCard a={a} />
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </main>
   );
 }

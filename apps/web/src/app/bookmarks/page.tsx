@@ -36,26 +36,26 @@ export default function BookmarksPage() {
   }, [user, data, isLoading]);
 
   return (
-    <main className="mx-auto max-w-2xl p-6 space-y-4">
-      <h1 className="text-2xl font-semibold">Закладки</h1>
-      {loading && <div className="text-sm text-gray-500">Загрузка…</div>}
+    <main className="puk-container p-6 space-y-4">
+      <h1 className="ty-h2">Закладки</h1>
+      {loading && <div className="ty-meta">Загрузка…</div>}
       {!loading && !user && (
-        <div className="text-sm text-gray-400">
+        <div className="ty-meta">
           Требуется вход. Перейдите на страницу <a className="underline" href="/login">Вход</a> и вернитесь сюда.
         </div>
       )}
-      {error && user && <div className="text-sm text-red-400">{error}</div>}
+      {error && user && <div className="ty-meta" style={{ color: "var(--textStatusAlert)" }}>{error}</div>}
       {user && items.length === 0 && !error && (
-        <div className="text-sm text-gray-500">Пусто</div>
+        <div className="ty-meta">Пусто</div>
       )}
       {user && (
-        <ul className="space-y-3">
+        <div className="puk-grid">
           {items.map((a) => (
-            <li key={a.slug}>
+            <div key={a.slug} className="puk-col-12 md:puk-col-6 lg:puk-col-4">
               <ArticleCard a={a} />
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </main>
   );

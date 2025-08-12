@@ -13,18 +13,18 @@ export default function DraftsPage() {
     }).catch(() => setItems([]));
   }, []);
   return (
-    <main className="mx-auto max-w-2xl p-6">
-      <h1 className="text-2xl font-semibold mb-4">Черновики</h1>
+    <main className="puk-container p-6">
+      <h1 className="ty-h2 mb-4">Черновики</h1>
       {items.length === 0 ? (
-        <div className="text-sm text-gray-500">Черновиков нет.</div>
+        <div className="ty-meta">Черновиков нет.</div>
       ) : (
-        <ul className="space-y-3">
+        <div className="puk-grid">
           {items.map((a) => (
-            <li key={a.slug}>
+            <div key={a.slug} className="puk-col-12 md:puk-col-6 lg:puk-col-4">
               <ArticleCard a={a} />
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </main>
   );
