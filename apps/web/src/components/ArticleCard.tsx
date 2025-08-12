@@ -29,65 +29,75 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
   const author = a.created_by_name || a.created_by || "Автор";
   const tags = Array.isArray(a.tags) ? a.tags : [];
   return (
-    <article className="group overflow-hidden rounded-2xl border border-divider bg-block shadow-1 transition hover:shadow-2">
-      {/* Cover */}
-      <Link href={`/article/${a.slug}`} className="block relative aspect-[4/3] overflow-hidden">
-        {a.cover_url ? (
-          <Image src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover transition-transform duration-300 group-hover:scale-105" />
-        ) : (
-          <div className="absolute inset-0 bg-tertiary-block transition-transform duration-300 group-hover:scale-105" />
-        )}
-        {/* Chips top-right */}
-        <div className="pointer-events-none absolute right-3 top-3 flex gap-2 text-[11px]">
-          <span className="rounded bg-overlay px-2 py-1 text-inv">💬 {a.comments_count ?? 0}</span>
-          <span className="rounded bg-overlay px-2 py-1 text-inv">👁️ {a.views ?? 0}</span>
-        </div>
-      </Link>
+    <article className="group rounded-3xl border border-divider bg-block shadow-1 transition hover:shadow-2">
+      {/* Cover with padding and rounded 16px */}
+      <div className="p-4">
+        <Link href={`/article/${a.slug}`} className="block relative aspect-[16/9] overflow-hidden rounded-2xl">
+          {a.cover_url ? (
+            <Image src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover transition-transform duration-300 group-hover:scale-105" />
+          ) : (
+            <div className="absolute inset-0 bg-tertiary-block transition-transform duration-300 group-hover:scale-105" />
+          )}
+        </Link>
+      </div>
 
       {/* Content */}
-      <div className="p-4">
-        <header className="flex items-start justify-between gap-3d">
-          <div>
-            <Link href={`/article/${a.slug}`} className="ty-title underline decoration-transparent hover:decoration-inherit">
-              {a.title || a.slug}
-            </Link>
-            {a.subtitle && (
-              <p className="ty-subtitle mt-1">{a.subtitle}</p>
+      <div className="px-4 pb-4">
+        {/* Author row + subscribe */}
+        <div className="flex items-center justify-between gap-3d">
+          <div className="flex items-center gap-3d">
+            {a.created_by_photo && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={a.created_by_photo} alt={author} className="w-11 h-11 rounded-full object-cover" />
             )}
-            <div className="ty-meta mt-2 flex items-center gap-2d">
-              {a.created_by_photo && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={a.created_by_photo} alt={author} className="w-6 h-6 rounded-full object-cover" />
-              )}
-              <Link href={a.created_by ? `/author/${a.created_by}` : "#"} className="underline decoration-transparent hover:decoration-inherit">
-                {author}
-              </Link>
-              {a.created_at && <span className="ml-2">· {formatDate(a.created_at)}</span>}
-              <SubscribeButton authorId={a.created_by} />
+            <div>
+              <div className="ty-body font-medium">
+                <Link href={a.created_by ? `/author/${a.created_by}` : "#"} className="underline decoration-transparent hover:decoration-inherit">
+                  {author}
+                </Link>
+              </div>
+              <div className="ty-meta mt-1 flex items-center gap-1d">
+                {a.category && <span>{a.category}</span>}
+                {a.reading_time_minutes && <>
+                  <span>·</span>
+                  <span>{a.reading_time_minutes} мин чтения</span>
+                </>}
+              </div>
             </div>
           </div>
-          <div className="shrink-0">
-            <BookmarkButton slug={a.slug} />
-          </div>
-        </header>
+          <SubscribeButton authorId={a.created_by} />
+        </div>
 
-        {(a.category || tags.length > 0 || a.reading_time_minutes) && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {a.category && (
-              <span key="category" className="text-xs px-2 py-1 rounded bg-brand text-inv">{a.category}</span>
-            )}
+        {/* Title and subtitle */}
+        <div className="mt-3d">
+          <Link href={`/article/${a.slug}`} className="ty-h3 underline decoration-transparent hover:decoration-inherit">
+            {a.title || a.slug}
+          </Link>
+          {a.subtitle && (
+            <p className="ty-subtitle mt-1">{a.subtitle}</p>
+          )}
+        </div>
+
+        {/* Tags */}
+        {(tags.length > 0) && (
+          <div className="mt-3d flex flex-wrap gap-2d">
             {tags.map((t) => (
-              <span key={t} className="text-xs px-2 py-1 rounded bg-secondary-block text-secondary">#{t}</span>
+              <span key={t} className="ty-meta px-2 py-1 rounded-2xl border border-divider text-brand">#{t}</span>
             ))}
-            {a.reading_time_minutes && (
-              <span key="rt" className="text-xs px-2 py-1 rounded bg-success text-inv">{a.reading_time_minutes} мин чтения</span>
-            )}
           </div>
         )}
 
-        <footer className="mt-4 flex items-center gap-3 text-sm text-secondary">
-          <LikeButton slug={a.slug} />
-        </footer>
+        {/* Bottom actions and metrics */}
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex items-center gap-3d ty-meta">
+            <span>💬 {a.comments_count ?? 0}</span>
+            <span>👁️ {a.views ?? 0}</span>
+          </div>
+          <div className="flex items-center gap-2d">
+            <LikeButton slug={a.slug} />
+            <BookmarkButton slug={a.slug} />
+          </div>
+        </div>
       </div>
     </article>
   );
