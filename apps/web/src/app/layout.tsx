@@ -6,6 +6,7 @@ import FancyLoader from "@/components/FancyLoader";
 import Link from "next/link";
 import SWRProvider from "@/components/SWRProvider";
 import WriteGuardLink from "@/components/WriteGuardLink";
+import TopProgressBar from "@/components/TopProgressBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,7 +57,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <FancyLoader route />
-        <header className="border-b sticky top-0 backdrop-blur bg-white/60 dark:bg-black/40 z-10">
+        <header className="border-b sticky top-0 bg-white/60 dark:bg-black/40 z-10">
           <div className="max-w-5xl mx-auto flex items-center justify-between p-4">
             <Link href="/" className="font-semibold">Blog MVP</Link>
             <nav className="flex items-center gap-4 text-sm">
@@ -70,6 +71,7 @@ export default function RootLayout({
               <AuthButton />
             </nav>
           </div>
+          <TopProgressBar />
         </header>
         <SWRProvider>{children}</SWRProvider>
       </body>
