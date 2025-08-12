@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet, apiPost } from "@/lib/api";
-import { onAuthStateChanged } from "firebase/auth";
-import { getFirebaseAuth } from "@/lib/firebaseClient";
+import { onAuthStateChanged, signInWithPopup } from "firebase/auth";
+import { getFirebaseAuth, googleProvider } from "@/lib/firebaseClient";
 
 type CommentItem = { id: string; text: string; author?: string; created_at?: string };
 
@@ -34,7 +34,19 @@ export default function Comments({ slug }: { slug: string }) {
     if (!text.trim()) return;
     setSending(true);
     try {
-      const headers = uid ? { "X-User-Id": uid } : undefined;
+      let userId = uid;
+      if (!userId) {
+        try {
+          const auth = getFirebaseAuth();
+          const res = await signInWithPopup(auth, googleProvider);
+          userId = res.user?.uid || null;
+          setUid(userId);
+        } catch {
+          setSending(false);
+          return;
+        }
+      }
+      const headers = userId ? { "X-User-Id": userId } : undefined;
       const c = await apiPost<CommentItem>(`/articles/${slug}/comments`, { text }, headers ? { headers } : undefined);
       setItems((prev) => [c, ...prev]);
       setText("");
@@ -56,14 +68,10 @@ export default function Comments({ slug }: { slug: string }) {
           ))}
           {items.length === 0 && <div className="text-sm text-gray-500">Пока нет комментариев.</div>}
         </ul>
-        {canPost ? (
-          <form onSubmit={submit} className="flex gap-2">
-            <input className="flex-1 border rounded px-3 py-2 bg-transparent" value={text} onChange={(e)=>setText(e.target.value)} placeholder="Написать комментарий" />
-            <button type="submit" disabled={sending} className="px-3 py-2 rounded bg-blue-600 text-white disabled:opacity-50">{sending? "Отправляю..." : "Отправить"}</button>
-          </form>
-        ) : (
-          <div className="text-sm text-gray-500">Войдите, чтобы комментировать.</div>
-        )}
+        <form onSubmit={submit} className="flex gap-2">
+          <input className="flex-1 border rounded px-3 py-2 bg-transparent" value={text} onChange={(e)=>setText(e.target.value)} placeholder="Написать комментарий" />
+          <button type="submit" disabled={sending} className="px-3 py-2 rounded bg-blue-600 text-white disabled:opacity-50">{sending? "Отправляю..." : (uid?"Отправить":"Войти и отправить")}</button>
+        </form>
       </div>
     </section>
   );

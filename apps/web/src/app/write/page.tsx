@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 const TrixEditor = dynamic(() => import("@/components/TrixEditor"), { ssr: false });
 import { useRouter } from "next/navigation";
-import { apiPost, apiPut } from "@/lib/api";
+import { apiGet, apiPost, apiPut } from "@/lib/api";
 import Image from "next/image";
 import PageLoader from "@/components/PageLoader";
 import FancyLoader from "@/components/FancyLoader";
@@ -14,6 +14,7 @@ export default function WritePage() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
   const [authorized, setAuthorized] = useState<boolean>(false);
+  const [currentUid, setCurrentUid] = useState<string | null>(null);
   // Stage 1
   const [title, setTitle] = useState<string>("");
   const titleRef = useRef<HTMLInputElement | null>(null);
@@ -66,9 +67,9 @@ export default function WritePage() {
   useEffect(() => {
     try {
       const auth = getFirebaseAuth();
-      const unsub = onAuthStateChanged(auth, (u) => setAuthorized(Boolean(u)));
+      const unsub = onAuthStateChanged(auth, (u) => { setAuthorized(Boolean(u)); setCurrentUid(u?.uid || null); });
       return () => unsub();
-    } catch { setAuthorized(false); }
+    } catch { setAuthorized(false); setCurrentUid(null); }
   }, []);
 
   // Restore draft from localStorage (title/content only)
@@ -83,6 +84,21 @@ export default function WritePage() {
       }
     } catch {}
   }, []);
+
+  // If restored draft belongs to other user, discard it to avoid 403 on PUT
+  useEffect(() => {
+    (async () => {
+      if (!currentUid || !draftSlug) return;
+      try {
+        const a = await apiGet<any>(`/articles/${draftSlug}`);
+        const owner = (a?.created_by || "").trim();
+        if (owner && owner !== currentUid) {
+          setDraftSlug(null);
+          try { localStorage.removeItem("draft.write"); } catch {}
+        }
+      } catch { /* ignore */ }
+    })();
+  }, [currentUid, draftSlug]);
 
   // Before unload confirmation when dirty
   useEffect(() => {
@@ -125,12 +141,29 @@ export default function WritePage() {
         setDraftSlug(slug);
         // setServerUpdatedAt(created.updated_at || null);
       } else {
-        const updated = await apiPut<{ updated_at?: string }>(`/articles/${slug}`, {
-          title: ((titleRef.current?.value ?? title) || "Untitled").trim(),
-          content: contentHtml,
-          is_published: false,
-        });
-        // setServerUpdatedAt((updated as { updated_at?: string }).updated_at || null);
+        try {
+          const updated = await apiPut<{ updated_at?: string }>(`/articles/${slug}`, {
+            title: ((titleRef.current?.value ?? title) || "Untitled").trim(),
+            content: contentHtml,
+            is_published: false,
+          });
+          // setServerUpdatedAt((updated as { updated_at?: string }).updated_at || null);
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          if (msg.includes("403")) {
+            const created = await apiPost<{ slug: string }>("/articles", {
+              title: ((titleRef.current?.value ?? title) || "Untitled").trim(),
+              content: contentHtml,
+              is_published: false,
+              tags: [],
+              category: tags[0] || "Технологии",
+            });
+            slug = created.slug;
+            setDraftSlug(slug);
+          } else {
+            throw e;
+          }
+        }
       }
       const now = new Date();
       setAutoStatus(`Сохранено в ${now.toLocaleTimeString()}`);
