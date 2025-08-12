@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 // import { apiGet } from "@/lib/api";
 import useSWR from "swr";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
@@ -9,6 +10,7 @@ import ArticleCard, { ArticleListItem } from "@/components/ArticleCard";
 type Article = ArticleListItem;
 
 export default function MyArticlesPage() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [items, setItems] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +41,13 @@ export default function MyArticlesPage() {
     setItems(arr || []);
   }, [user, data, allData, isLoading, swrError]);
 
+  // If user is authorized and has articles → redirect to author page
+  useEffect(() => {
+    if (!loading && user && items && items.length > 0) {
+      router.replace(`/author/${user.uid}`);
+    }
+  }, [loading, user, items, router]);
+
   return (
     <main className="mx-auto max-w-2xl p-6 space-y-4">
       <h1 className="text-2xl font-semibold">Мои статьи</h1>
@@ -49,22 +58,12 @@ export default function MyArticlesPage() {
         </div>
       )}
       {error && user && <div className="text-sm text-red-400">{error}</div>}
-      {user && Array.isArray(items) && (
+      {user && Array.isArray(items) && items.length === 0 && (
         <>
           <div>
             <a href="/write" className="px-3 py-2 rounded bg-blue-600 text-white">Написать</a>
           </div>
-          {items.length === 0 ? (
-            <div className="text-sm text-gray-500">Пока пусто</div>
-          ) : (
-            <ul className="space-y-3">
-              {items.map((a) => (
-                <li key={a.slug}>
-                  <ArticleCard a={a} />
-                </li>
-              ))}
-            </ul>
-          )}
+          <div className="text-sm text-gray-500">Пока нет статей. Начните с первой публикации.</div>
         </>
       )}
     </main>
