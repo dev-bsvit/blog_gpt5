@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthButton from "@/components/AuthButton";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -10,7 +10,7 @@ import TopProgressBar from "@/components/TopProgressBar";
 import HeaderSearch from "@/components/HeaderSearch";
 import Footer from "@/components/Footer";
 
-const geistSans = Geist({
+const geistSans = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
