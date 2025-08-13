@@ -69,7 +69,7 @@ export default function AuthButton() {
       onClick={isAuthed ? handleLogout : handleLogin}
       disabled={!envOk && !isAuthed}
       title={isAuthed ? (user?.displayName || user?.email || "Выход") : "Войти"}
-      className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-divider bg-secondary-block overflow-hidden"
+      className="inline-flex items-center justify-center w-12 h-12 rounded-full border border-divider bg-secondary-block overflow-hidden"
     >
       {isAuthed ? (
         avatarUrl ? (
@@ -79,7 +79,8 @@ export default function AuthButton() {
           <span className="text-sm text-secondary">{initials || ""}</span>
         )
       ) : (
-        <span className="block w-6 h-6 rounded-full bg-tertiary-block" />
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src="https://firebasestorage.googleapis.com/v0/b/blog-5gpt.firebasestorage.app/o/Logo_graf%2FAvatar.svg?alt=media&token=5c27966a-3631-4d85-9a7d-1f7ae8ec7900" alt="avatar" className="w-full h-full object-cover" />
       )}
     </button>
   );

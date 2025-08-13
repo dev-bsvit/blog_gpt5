@@ -35,7 +35,9 @@ export default function WriteGuardLink() {
 
   return (
     <>
-      <RainbowButton onClick={go} className="h-10 px-6" aria-label="Написать пост">Написать</RainbowButton>
+      <button onClick={go} aria-label="Написать пост" className="h-12 rounded-[12px] bg-black text-white px-5 md:px-[20px] inline-flex items-center justify-center" style={{ paddingLeft: 20, paddingRight: 20 }}>
+        Написать
+      </button>
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="w-full max-w-sm rounded-xl bg-zinc-900 p-5 border border-white/10 shadow-xl">
