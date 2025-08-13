@@ -1,10 +1,5 @@
 "use client";
-import LikeButton from "./LikeButton";
-import BookmarkButton from "./BookmarkButton";
-import SubscribeButton from "./SubscribeButton";
 import Link from "next/link";
-import Image from "next/image";
-import s from "./ArticleCard.module.css";
 
 export type ArticleListItem = {
   slug: string;
@@ -29,84 +24,54 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
   const author = a.created_by_name || a.created_by || "Автор";
   const tags = Array.isArray(a.tags) ? a.tags : [];
   return (
-    <article className={s.card}>
-      <div className={s.coverWrap}>
-        <Link href={`/article/${a.slug}`} className={s.cover}>
+    <article>
+      <div>
+        <Link href={`/article/${a.slug}`}>
           {a.cover_url ? (
-            <Image src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} fill priority={false} sizes="(max-width: 768px) 100vw, 720px" className={s.coverImg} />
-          ) : (
-            <div className="absolute inset-0 bg-tertiary-block" />
-          )}
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} />
+          ) : null}
         </Link>
       </div>
 
-      <div className={s.content}>
-        <div className={s.authorRow}>
-          <div className={s.authorLeft}>
-            <div className={s.avatarWrap} aria-hidden>
-              {a.created_by_photo && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={a.created_by_photo} alt={author} className={s.avatar} />
-              )}
-            </div>
+      <div>
+        <div>
+          <div>
+            {a.created_by_photo && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={a.created_by_photo} alt={author} width={40} height={40} />
+            )}
             <div>
-              <div className={`ty-body ${s.name}`}>
-                <Link href={a.created_by ? `/author/${a.created_by}` : "#"} className="underline decoration-transparent hover:decoration-inherit">
-                  {author}
-                </Link>
+              <div>
+                <Link href={a.created_by ? `/author/${a.created_by}` : "#"}>{author}</Link>
               </div>
-              <div className={`ty-meta ${s.meta}`}>
+              <div>
                 {a.category && <span>{a.category}</span>}
-                {a.reading_time_minutes && <>
-                  <span>·</span>
-                  <span>{a.reading_time_minutes} мин чтения</span>
-                </>}
+                {a.reading_time_minutes && <span> · {a.reading_time_minutes} мин чтения</span>}
               </div>
             </div>
           </div>
-          <SubscribeButton authorId={a.created_by} />
         </div>
 
-        <div className={s.title}>
-          <Link href={`/article/${a.slug}`} className="ty-h3 underline decoration-transparent hover:decoration-inherit">
-            {a.title || a.slug}
-          </Link>
-        </div>
-        {a.subtitle && (
-          <p className={`ty-subtitle ${s.subtitle}`}>{a.subtitle}</p>
-        )}
-
-        <div className={s.likeRow}>
-          <LikeButton slug={a.slug} />
+        <div>
+          <Link href={`/article/${a.slug}`}>{a.title || a.slug}</Link>
+          {a.subtitle && <p>{a.subtitle}</p>}
         </div>
 
-        {(tags.length > 0) && (
-          <div className={s.tags + " ty-meta"}>
+        {tags.length > 0 && (
+          <div>
             {tags.map((t) => (
-              <Link key={t} href={`/search?tag=${encodeURIComponent(t)}`} className="underline decoration-transparent hover:decoration-inherit">#{t}</Link>
+              <Link key={t} href={`/search?tag=${encodeURIComponent(t)}`}>#{t}</Link>
             ))}
           </div>
         )}
 
-        <div className={s.bottom}>
-          <div className={s.metricGroup}>
-            <span className={s.metric}>
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" fill="currentColor"/>
-              </svg>
-              {a.views ?? 0}
-            </span>
+        <div>
+          <div>
+            <span>👁️ {a.views ?? 0}</span>
           </div>
-          <div className={s.metricGroup}>
-            <span className={s.metric}>
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M21 6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3l4 4 4-4h3a2 2 0 0 0 2-2V6z" fill="currentColor"/>
-              </svg>
-              {(a.comments_count ?? 0) > 0 ? (a.comments_count as number) : null}
-            </span>
-            <span className={s.bookmarkBtn}>
-              <BookmarkButton slug={a.slug} />
-            </span>
+          <div>
+            <span>💬 {(a.comments_count ?? 0) || ""}</span>
           </div>
         </div>
       </div>
