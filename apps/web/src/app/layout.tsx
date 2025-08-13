@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import AuthButton from "@/components/AuthButton";
 import Link from "next/link";
+import Image from "next/image";
 import SWRProvider from "@/components/SWRProvider";
 import WriteGuardLink from "@/components/WriteGuardLink";
 import TopProgressBar from "@/components/TopProgressBar";
@@ -61,7 +62,15 @@ export default function RootLayout({
         <header className="border-b border-divider sticky top-0 z-10 backdrop-blur bg-block">
           <div className="max-w-6xl mx-auto grid grid-cols-3 items-center gap-4d pad-4d">
             <div className="flex items-center gap-4d">
-              <Link href="/" className="ty-title">Блог</Link>
+              <Link href="/" className="inline-flex items-center" aria-label="Home">
+                <Image
+                  src="https://firebasestorage.googleapis.com/v0/b/blog-5gpt.firebasestorage.app/o/Logo_graf%2Flogo.svg?alt=media&token=a00517a8-d4e1-4137-a05f-c70d8ae5f795"
+                  alt="Logo"
+                  width={120}
+                  height={32}
+                  priority
+                />
+              </Link>
               <Link href="/rss.xml" className="underline hidden md:inline" title="RSS">RSS</Link>
             </div>
             <div className="flex justify-center">
