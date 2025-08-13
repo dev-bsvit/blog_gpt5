@@ -76,3 +76,10 @@ NEXT_PUBLIC_FIREBASE_APP_ID=...
 ## Быстрая диагностика
 - Нет страницы на 3000 → убедиться, что dev запущен в `apps/web`.
 - Ошибки входа Firebase → проверить включение Google, `localhost` в Authorized domains, актуальность `.env.local`.
+
+## Деплой статус (Front + API)
+
+- Frontend (Vercel): проект настроен на директорию `apps/web`. Любой push в `main` запускает автодеплой. Переменные окружения используются: `NEXT_PUBLIC_API_BASE`, `NEXT_PUBLIC_SITE_URL`, и публичные ключи Firebase.
+- Backend (Render FastAPI): blueprint `render.yaml` активен. Деплой по push включён. CORS настроен под Vercel-домен.
+- Последние коммиты с UI‑изменениями (хедер, кнопка «Написать», сетка 3/8/3) успешно запушены и ушли в автодеплой.
+- Итого: деплой возможен в любой момент — достаточно сделать push в `main`.
