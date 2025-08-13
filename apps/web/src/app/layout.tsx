@@ -10,6 +10,7 @@ import WriteGuardLink from "@/components/WriteGuardLink";
 import TopProgressBar from "@/components/TopProgressBar";
 import HeaderSearch from "@/components/HeaderSearch";
 import Footer from "@/components/Footer";
+import DraftsLink from "@/components/DraftsLink";
 
 const geistSans = Inter({
   variable: "--font-geist-sans",
@@ -83,6 +84,7 @@ export default function RootLayout({
               {/* 3: Кнопка написать + аватар справа */}
               <nav className="puk-col-3 flex items-center justify-end gap-3 ty-body">
                 <WriteGuardLink />
+                <DraftsLink />
                 <AuthButton />
               </nav>
             </div>
