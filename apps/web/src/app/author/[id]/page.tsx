@@ -37,11 +37,9 @@ export default async function AuthorPage({
       {!items || items.length === 0 ? (
         <GridSkeleton items={6} />
       ) : (
-        <div className="puk-grid">
+        <div className="space-y-4">
           {items.map((a) => (
-            <div key={a.slug} className="puk-col-12 md-puk-col-6">
-              <ArticleCard a={a} />
-            </div>
+            <ArticleCard key={a.slug} a={a} />
           ))}
         </div>
       )}
