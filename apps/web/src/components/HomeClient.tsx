@@ -15,7 +15,7 @@ export default function HomeClient({ initialArticles, initialHealth }: { initial
   // function createTestArticle() { /* dev helper removed for prod build */ }
 
   return (
-    <main className="puk-container p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="ty-h3">Последние статьи</h2>
         <div className="ty-meta">API: {apiStatus}</div>
@@ -41,7 +41,7 @@ export default function HomeClient({ initialArticles, initialHealth }: { initial
           ))}
         </div>
       )}
-    </main>
+    </div>
   );
 }
 
