@@ -1,5 +1,24 @@
 # Project log (MVP blog platform)
 
+## Roadmap snapshot
+
+- Stage 0 — Base: Done (Next.js app, docs, Firebase rules, OpenAPI scaffold)
+- Stage 1 — Auth/Infra: Done (Firebase Auth, envs, base SEO files)
+- Stage 2 — Editor (MVP): Partial (create→redirect to be finalized; TipTap/tags/cover next)
+- Stage 3 — Publish & Feed: Done (MVP)
+- Stage 4 — Interactions: Done (MVP)
+- Stage 5 — Author profile: Partial
+- Stage 6 — Admin/moderation: Not started
+- Stage 7 — SEO pack: Partial (JSON‑LD, Lighthouse ≥95 pending)
+- Stage 8 — Counters/Search: Partial
+- Stage 9 — Design from Figma: In progress (tokens, 14‑col grid 3/8/3, cards, typography, themes)
+- Stage 10 — Prod/Deploy: Done (Vercel/Render)
+- Stage 11 — Import/AI draft: Not started
+
+Next two steps
+- A: write (MVP editor) → create + redirect to /article/[slug]
+- B: TipTap + tags/cover → save JSON content and meta
+
 Дата: 2025‑08‑10
 
 ## Что сделано
