@@ -1,5 +1,8 @@
 "use client";
 import Link from "next/link";
+import LikeButton from "./LikeButton";
+import BookmarkButton from "./BookmarkButton";
+import SubscribeButton from "./SubscribeButton";
 
 export type ArticleListItem = {
   slug: string;
@@ -26,7 +29,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
   return (
     <article>
       <div>
-        <Link href={`/article/${a.slug}`}>
+        <Link href={`/article/${a.slug}`} style={{ color: "inherit", textDecoration: "none" }}>
           {a.cover_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} />
@@ -43,7 +46,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
             )}
             <div>
               <div>
-                <Link href={a.created_by ? `/author/${a.created_by}` : "#"}>{author}</Link>
+                <Link href={a.created_by ? `/author/${a.created_by}` : "#"} style={{ color: "inherit", textDecoration: "none" }}>{author}</Link>
               </div>
               <div>
                 {a.category && <span>{a.category}</span>}
@@ -51,17 +54,24 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
               </div>
             </div>
           </div>
+          <div>
+            <SubscribeButton authorId={a.created_by} />
+          </div>
         </div>
 
         <div>
-          <Link href={`/article/${a.slug}`}>{a.title || a.slug}</Link>
+          <Link href={`/article/${a.slug}`} style={{ color: "inherit", textDecoration: "none" }}>{a.title || a.slug}</Link>
           {a.subtitle && <p>{a.subtitle}</p>}
+        </div>
+
+        <div>
+          <LikeButton slug={a.slug} />
         </div>
 
         {tags.length > 0 && (
           <div>
             {tags.map((t) => (
-              <Link key={t} href={`/search?tag=${encodeURIComponent(t)}`}>#{t}</Link>
+              <Link key={t} href={`/search?tag=${encodeURIComponent(t)}`} style={{ color: "inherit", textDecoration: "none" }}>#{t}</Link>
             ))}
           </div>
         )}
@@ -72,6 +82,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
           </div>
           <div>
             <span>💬 {(a.comments_count ?? 0) || ""}</span>
+            <BookmarkButton slug={a.slug} />
           </div>
         </div>
       </div>
