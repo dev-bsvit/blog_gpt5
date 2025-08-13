@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 const TrixEditor = dynamic(() => import("@/components/TrixEditor"), { ssr: false });
+import TrixAssets from "@/components/TrixAssets";
 import { useRouter } from "next/navigation";
 import { apiGet, apiPost, apiPut } from "@/lib/api";
 import Image from "next/image";
@@ -282,6 +283,7 @@ export default function WritePage() {
 
   return (
     <main className="mx-auto max-w-3xl p-6 space-y-6">
+      <TrixAssets />
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3 text-sm text-gray-400">
           <span>Тип: Статья</span>

@@ -3,6 +3,8 @@ import Link from "next/link";
 import s from "./ArticleCard.module.css";
 import LikeButton from "./LikeButton";
 import SubscribeButton from "./SubscribeButton";
+import BookmarkButton from "./BookmarkButton";
+import Image from "next/image";
 
 export type ArticleListItem = {
   slug: string;
@@ -28,6 +30,13 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
   const tags = Array.isArray(a.tags) ? a.tags : [];
   return (
     <article className={s.articleCard}>
+      {a.cover_url && (
+        <div className={s.coverWrap}>
+          <Link href={`/article/${a.slug}`} style={{ color: "inherit", textDecoration: "none" }} className={s.cover}>
+            <Image src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} fill sizes="(max-width: 768px) 100vw, 50vw" className={s.coverImg} />
+          </Link>
+        </div>
+      )}
       <div className={s.cardHeader}>
         <div className={s.authorInfo}>
           <span className={s.authorName}>
@@ -76,6 +85,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
           </svg>
           <span>{a.comments_count ?? 0}</span>
         </div>
+        <BookmarkButton slug={a.slug} className={s.bookmark} activeClassName={s.bookmarkActive} />
       </div>
     </article>
   );

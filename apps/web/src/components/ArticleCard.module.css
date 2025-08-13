@@ -5,6 +5,9 @@
 .coverImg { object-fit: cover; transition: transform 300ms ease; }
 .card:hover .coverImg { transform: scale(1.04); }
 
+.coverPlaceholder { position: relative; display: block; width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 20px; background: var(--bgTertiaryBlock); border: 1px dashed var(--strokeDivider); }
+.coverPlaceholder::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, #ffffff0d, transparent 60%); }
+
 .content { padding: 0 16px 16px 16px; display: flex; flex-direction: column; flex: 1 1 auto; }
 .authorRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; white-space: nowrap; overflow: hidden; }
 .authorLeft { display: flex; align-items: center; gap: 12px; min-width: 0; overflow: hidden; }

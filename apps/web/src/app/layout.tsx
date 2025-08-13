@@ -60,9 +60,7 @@ export default function RootLayout({
             } catch(e){}
           })();
         ` }} />
-        {/* Trix editor assets (official build) */}
-        <link rel="stylesheet" href="https://unpkg.com/trix@2.1.15/dist/trix.css" />
-        <script src="https://unpkg.com/trix@2.1.15/dist/trix.umd.min.js" defer />
+        {/* Trix assets moved to write page to avoid loading on all pages */}
         {apiOrigin && (
           <>
             <link rel="preconnect" href={apiOrigin} crossOrigin="" />
