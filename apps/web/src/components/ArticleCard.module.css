@@ -57,7 +57,7 @@
 .subscribeBtn { background: var(--controlBtnSecondaryBg); color: var(--controlBtnSecondaryContent); border: 1px solid var(--controlBtnSecondaryBorder); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
 .subscribeBtn:hover { background: var(--controlBtnSecondaryBgHover); color: var(--controlBtnSecondaryContent); border-color: var(--controlBtnSecondaryBorderHover); }
 .subscribeActive { background: var(--controlBtnPrimaryBg); color: var(--controlBtnPrimaryContent); border-color: var(--controlBtnPrimaryBorder); }
-.subscribeBtn:active { background: var(--controlBtnPrimaryBg); color: var(--controlBtnPrimaryContent); border-color: var(--controlBtnPrimaryBorder); }
+.subscribeBtn:active { background: var(--controlBtnSecondaryBgHover); color: var(--controlBtnSecondaryContent); border-color: var(--controlBtnSecondaryBorderHover); }
 .subscribeBtn:disabled { opacity: .6; }
 .articleTitle { font-size: 20px; font-weight: 700; line-height: 1.4; color: #1a1a1a; margin-bottom: 12px; cursor: pointer; }
 .articleDescription { font-size: 16px; line-height: 1.5; color: #4a4a4a; margin-bottom: 16px; }
@@ -70,7 +70,7 @@
 .interactionItem { display: flex; align-items: center; gap: 6px; color: #666666; font-size: 14px; cursor: pointer; }
 .interactionIcon { width: 18px; height: 18px; fill: currentColor; }
 .likeButton { background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #666666; }
-.likeButtonActive { color: #ff3b30; }
+.likeButtonActive { color: var(--textPrimary); }
 
 @media (max-width: 768px) {
   .articleCard { padding: 16px; margin-bottom: 12px; }
