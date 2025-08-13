@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
 import ArticleCard, { ArticleListItem } from "@/components/ArticleCard";
+import { GridSkeleton } from "@/components/Skeletons";
 
 type Article = ArticleListItem;
 
@@ -15,7 +16,9 @@ export default function DraftsPage() {
   return (
     <main className="puk-container p-6">
       <h1 className="ty-h2 mb-4">Черновики</h1>
-      {items.length === 0 ? (
+      {!items ? (
+        <GridSkeleton items={6} />
+      ) : items.length === 0 ? (
         <div className="ty-meta">Черновиков нет.</div>
       ) : (
         <div className="puk-grid">

@@ -1,18 +1,21 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function TopProgressBar({ height = 5, color = undefined as string | undefined }: { height?: number; color?: string }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const prev = useRef<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     // Skip first render
-    if (prev.current === null) { prev.current = pathname; return; }
-    if (prev.current !== pathname) {
-      prev.current = pathname;
+    const paramsString = searchParams?.toString() || "";
+    const key = `${pathname}?${paramsString}`;
+    if (prev.current === null) { prev.current = key; return; }
+    if (prev.current !== key) {
+      prev.current = key;
       // start
       setVisible(true);
       setProgress(10);
@@ -26,7 +29,7 @@ export default function TopProgressBar({ height = 5, color = undefined as string
       }, 480);
       return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     }
-  }, [pathname]);
+  }, [pathname, searchParams]);
 
   if (!visible) return null;
 
