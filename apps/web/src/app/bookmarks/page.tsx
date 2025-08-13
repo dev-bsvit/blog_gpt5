@@ -51,12 +51,11 @@ export default function BookmarksPage() {
         <div className="ty-meta">Пусто</div>
       )}
       {user && (
-        <div className="puk-grid">
-          <div className="hidden lg:block puk-col-3" />
-          <div className="puk-col-14 lg:puk-col-8">
+        <div>
+          {loading ? (
             <div className="puk-grid">
-              {loading && [0,1,2,3,4,5].map(i => (
-                <div key={i} className="puk-col-12 md:puk-col-6">
+              {[0,1,2,3,4,5].map(i => (
+                <div key={i} className="puk-col-12">
                   <div className="rounded-3xl border border-divider bg-block shadow-1 p-4 animate-pulse">
                     <div className="aspect-[16/9] rounded-2xl bg-tertiary-block" />
                     <div className="h-4 bg-tertiary-block mt-3 rounded" />
@@ -64,14 +63,14 @@ export default function BookmarksPage() {
                   </div>
                 </div>
               ))}
-              {!loading && items.map((a) => (
-                <div key={a.slug} className="puk-col-12 md:puk-col-6">
-                  <ArticleCard a={a} />
-                </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {items.map((a) => (
+                <ArticleCard key={a.slug} a={a} />
               ))}
             </div>
-          </div>
-          <div className="hidden lg:block puk-col-3" />
+          )}
         </div>
       )}
     </SiteShell>
