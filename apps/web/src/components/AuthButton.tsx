@@ -61,28 +61,27 @@ export default function AuthButton() {
     } catch {}
   }
 
-  if (user && authReady) {
-    return (
-      <button onClick={handleLogout} className="px-3 py-2 rounded btn-secondary">
-        Выйти ({user.displayName || user.email})
-      </button>
-    );
-  }
+  const avatarUrl = user?.photoURL || "";
+  const initials = (user?.displayName || user?.email || "").trim().slice(0,1).toUpperCase();
+  const isAuthed = Boolean(user && authReady);
   return (
-    <div className="flex flex-col items-center gap-2">
-      <button
-        onClick={handleLogin}
-        disabled={!envOk}
-        className="px-3 py-2 rounded btn-primary disabled:opacity-50"
-      >
-        Войти с Google
-      </button>
-      {!envOk && (
-        <div className="text-xs text-secondary">
-          Firebase не настроен. Заполните `.env.local` и перезапустите dev.
-        </div>
+    <button
+      onClick={isAuthed ? handleLogout : handleLogin}
+      disabled={!envOk && !isAuthed}
+      title={isAuthed ? (user?.displayName || user?.email || "Выход") : "Войти"}
+      className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-divider bg-secondary-block overflow-hidden"
+    >
+      {isAuthed ? (
+        avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-sm text-secondary">{initials || ""}</span>
+        )
+      ) : (
+        <span className="block w-6 h-6 rounded-full bg-tertiary-block" />
       )}
-    </div>
+    </button>
   );
 }
 

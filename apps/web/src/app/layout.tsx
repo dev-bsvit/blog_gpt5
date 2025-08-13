@@ -71,14 +71,13 @@ export default function RootLayout({
                   priority
                 />
               </Link>
-              <Link href="/rss.xml" className="underline hidden md:inline" title="RSS">RSS</Link>
+              {/* RSS link hidden per request */}
             </div>
             <div className="flex justify-center">
               <HeaderSearch />
             </div>
             <nav className="flex items-center justify-end gap-3d ty-body">
               <WriteGuardLink />
-              <Link href="/login" className="underline hidden sm:inline">Вход</Link>
               <AuthButton />
             </nav>
           </div>
