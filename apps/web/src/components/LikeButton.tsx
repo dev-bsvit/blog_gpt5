@@ -4,7 +4,7 @@ import { apiGet, apiPost } from "@/lib/api";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
 import { onAuthStateChanged } from "firebase/auth";
 
-export default function LikeButton({ slug }: { slug: string }) {
+export default function LikeButton({ slug, className, activeClassName }: { slug: string; className?: string; activeClassName?: string }) {
   const [likes, setLikes] = useState<number | null>(null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +61,7 @@ export default function LikeButton({ slug }: { slug: string }) {
   }
 
   return (
-    <button type="button" onClick={like} disabled={sending} title={liked ? "Убрать лайк" : "Поставить лайк"}>
+    <button type="button" onClick={like} disabled={sending} title={liked ? "Убрать лайк" : "Поставить лайк"} className={`${className || ""} ${liked ? (activeClassName || "") : ""}`.trim()}>
       {liked ? "♥" : "❤"} {likes ?? "..."}
     </button>
   );

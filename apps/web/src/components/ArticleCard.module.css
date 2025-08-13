@@ -1,3 +1,38 @@
-/* Purged to leave a bare HTML structure per request */
+/* Rebuild styles to match reference layout */
+.card { display: flex; flex-direction: column; height: 100%; border: 1px solid var(--strokeDivider); border-radius: 24px; background: var(--bgPrimaryBlock); box-shadow: 0 1px 3px var(--shadowShadow1); }
+.coverWrap { padding: 16px; }
+.cover { position: relative; display: block; width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 20px; }
+.coverImg { object-fit: cover; transition: transform 300ms ease; }
+.card:hover .coverImg { transform: scale(1.04); }
+
+.content { padding: 0 16px 16px 16px; display: flex; flex-direction: column; flex: 1 1 auto; }
+.authorRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; white-space: nowrap; overflow: hidden; }
+.authorLeft { display: flex; align-items: center; gap: 12px; min-width: 0; overflow: hidden; }
+.avatarWrap { width: 44px; height: 44px; border-radius: 42px; background: var(--controlInputBg); position: relative; display: grid; place-items: center; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.name { font-weight: 500; color: var(--textPrimary); overflow: hidden; text-overflow: ellipsis; }
+.meta { color: var(--textSecondary); display: flex; align-items: center; gap: 6px; margin-top: 4px; overflow: hidden; }
+
+.title { margin-top: 12px; color: var(--textPrimary); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.subtitle { margin-top: 8px; color: var(--textSecondary); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.likeRow { margin-top: 8px; }
+.likeBtn { height: 28px; padding: 0 12px; border-radius: 9999px; font-size: 13px; background: var(--controlBtnGhostBg); color: var(--textPrimary); border: 1px solid var(--controlBtnGhostBorder); }
+.likeActive { background: var(--controlBtnBrandBg); color: var(--controlBtnPrimaryContent); border-color: var(--controlBtnBrandBorder); }
+
+.tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+.tags a { color: var(--linkLink); text-decoration: underline; }
+.tags a:hover { color: var(--linkLinkHover); }
+
+.bottom { margin-top: auto; padding-top: 12px; display: flex; align-items: center; justify-content: space-between; }
+.metricGroup { display: flex; align-items: center; gap: 8px; color: var(--textSecondary); }
+.metric { display: inline-flex; align-items: center; gap: 6px; }
+.metric svg { width: 18px; height: 18px; }
+
+.bookmark { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; color: var(--textSecondary); }
+.bookmarkActive { color: var(--controlBtnPrimaryBg); }
+
+.subscribe { height: 28px; padding: 0 12px; border-radius: 9999px; font-size: 12px; background: var(--controlBtnGhostBg); color: var(--textPrimary); border: 1px solid var(--controlBtnGhostBorder); }
+.subscribeActive { background: var(--controlSuccessBg); color: var(--controlContentActive); border-color: var(--controlSuccessBorder); }
 
 

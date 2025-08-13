@@ -4,7 +4,7 @@ import { apiGet, apiPost } from "@/lib/api";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
 import { onAuthStateChanged } from "firebase/auth";
 
-export default function BookmarkButton({ slug }: { slug: string }) {
+export default function BookmarkButton({ slug, className, activeClassName }: { slug: string; className?: string; activeClassName?: string }) {
   const [bookmarked, setBookmarked] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,9 +49,9 @@ export default function BookmarkButton({ slug }: { slug: string }) {
   }
 
   return (
-    <button type="button" onClick={toggle} disabled={sending} title={bookmarked ? "В закладках" : "Добавить в закладки"}>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path d="M6 2a2 2 0 0 0-2 2v18l8-5.33L20 22V4a2 2 0 0 0-2-2H6z" fill={bookmarked ? "currentColor" : "currentColor"} />
+    <button type="button" onClick={toggle} disabled={sending} title={bookmarked ? "В закладках" : "Добавить в закладки"} className={`${className || ""} ${bookmarked ? (activeClassName || "") : ""}`.trim()}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+        <path d="M6 2a2 2 0 0 0-2 2v18l8-5.33L20 22V4a2 2 0 0 0-2-2H6z" />
       </svg>
     </button>
   );

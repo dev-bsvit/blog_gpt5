@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { apiGet, apiPost } from "@/lib/api";
 
-export default function SubscribeButton({ authorId }: { authorId?: string }) {
+export default function SubscribeButton({ authorId, className }: { authorId?: string; className?: string }) {
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [count, setCount] = useState<number | null>(null);
@@ -34,7 +34,7 @@ export default function SubscribeButton({ authorId }: { authorId?: string }) {
   }
 
   return (
-    <button type="button" onClick={toggle} disabled={loading} title={authorId ? `Автор: ${authorId}` : undefined}>
+    <button type="button" onClick={toggle} disabled={loading} title={authorId ? `Автор: ${authorId}` : undefined} className={className}>
       {subscribed ? "Подписан" : "Подписаться"}{count !== null ? ` (${count})` : ""}
     </button>
   );
