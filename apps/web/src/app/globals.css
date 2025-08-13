@@ -330,6 +330,7 @@
 @media (min-width: 1024px) { .puk-container { --container-padding: 24px; } }
 
 .puk-grid { display: grid; grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr)); column-gap: var(--grid-gutter); row-gap: var(--grid-row-gap); }
+.puk-grid-8 { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); column-gap: var(--grid-gutter); row-gap: var(--grid-row-gap); }
 .puk-col-12 { grid-column: span 12 / span 12; }
 .puk-col-14 { grid-column: span 14 / span 14; }
 .puk-col-6 { grid-column: span 6 / span 6; }
