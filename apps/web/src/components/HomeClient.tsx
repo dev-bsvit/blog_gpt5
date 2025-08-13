@@ -7,8 +7,9 @@ import { GridSkeleton } from "@/components/Skeletons";
 
 export default function HomeClient({ initialArticles, initialHealth }: { initialArticles: ArticleListItem[]; initialHealth: string }) {
   const [createResult, setCreateResult] = useState<string>("");
-  const { data: health } = useSWR("/articles/health", null, { fallbackData: { status: initialHealth } });
-  const { data: list, isLoading } = useSWR("/articles", null, { fallbackData: initialArticles });
+  // Дефолтный fetcher берётся из SWRConfig: используем сигнатуру useSWR(key, options)
+  const { data: health } = useSWR("/articles/health", { fallbackData: { status: initialHealth } });
+  const { data: list, isLoading } = useSWR("/articles", { fallbackData: initialArticles });
   const articles = useMemo(() => (list || []).filter((a: ArticleListItem) => a.is_published !== false), [list]);
   const apiStatus = (health as { status?: string })?.status ?? "...";
 
@@ -28,7 +29,7 @@ export default function HomeClient({ initialArticles, initialHealth }: { initial
           )}
         </div>
       )}
-      {isLoading ? (
+      {(isLoading && (!initialArticles || initialArticles.length === 0)) ? (
         <GridSkeleton items={6} />
       ) : articles.length === 0 ? (
         <div className="ty-meta">Пока пусто. Напишите первую статью.</div>

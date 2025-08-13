@@ -8,6 +8,9 @@ export default function SWRProvider({ children }: { children: React.ReactNode })
       value={{
         fetcher: (key: string): Promise<unknown> => apiGet<unknown>(key),
         revalidateOnFocus: false,
+        dedupingInterval: 5000,
+        revalidateOnReconnect: true,
+        keepPreviousData: true,
       }}
     >
       {children}

@@ -12,7 +12,7 @@
 :root {
   /* Default = Light theme */
   /* Backgrounds */
-  --bgPrimaryPage: #eef2fa;
+  --bgPrimaryPage: #F3EDE6;
   --bgPrimaryBlock: #ffffff;
   --bgSecondaryBlock: #ffffff;
   --bgSecondaryBlockAlt: #ffffff;
@@ -166,7 +166,7 @@
 
 /* Dark theme values */
 .theme-dark {
-  --bgPrimaryPage: #1f1f1f;
+  --bgPrimaryPage: #F3EDE6;
   --bgPrimaryBlock: #2f2e2e;
   --bgSecondaryBlock: #282828;
   --bgSecondaryBlockAlt: #282828;

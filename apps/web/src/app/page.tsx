@@ -10,7 +10,13 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
   const sp = (await (searchParams || Promise.resolve({}))) as { tab?: string };
   const tab = (sp?.tab || "feed").toLowerCase();
   if (!base) {
-    return <HomeClient initialArticles={[]} initialHealth={"unknown"} />;
+    // Без API показываем чисто SSR рамку страницы без скелетонов
+    return (
+      <SiteShell>
+        <h1 className="ty-h2 mb-3d">Лента</h1>
+        <HomeClient initialArticles={[]} initialHealth={"unknown"} />
+      </SiteShell>
+    );
   }
   try {
     const [healthRes, listRes] = await Promise.all([
