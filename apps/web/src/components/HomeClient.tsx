@@ -17,10 +17,7 @@ export default function HomeClient({ initialArticles, initialHealth }: { initial
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="ty-h3">Последние статьи</h2>
-        <div className="ty-meta">API: {apiStatus}</div>
-      </div>
+      {/* header removed per spec */}
       {createResult && (
         <div className="ty-meta">
           {createResult}

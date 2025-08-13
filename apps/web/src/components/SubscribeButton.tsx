@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { apiGet, apiPost } from "@/lib/api";
 
-export default function SubscribeButton({ authorId, className }: { authorId?: string; className?: string }) {
+export default function SubscribeButton({ authorId, className, activeClassName }: { authorId?: string; className?: string; activeClassName?: string }) {
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
   // убираем счётчик из UI
@@ -34,8 +34,9 @@ export default function SubscribeButton({ authorId, className }: { authorId?: st
     }
   }
 
+  const btnClass = `${className || ""} ${subscribed ? (activeClassName || "") : ""}`.trim();
   return (
-    <button type="button" onClick={toggle} disabled={loading} title={authorId ? `Автор: ${authorId}` : undefined} className={className}>
+    <button type="button" onClick={toggle} disabled={loading} title={authorId ? `Автор: ${authorId}` : undefined} className={btnClass}>
       {subscribed ? "Подписан" : "Подписаться"}
     </button>
   );

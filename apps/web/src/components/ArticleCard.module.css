@@ -56,7 +56,7 @@
 .separator { margin: 0 8px; color: #666666; }
 .subscribeBtn { background: var(--controlBtnSecondaryBg); color: var(--controlBtnSecondaryContent); border: 1px solid var(--controlBtnSecondaryBorder); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
 .subscribeBtn:hover { background: var(--controlBtnSecondaryBgHover); color: var(--controlBtnSecondaryContent); border-color: var(--controlBtnSecondaryBorderHover); }
-.subscribeBtn:active { background: var(--controlBtnPrimaryBg); color: var(--controlBtnPrimaryContent); border-color: var(--controlBtnPrimaryBorder); }
+.subscribeActive { background: var(--controlBtnPrimaryBg); color: var(--controlBtnPrimaryContent); border-color: var(--controlBtnPrimaryBorder); }
 .subscribeBtn:disabled { opacity: .6; }
 .articleTitle { font-size: 20px; font-weight: 700; line-height: 1.4; color: #1a1a1a; margin-bottom: 12px; cursor: pointer; }
 .articleDescription { font-size: 16px; line-height: 1.5; color: #4a4a4a; margin-bottom: 16px; }
