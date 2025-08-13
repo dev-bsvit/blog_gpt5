@@ -34,11 +34,9 @@ export default function HomeClient({ initialArticles, initialHealth }: { initial
       ) : articles.length === 0 ? (
         <div className="ty-meta">Пока пусто. Напишите первую статью.</div>
       ) : (
-        <div className="puk-grid-8">
+        <div className="space-y-4">
           {articles.map((a: ArticleListItem) => (
-            <div key={a.slug} className="col-span-8 md:col-span-4">
-              <ArticleCard a={a} />
-            </div>
+            <ArticleCard key={a.slug} a={a} />
           ))}
         </div>
       )}

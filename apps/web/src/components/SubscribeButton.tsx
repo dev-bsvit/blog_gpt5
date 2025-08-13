@@ -5,6 +5,7 @@ import { apiGet, apiPost } from "@/lib/api";
 export default function SubscribeButton({ authorId, className }: { authorId?: string; className?: string }) {
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
+  // убираем счётчик из UI
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function SubscribeButton({ authorId, className }: { authorId?: st
 
   return (
     <button type="button" onClick={toggle} disabled={loading} title={authorId ? `Автор: ${authorId}` : undefined} className={className}>
-      {subscribed ? "Подписан" : "Подписаться"}{count !== null ? ` (${count})` : ""}
+      {subscribed ? "Подписан" : "Подписаться"}
     </button>
   );
 }

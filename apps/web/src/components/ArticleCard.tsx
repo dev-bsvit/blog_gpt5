@@ -39,6 +39,10 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
       )}
       <div className={s.cardHeader}>
         <div className={s.authorInfo}>
+          {a.created_by_photo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={a.created_by_photo} alt={author} className={s.avatar} />
+          )}
           <span className={s.authorName}>
             <Link href={a.created_by ? `/author/${a.created_by}` : "#"} style={{ color: "inherit", textDecoration: "none" }}>{author}</Link>
           </span>
@@ -72,20 +76,24 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
       )}
 
       <div className={s.interactionBar}>
-        <LikeButton slug={a.slug} className={s.likeButton} activeClassName={s.likeButtonActive} />
-        <div className={s.interactionItem}>
-          <svg viewBox="0 0 24 24" className={s.interactionIcon} aria-hidden>
-            <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" fill="currentColor"/>
-          </svg>
-          <span>{a.views ?? 0}</span>
+        <div className={s.interactionLeft}>
+          <LikeButton slug={a.slug} className={s.likeButton} activeClassName={s.likeButtonActive} />
         </div>
-        <div className={s.interactionItem}>
-          <svg viewBox="0 0 24 24" className={s.interactionIcon} aria-hidden>
-            <path d="M21 6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3l4 4 4-4h3a2 2 0 0 0 2-2V6z" fill="currentColor"/>
-          </svg>
-          <span>{a.comments_count ?? 0}</span>
+        <div className={s.interactionRight}>
+          <div className={s.interactionItem}>
+            <svg viewBox="0 0 24 24" className={s.interactionIcon} aria-hidden>
+              <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" fill="currentColor"/>
+            </svg>
+            <span>{a.views ?? 0}</span>
+          </div>
+          <div className={s.interactionItem}>
+            <svg viewBox="0 0 24 24" className={s.interactionIcon} aria-hidden>
+              <path d="M21 6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3l4 4 4-4h3a2 2 0 0 0 2-2V6z" fill="currentColor"/>
+            </svg>
+            <span>{a.comments_count ?? 0}</span>
+          </div>
+          <BookmarkButton slug={a.slug} className={s.bookmark} activeClassName={s.bookmarkActive} />
         </div>
-        <BookmarkButton slug={a.slug} className={s.bookmark} activeClassName={s.bookmarkActive} />
       </div>
     </article>
   );
