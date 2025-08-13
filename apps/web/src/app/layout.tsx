@@ -59,7 +59,7 @@ export default function RootLayout({
         )}
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <header className="bg-page" style={{ borderBottom: "1px solid var(--controlBtnSecondaryBg)" }}>
+        <header className="bg-page sticky top-0 z-50" style={{ borderBottom: "1px solid var(--controlBtnSecondaryBg)" }}>
           <div className="puk-container pt-[24px] pb-[12px]">
             <div className="puk-grid items-center">
               {/* 3: Логотип слева */}
