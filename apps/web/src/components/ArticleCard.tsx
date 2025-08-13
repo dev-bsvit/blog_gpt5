@@ -54,7 +54,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
             </div>
           </div>
         </div>
-        <SubscribeButton authorId={a.created_by} className={s.subscribeBtn} activeClassName={s.subscribeActive} />
+        <SubscribeButton authorId={a.created_by} className={s.subscribeBtn} />
       </div>
 
       <h2 className={s.articleTitle}>
