@@ -38,7 +38,7 @@ export default function BookmarksPage() {
   return (
     <main className="puk-container p-6 space-y-4">
       <h1 className="ty-h2">Закладки</h1>
-      {loading && <div className="ty-meta">Загрузка…</div>}
+      <PageLoader active={loading} />
       {!loading && !user && (
         <div className="ty-meta">
           Требуется вход. Перейдите на страницу <a className="underline" href="/login">Вход</a> и вернитесь сюда.
@@ -53,7 +53,16 @@ export default function BookmarksPage() {
           <div className="hidden lg:block puk-col-3" />
           <div className="puk-col-14 lg:puk-col-8">
             <div className="puk-grid">
-              {items.map((a) => (
+              {loading && [0,1,2,3,4,5].map(i => (
+                <div key={i} className="puk-col-12 md:puk-col-6">
+                  <div className="rounded-3xl border border-divider bg-block shadow-1 p-4 animate-pulse">
+                    <div className="aspect-[16/9] rounded-2xl bg-tertiary-block" />
+                    <div className="h-4 bg-tertiary-block mt-3 rounded" />
+                    <div className="h-4 bg-tertiary-block mt-2 rounded w-2/3" />
+                  </div>
+                </div>
+              ))}
+              {!loading && items.map((a) => (
                 <div key={a.slug} className="puk-col-12 md:puk-col-6">
                   <ArticleCard a={a} />
                 </div>

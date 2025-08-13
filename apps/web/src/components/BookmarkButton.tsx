@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet, apiPost } from "@/lib/api";
+import { getFirebaseAuth } from "@/lib/firebaseClient";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function BookmarkButton({ slug }: { slug: string }) {
   const [bookmarked, setBookmarked] = useState(false);
@@ -8,16 +10,34 @@ export default function BookmarkButton({ slug }: { slug: string }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    apiGet<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`).then(r => setBookmarked(Boolean(r.bookmarked))).catch(()=>setBookmarked(false));
+    let unsub: (() => void) | undefined;
+    try {
+      const auth = getFirebaseAuth();
+      unsub = onAuthStateChanged(auth, async (u) => {
+        try {
+          const headers: HeadersInit | undefined = u?.uid ? { "X-User-Id": u.uid } : undefined;
+          const r = await apiGet<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`, { headers });
+          setBookmarked(Boolean(r.bookmarked));
+        } catch {
+          setBookmarked(false);
+        }
+      });
+    } catch {
+      apiGet<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`).then(r => setBookmarked(Boolean(r.bookmarked))).catch(()=>setBookmarked(false));
+    }
+    return () => { if (unsub) unsub(); };
   }, [slug]);
 
   async function toggle() {
     setSending(true);
     try {
       setError(null);
+      const auth = getFirebaseAuth();
+      const uid = auth.currentUser?.uid;
+      const headers: HeadersInit | undefined = uid ? { "X-User-Id": uid } : undefined;
       // optimistic
       setBookmarked((v) => !v);
-      const r = await apiPost<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`, {});
+      const r = await apiPost<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`, uid ? { user_id: uid } : {}, headers ? { headers } : undefined);
       setBookmarked(Boolean(r.bookmarked));
     } catch (e) {
       setError("Требуется вход");
