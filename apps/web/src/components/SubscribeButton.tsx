@@ -34,13 +34,7 @@ export default function SubscribeButton({ authorId }: { authorId?: string }) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      disabled={loading}
-      className={`px-3 py-1 rounded-full text-xs disabled:opacity-50 ${subscribed ? "btn-success" : "btn-ghost"}`}
-      title={authorId ? `Автор: ${authorId}` : undefined}
-    >
+    <button type="button" onClick={toggle} disabled={loading} title={authorId ? `Автор: ${authorId}` : undefined}>
       {subscribed ? "Подписан" : "Подписаться"}{count !== null ? ` (${count})` : ""}
     </button>
   );
