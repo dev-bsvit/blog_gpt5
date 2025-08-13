@@ -61,7 +61,7 @@ export default function AuthButton() {
     } catch {}
   }
 
-  const avatarUrl = user?.photoURL || "";
+  const avatarUrl = user?.photoURL || "https://firebasestorage.googleapis.com/v0/b/blog-5gpt.firebasestorage.app/o/Logo_graf%2FAvatar.svg?alt=media&token=5c27966a-3631-4d85-9a7d-1f7ae8ec7900";
   const initials = (user?.displayName || user?.email || "").trim().slice(0,1).toUpperCase();
   const isAuthed = Boolean(user && authReady);
   return (
