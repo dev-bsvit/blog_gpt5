@@ -59,27 +59,33 @@ export default function RootLayout({
         )}
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <header className="border-b border-divider sticky top-0 z-10 backdrop-blur bg-block">
-          <div className="max-w-6xl mx-auto grid grid-cols-3 items-center gap-4d pad-4d">
-            <div className="flex items-center gap-4d">
-              <Link href="/" className="inline-flex items-center" aria-label="Home">
-                <Image
-                  src="https://firebasestorage.googleapis.com/v0/b/blog-5gpt.firebasestorage.app/o/Logo_graf%2Flogo.svg?alt=media&token=a00517a8-d4e1-4137-a05f-c70d8ae5f795"
-                  alt="Logo"
-                  width={120}
-                  height={32}
-                  priority
-                />
-              </Link>
-              {/* RSS link hidden per request */}
+        <header className="bg-page" style={{ borderBottom: "1px solid var(--controlBtnSecondaryBg)" }}>
+          <div className="puk-container pt-[24px] pb-[12px]">
+            <div className="puk-grid items-center">
+              {/* 3: Логотип слева */}
+              <div className="puk-col-3 flex items-center">
+                <Link href="/" className="inline-flex items-center" aria-label="Home">
+                  <Image
+                    src="https://firebasestorage.googleapis.com/v0/b/blog-5gpt.firebasestorage.app/o/Logo_graf%2Flogo.svg?alt=media&token=a00517a8-d4e1-4137-a05f-c70d8ae5f795"
+                    alt="Logo"
+                    width={120}
+                    height={32}
+                    priority
+                  />
+                </Link>
+              </div>
+              {/* 8: Поиск по центру */}
+              <div className="puk-col-8 flex justify-center">
+                <div className="w-full" style={{ maxWidth: 640 }}>
+                  <HeaderSearch />
+                </div>
+              </div>
+              {/* 3: Кнопка написать + аватар справа */}
+              <nav className="puk-col-3 flex items-center justify-end gap-3 ty-body">
+                <WriteGuardLink />
+                <AuthButton />
+              </nav>
             </div>
-            <div className="flex justify-center">
-              <HeaderSearch />
-            </div>
-            <nav className="flex items-center justify-end gap-3d ty-body">
-              <WriteGuardLink />
-              <AuthButton />
-            </nav>
           </div>
           <Suspense fallback={null}>
             <TopProgressBar />
