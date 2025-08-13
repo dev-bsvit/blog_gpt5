@@ -876,6 +876,32 @@ def toggle_like(slug: str, authorization: Optional[str] = Header(default=None), 
     return {"likes": len(likes_set), "liked": liked}
 
 
+@app.post("/api/v1/articles/{slug}/likes/increment")
+def increment_like(slug: str):
+    """Increment likes counter regardless of user (no auth)."""
+    ensure_seed()
+    if using_firestore():
+        client = fs_client()
+        assert client is not None
+        ref = client.collection("articles").document(slug)
+        if not ref.get().exists:
+            raise HTTPException(status_code=404)
+        try:
+            ref.update({"likes": firestore.Increment(1)})
+        except Exception:
+            # if field doesn't exist, set to 1
+            data = ref.get().to_dict() or {}
+            data["likes"] = int(data.get("likes", 0)) + 1
+            ref.set(data, merge=True)
+        data = ref.get().to_dict() or {}
+        return {"likes": int(data.get("likes", 0))}
+    if slug not in articles_by_slug:
+        raise HTTPException(status_code=404)
+    # in-memory fallback
+    a = articles_by_slug[slug]
+    a["likes"] = int(a.get("likes", 0)) + 1
+    return {"likes": int(a.get("likes", 0))}
+
 @app.get("/api/v1/articles/{slug}/bookmark")
 def get_bookmark(slug: str, authorization: Optional[str] = Header(default=None)):
     ensure_seed()

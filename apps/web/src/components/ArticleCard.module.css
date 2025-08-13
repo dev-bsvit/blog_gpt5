@@ -20,6 +20,11 @@
 .likeBtn { height: 28px; padding: 0 12px; border-radius: 9999px; font-size: 13px; background: var(--controlBtnGhostBg); color: var(--textPrimary); border: 1px solid var(--controlBtnGhostBorder); }
 .likeActive { background: var(--controlBtnBrandBg); color: var(--controlBtnPrimaryContent); border-color: var(--controlBtnBrandBorder); }
 
+.confetti { position: absolute; pointer-events: none; display: inline-block; }
+.confetti > i { position: absolute; width: 4px; height: 4px; background: var(--textSecondary); border-radius: 50%; opacity: 0; transform: translate(0,0) scale(0.5); }
+.boom > i { animation: pop 600ms ease forwards; }
+@keyframes pop { 0% { opacity: 0; transform: translate(0,0) scale(0.5); } 50% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1); } }
+
 .tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
 .tags a { color: var(--linkLink); text-decoration: underline; }
 .tags a:hover { color: var(--linkLinkHover); }
