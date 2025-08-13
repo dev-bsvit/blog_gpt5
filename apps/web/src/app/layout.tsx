@@ -66,7 +66,7 @@ export default function RootLayout({
               <div className="puk-col-3 flex items-center">
                 <Link href="/" className="inline-flex items-center" aria-label="Home">
                   <Image
-                    src="https://firebasestorage.googleapis.com/v0/b/blog-5gpt.firebasestorage.app/o/Logo_graf%2FSVG.svg?alt=media&token=efba6aa9-d6bd-4a0d-bc52-4476757be9ea"
+                    src="https://firebasestorage.googleapis.com/v0/b/blog-5gpt.firebasestorage.app/o/Logo_graf%2Flogo.svg?alt=media&token=a00517a8-d4e1-4137-a05f-c70d8ae5f795"
                     alt="Logo"
                     width={120}
                     height={32}
