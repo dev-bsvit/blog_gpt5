@@ -33,7 +33,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
       <div className={s.coverWrap}>
         <Link href={`/article/${a.slug}`} className={s.cover}>
           {a.cover_url ? (
-            <Image src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} fill sizes="(max-width: 768px) 100vw, 720px" className={s.coverImg} />
+            <Image src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} fill priority={false} sizes="(max-width: 768px) 100vw, 720px" className={s.coverImg} />
           ) : (
             <div className="absolute inset-0 bg-tertiary-block" />
           )}
