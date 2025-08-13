@@ -1,11 +1,11 @@
 /* Rebuild styles to match reference layout */
 .card { display: flex; flex-direction: column; height: 100%; border: 1px solid var(--strokeDivider); border-radius: 24px; background: var(--bgPrimaryBlock); box-shadow: 0 1px 3px var(--shadowShadow1); }
-.coverWrap { padding: 0; margin: -10px -10px 12px -10px; }
-.cover { position: relative; display: block; width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 0; }
+.coverWrap { padding: 0; margin: 0 0 12px 0; }
+.cover { position: relative; display: block; width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 16px; }
 .coverImg { object-fit: cover; transition: transform 300ms ease; }
 .card:hover .coverImg { transform: scale(1.04); }
 
-.coverPlaceholder { position: relative; display: block; width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 20px; background: var(--bgTertiaryBlock); border: 1px dashed var(--strokeDivider); }
+.coverPlaceholder { position: relative; display: block; width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 16px; background: var(--bgTertiaryBlock); border: 1px dashed var(--strokeDivider); }
 .coverPlaceholder::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, #ffffff0d, transparent 60%); }
 
 .content { padding: 0 16px 16px 16px; display: flex; flex-direction: column; flex: 1 1 auto; }
@@ -54,7 +54,10 @@
 .category { font-size: 14px; color: #666666; }
 .readingTime { font-size: 14px; color: #666666; }
 .separator { margin: 0 8px; color: #666666; }
-.subscribeBtn { background: #007aff; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; }
+.subscribeBtn { background: var(--controlBtnSecondaryBg); color: var(--controlBtnSecondaryContent); border: 1px solid var(--controlBtnSecondaryBorder); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
+.subscribeBtn:hover { background: var(--controlBtnSecondaryBgHover); color: var(--controlBtnSecondaryContent); border-color: var(--controlBtnSecondaryBorderHover); }
+.subscribeBtn:active { background: var(--controlBtnPrimaryBg); color: var(--controlBtnPrimaryContent); border-color: var(--controlBtnPrimaryBorder); }
+.subscribeBtn:disabled { opacity: .6; }
 .articleTitle { font-size: 20px; font-weight: 700; line-height: 1.4; color: #1a1a1a; margin-bottom: 12px; cursor: pointer; }
 .articleDescription { font-size: 16px; line-height: 1.5; color: #4a4a4a; margin-bottom: 16px; }
 .tagsContainer { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
