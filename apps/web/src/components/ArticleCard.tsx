@@ -93,13 +93,8 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
 
         {/* Bottom actions and metrics */}
         <div className="mt-auto pt-[12px] flex items-center justify-between overflow-hidden">
+          {/* Left: views */}
           <div className="flex items-center gap-[12px] ty-meta" style={{ color: "var(--bgOverlay)" }}>
-            <span className="inline-flex items-center gap-[6px]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M21 6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3l4 4 4-4h3a2 2 0 0 0 2-2V6z" fill="currentColor"/>
-              </svg>
-              {a.comments_count ?? 0}
-            </span>
             <span className="inline-flex items-center gap-[6px]">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
                 <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" fill="currentColor"/>
@@ -107,7 +102,14 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
               {a.views ?? 0}
             </span>
           </div>
-          <div className="flex items-center gap-2d">
+          {/* Right: comments counter + bookmark icon */}
+          <div className="flex items-center gap-[12px] ty-meta" style={{ color: "var(--bgOverlay)" }}>
+            <span className="inline-flex items-center gap-[6px]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path d="M21 6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3l4 4 4-4h3a2 2 0 0 0 2-2V6z" fill="currentColor"/>
+              </svg>
+              {(a.comments_count ?? 0) > 0 ? (a.comments_count as number) : null}
+            </span>
             <BookmarkButton slug={a.slug} />
           </div>
         </div>
