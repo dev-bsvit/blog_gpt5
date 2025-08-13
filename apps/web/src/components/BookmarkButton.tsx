@@ -53,11 +53,11 @@ export default function BookmarkButton({ slug }: { slug: string }) {
       type="button"
       onClick={toggle}
       disabled={sending}
-      className={`px-2 py-1 rounded-full disabled:opacity-50 ${bookmarked ? "btn-primary" : "btn-ghost"}`}
+      className={`w-[24px] h-[24px] inline-flex items-center justify-center rounded-full disabled:opacity-50 ${bookmarked ? "btn-primary" : "btn-ghost"}`}
       title={bookmarked ? "В закладках" : "Добавить в закладки"}
     >
       <span className="inline-flex items-center gap-[6px]">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
           <path d="M6 2a2 2 0 0 0-2 2v18l8-5.33L20 22V4a2 2 0 0 0-2-2H6z" fill={bookmarked ? "var(--controlBtnPrimaryBg)" : "currentColor"} />
         </svg>
       </span>

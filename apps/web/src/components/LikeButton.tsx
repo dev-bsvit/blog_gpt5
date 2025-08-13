@@ -65,8 +65,9 @@ export default function LikeButton({ slug }: { slug: string }) {
       type="button"
       onClick={like}
       disabled={sending}
-      className={`px-3 py-1 rounded-full disabled:opacity-50 ${liked ? "bg-alert text-inv" : "btn-brand"}`}
+      className={`h-[28px] px-3 rounded-full text-sm disabled:opacity-50 ${liked ? "btn-brand" : "btn-ghost"}`}
       title={liked ? "Убрать лайк" : "Поставить лайк"}
+      style={{ color: liked ? "var(--controlContentActive)" : "var(--textPrimary)" }}
     >
       {liked ? "♥" : "❤"} {likes ?? "..."}
     </button>

@@ -30,7 +30,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
   return (
     <article className="group h-full rounded-3xl border border-divider bg-block shadow-1 transition hover:shadow-2 flex flex-col">
       {/* Cover with padding and rounded 16px */}
-      <div className="p-[12px]">
+      <div className="p-[16px]">
         <Link href={`/article/${a.slug}`} className="block relative aspect-[16/9] overflow-hidden rounded-2xl">
           {a.cover_url ? (
             <Image src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover transition-transform duration-300 group-hover:scale-105" />
@@ -41,9 +41,9 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
       </div>
 
       {/* Content */}
-      <div className="px-[12px] pb-[12px] flex-1 flex flex-col">
+      <div className="px-[16px] pb-[16px] flex-1 flex flex-col">
         {/* Author row + subscribe */}
-        <div className="flex items-center justify-between gap-[12px] flex-none overflow-hidden whitespace-nowrap">
+        <div className="flex items-center justify-between gap-[16px] flex-none overflow-hidden whitespace-nowrap">
           <div className="flex items-center gap-[12px] flex-1 min-w-0 overflow-hidden">
             {a.created_by_photo && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -73,12 +73,12 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
             {a.title || a.slug}
           </Link>
           {a.subtitle && (
-            <p className="ty-subtitle mt-1 line-clamp-2" style={{ color: "var(--textSecondary)" }}>{a.subtitle}</p>
+            <p className="ty-subtitle mt-[8px] line-clamp-2" style={{ color: "var(--textSecondary)" }}>{a.subtitle}</p>
           )}
         </div>
 
         {/* Like (emoji pill) */}
-        <div className="mt-[12px] flex-none">
+        <div className="mt-[8px] flex-none">
           <LikeButton slug={a.slug} />
         </div>
 
@@ -86,7 +86,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
         {(tags.length > 0) && (
           <div className="mt-[12px] flex flex-wrap gap-[8px] ty-meta">
             {tags.map((t) => (
-              <Link key={t} href={`/search?tag=${encodeURIComponent(t)}`} className="underline decoration-transparent hover:decoration-inherit text-primary">#{t}</Link>
+              <Link key={t} href={`/search?tag=${encodeURIComponent(t)}`} className="underline decoration-transparent hover:decoration-inherit">#{t}</Link>
             ))}
           </div>
         )}
@@ -94,18 +94,18 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
         {/* Bottom actions and metrics */}
         <div className="mt-auto pt-[12px] flex items-center justify-between overflow-hidden">
           {/* Left: views */}
-          <div className="flex items-center gap-[12px] ty-meta" style={{ color: "var(--bgOverlay)" }}>
+          <div className="flex items-center gap-[8px] ty-meta" style={{ color: "var(--textSecondary)" }}>
             <span className="inline-flex items-center gap-[6px]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
                 <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" fill="currentColor"/>
               </svg>
               {a.views ?? 0}
             </span>
           </div>
           {/* Right: comments counter + bookmark icon */}
-          <div className="flex items-center gap-[12px] ty-meta" style={{ color: "var(--bgOverlay)" }}>
+          <div className="flex items-center gap-[8px] ty-meta" style={{ color: "var(--textSecondary)" }}>
             <span className="inline-flex items-center gap-[6px]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
                 <path d="M21 6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3l4 4 4-4h3a2 2 0 0 0 2-2V6z" fill="currentColor"/>
               </svg>
               {(a.comments_count ?? 0) > 0 ? (a.comments_count as number) : null}
