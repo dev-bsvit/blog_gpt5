@@ -2,11 +2,14 @@ import HomeClient from "@/components/HomeClient";
 import HomeTabs from "@/components/HomeTabs";
 import { Suspense } from "react";
 import NewsList from "@/components/NewsList";
+import BookmarksPage from "@/app/bookmarks/page";
 
 export const revalidate = 30;
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams?: Promise<{ tab?: string }> }) {
   const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+  const sp = (await (searchParams || Promise.resolve({}))) as { tab?: string };
+  const tab = (sp?.tab || "feed").toLowerCase();
   if (!base) {
     return <HomeClient initialArticles={[]} initialHealth={"unknown"} />;
   }
@@ -29,8 +32,12 @@ export default async function Home() {
             </div>
             {/* Center: articles (8/14) */}
             <div className="puk-col-14 lg:puk-col-8">
-              <h1 className="ty-h2 mb-3d">Лента</h1>
-              <HomeClient initialArticles={list} initialHealth={health?.status || "ok"} />
+              <h1 className="ty-h2 mb-3d">{tab === "fav" ? "Избранное" : tab === "subs" ? "Подписки" : "Лента"}</h1>
+              {tab === "fav" ? (
+                <BookmarksPage />
+              ) : (
+                <HomeClient initialArticles={list} initialHealth={health?.status || "ok"} />
+              )}
             </div>
             {/* Right: news (3/14) */}
             <div className="hidden lg:block puk-col-3">
