@@ -429,6 +429,14 @@
 /* Utility for line clamp (if Tailwind plugin not present) */
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
+/* Global micro-confetti for like button */
+.confetti { position: absolute; pointer-events: none; display: inline-block; }
+.confetti > i { position: absolute; width: 4px; height: 4px; background: var(--textSecondary); border-radius: 50%; opacity: 0; transform: translate(0,0) scale(0.5); }
+.boom > i { animation: pop 600ms ease forwards; }
+@keyframes pop { 0% { opacity: 0; transform: translate(0,0) scale(0.5); } 50% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1); } }
+
+@keyframes fadeOut { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; transform: translateY(-6px); } }
+
 /* Links */
 a { color: var(--linkLink); }
 a:hover { color: var(--linkLinkHover); }
