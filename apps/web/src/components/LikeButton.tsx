@@ -61,13 +61,15 @@ export default function LikeButton({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <button type="button" onClick={like} disabled={sending}
-        className={`px-3 py-1 rounded disabled:opacity-50 ${liked ? "bg-alert text-inv" : "btn-brand"}`}>
-        {liked ? "♥" : "❤"} {likes ?? "..."}
-      </button>
-      {error && <span className="text-xs" style={{ color: "var(--textStatusAlert)" }}>{error}</span>}
-    </div>
+    <button
+      type="button"
+      onClick={like}
+      disabled={sending}
+      className={`px-3 py-1 rounded-full disabled:opacity-50 ${liked ? "bg-alert text-inv" : "btn-brand"}`}
+      title={liked ? "Убрать лайк" : "Поставить лайк"}
+    >
+      {liked ? "♥" : "❤"} {likes ?? "..."}
+    </button>
   );
 }
 

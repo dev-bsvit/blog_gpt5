@@ -426,6 +426,9 @@
 .btn-alert:hover { background-color: var(--controlAlertBgHover); border-color: var(--controlAlertBorderHover); }
 .btn-alert:active { background-color: var(--controlAlertBgPress); border-color: var(--controlAlertBorderPress); }
 
+/* Utility for line clamp (if Tailwind plugin not present) */
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
 /* Links */
 a { color: var(--linkLink); }
 a:hover { color: var(--linkLinkHover); }

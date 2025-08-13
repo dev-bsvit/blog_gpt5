@@ -1,4 +1,6 @@
 "use client";
+import LikeButton from "./LikeButton";
+import BookmarkButton from "./BookmarkButton";
 import SubscribeButton from "./SubscribeButton";
 import Link from "next/link";
 import Image from "next/image";
@@ -49,7 +51,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
             )}
             <div>
               <div className="ty-body font-medium overflow-hidden text-ellipsis">
-                <Link href={a.created_by ? `/author/${a.created_by}` : "#"} className="underline decoration-transparent hover:decoration-inherit overflow-hidden text-ellipsis">
+                <Link href={a.created_by ? `/author/${a.created_by}` : "#"} className="underline decoration-transparent hover:decoration-inherit overflow-hidden text-ellipsis" style={{ color: "var(--textPrimary)" }}>
                   {author}
                 </Link>
               </div>
@@ -67,19 +69,24 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
 
         {/* Title and subtitle */}
         <div className="mt-[12px] flex-none">
-          <Link href={`/article/${a.slug}`} className="ty-h3 underline decoration-transparent hover:decoration-inherit line-clamp-2">
+          <Link href={`/article/${a.slug}`} className="ty-h3 underline decoration-transparent hover:decoration-inherit line-clamp-2" style={{ color: "var(--textPrimary)" }}>
             {a.title || a.slug}
           </Link>
           {a.subtitle && (
-            <p className="ty-subtitle text-secondary mt-1 line-clamp-2">{a.subtitle}</p>
+            <p className="ty-subtitle mt-1 line-clamp-2" style={{ color: "var(--textSecondary)" }}>{a.subtitle}</p>
           )}
+        </div>
+
+        {/* Like (emoji pill) */}
+        <div className="mt-[12px] flex-none">
+          <LikeButton slug={a.slug} />
         </div>
 
         {/* Tags */}
         {(tags.length > 0) && (
           <div className="mt-[12px] flex flex-wrap gap-[8px] ty-meta">
             {tags.map((t) => (
-              <Link key={t} href={`/search?tag=${encodeURIComponent(t)}`} className="underline decoration-transparent hover:decoration-inherit">#{t}</Link>
+              <Link key={t} href={`/search?tag=${encodeURIComponent(t)}`} className="underline decoration-transparent hover:decoration-inherit text-primary">#{t}</Link>
             ))}
           </div>
         )}
@@ -99,12 +106,9 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
               </svg>
               {a.views ?? 0}
             </span>
-            <span className="inline-flex items-center gap-[6px]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M12.1 21.35l-1.1-.99C5.14 15.36 2 12.5 2 9.05 2 6.24 4.24 4 7.05 4c1.54 0 3.04.73 3.95 1.87C11.91 4.73 13.41 4 14.95 4 17.76 4 20 6.24 20 9.05c0 3.45-3.14 6.31-8.9 11.31l-1 0.99z" fill="currentColor"/>
-              </svg>
-              {a.likes ?? 0}
-            </span>
+          </div>
+          <div className="flex items-center gap-2d">
+            <BookmarkButton slug={a.slug} />
           </div>
         </div>
       </div>
