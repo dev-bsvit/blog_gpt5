@@ -1,6 +1,7 @@
 import ArticleCard, { ArticleListItem } from "@/components/ArticleCard";
 import SubscribeButton from "@/components/SubscribeButton";
 import PageLoader from "@/components/PageLoader";
+import { GridSkeleton } from "@/components/Skeletons";
 
 export const revalidate = 60;
 
@@ -32,8 +33,8 @@ export default async function AuthorPage({
         <h1 className="ty-h2">Автор: {authorName}</h1>
         <SubscribeButton authorId={id} />
       </header>
-      {items.length === 0 ? (
-        <div className="ty-meta">Пока нет статей.</div>
+      {!items || items.length === 0 ? (
+        <GridSkeleton items={6} />
       ) : (
         <div className="puk-grid">
           <div className="hidden lg:block puk-col-3" />

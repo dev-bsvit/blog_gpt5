@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
 // import useSWR from "swr";
 import ArticleCard, { ArticleListItem } from "@/components/ArticleCard";
+import { GridSkeleton } from "@/components/Skeletons";
 
 type Article = ArticleListItem;
 
@@ -36,11 +37,15 @@ export default function SearchPage() {
         <div className="hidden lg:block puk-col-3" />
         <div className="puk-col-14 lg:puk-col-8">
           <div className="puk-grid">
-            {items.map(a=> (
-              <div key={a.slug} className="puk-col-12 md:puk-col-6">
-                <ArticleCard a={a} />
-              </div>
-            ))}
+            {loading ? (
+              <GridSkeleton items={6} />
+            ) : (
+              items.map(a=> (
+                <div key={a.slug} className="puk-col-12 md:puk-col-6">
+                  <ArticleCard a={a} />
+                </div>
+              ))
+            )}
           </div>
         </div>
         <div className="hidden lg:block puk-col-3" />
