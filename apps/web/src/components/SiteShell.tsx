@@ -1,0 +1,24 @@
+"use client";
+import { Suspense } from "react";
+import HomeTabs from "@/components/HomeTabs";
+import NewsList from "@/components/NewsList";
+
+export default function SiteShell({ children }: { children: React.ReactNode }) {
+  return (
+    <main className="puk-container p-6">
+      <div className="puk-grid">
+        <div className="hidden lg:block puk-col-3">
+          <Suspense fallback={null}><HomeTabs /></Suspense>
+        </div>
+        <div className="puk-col-14 lg:puk-col-8">
+          {children}
+        </div>
+        <div className="hidden lg:block puk-col-3">
+          <NewsList />
+        </div>
+      </div>
+    </main>
+  );
+}
+
+

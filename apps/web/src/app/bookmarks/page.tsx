@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 // import { apiGet } from "@/lib/api";
 import useSWR from "swr";
+import SiteShell from "@/components/SiteShell";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
 import { onAuthStateChanged, User } from "firebase/auth";
 import ArticleCard, { ArticleListItem } from "@/components/ArticleCard";
@@ -37,7 +38,7 @@ export default function BookmarksPage() {
   }, [user, data, isLoading]);
 
   return (
-    <main className="puk-container p-6 space-y-4">
+    <SiteShell>
       <h1 className="ty-h2">Закладки</h1>
       <PageLoader active={loading} />
       {!loading && !user && (
@@ -73,7 +74,7 @@ export default function BookmarksPage() {
           <div className="hidden lg:block puk-col-3" />
         </div>
       )}
-    </main>
+    </SiteShell>
   );
 }
 

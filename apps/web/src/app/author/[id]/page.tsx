@@ -2,6 +2,7 @@ import ArticleCard, { ArticleListItem } from "@/components/ArticleCard";
 import SubscribeButton from "@/components/SubscribeButton";
 import PageLoader from "@/components/PageLoader";
 import { GridSkeleton } from "@/components/Skeletons";
+import SiteShell from "@/components/SiteShell";
 
 export const revalidate = 60;
 
@@ -28,7 +29,7 @@ export default async function AuthorPage({
   const authorName = items[0]?.created_by_name || id;
 
   return (
-    <main className="puk-container p-6 space-y-4">
+    <SiteShell>
       <header className="flex items-center justify-between">
         <h1 className="ty-h2">Автор: {authorName}</h1>
         <SubscribeButton authorId={id} />
@@ -37,23 +38,15 @@ export default async function AuthorPage({
         <GridSkeleton items={6} />
       ) : (
         <div className="puk-grid">
-          <div className="hidden lg:block puk-col-3" />
-          <div className="puk-col-14 lg:puk-col-8">
-            <div className="puk-grid">
-              {items.map((a) => (
-                <div key={a.slug} className="puk-col-12 md:puk-col-6">
-                  <ArticleCard a={a} />
-                </div>
-              ))}
+          {items.map((a) => (
+            <div key={a.slug} className="puk-col-12 md:puk-col-6">
+              <ArticleCard a={a} />
             </div>
-          </div>
-          <div className="hidden lg:block puk-col-3" />
+          ))}
         </div>
       )}
-      {/* SSR страницы автора может подтягиваться долго — покажем loader на клиенте при навигации */}
-      {/* PageLoader здесь на SSR не активен, но пригодится при клиентских переходах */}
       <PageLoader active={false} />
-    </main>
+    </SiteShell>
   );
 }
 

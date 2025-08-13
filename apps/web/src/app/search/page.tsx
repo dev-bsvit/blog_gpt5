@@ -4,6 +4,7 @@ import { apiGet } from "@/lib/api";
 // import useSWR from "swr";
 import ArticleCard, { ArticleListItem } from "@/components/ArticleCard";
 import { GridSkeleton } from "@/components/Skeletons";
+import SiteShell from "@/components/SiteShell";
 
 type Article = ArticleListItem;
 
@@ -27,30 +28,24 @@ export default function SearchPage() {
   useEffect(() => { /* no-op */ }, []);
 
   return (
-    <main className="puk-container p-6 space-y-4">
+    <SiteShell>
       <h1 className="ty-h2">Поиск</h1>
       <form onSubmit={(e)=>{e.preventDefault(); run();}} className="flex gap-2d">
         <input className="flex-1 border border-divider rounded-2xl px-3d py-2d bg-transparent" placeholder="запрос..." value={q} onChange={e=>setQ(e.target.value)} />
         <button className="px-3d py-2d rounded-2xl btn-primary" disabled={loading}>Найти</button>
       </form>
       <div className="puk-grid">
-        <div className="hidden lg:block puk-col-3" />
-        <div className="puk-col-14 lg:puk-col-8">
-          <div className="puk-grid">
-            {loading ? (
-              <GridSkeleton items={6} />
-            ) : (
-              items.map(a=> (
-                <div key={a.slug} className="puk-col-12 md:puk-col-6">
-                  <ArticleCard a={a} />
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-        <div className="hidden lg:block puk-col-3" />
+        {loading ? (
+          <GridSkeleton items={6} />
+        ) : (
+          items.map(a=> (
+            <div key={a.slug} className="puk-col-12 md:puk-col-6">
+              <ArticleCard a={a} />
+            </div>
+          ))
+        )}
       </div>
-    </main>
+    </SiteShell>
   );
 }
 
