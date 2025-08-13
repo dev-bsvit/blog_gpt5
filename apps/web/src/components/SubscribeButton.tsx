@@ -38,10 +38,10 @@ export default function SubscribeButton({ authorId }: { authorId?: string }) {
       type="button"
       onClick={toggle}
       disabled={loading}
-      className={`px-2 py-1 rounded text-xs disabled:opacity-50 ${subscribed ? "bg-success text-inv" : "btn-secondary"}`}
+      className={`px-3 py-1 rounded-full text-xs disabled:opacity-50 ${subscribed ? "btn-success" : "btn-ghost"}`}
       title={authorId ? `Автор: ${authorId}` : undefined}
     >
-      {subscribed ? "✓ Подписан" : "+ Подписаться"}{count !== null ? ` (${count})` : ""}
+      {subscribed ? "Подписан" : "Подписаться"}{count !== null ? ` (${count})` : ""}
     </button>
   );
 }

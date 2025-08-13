@@ -1,8 +1,5 @@
 "use client";
-import LikeButton from "./LikeButton";
-import BookmarkButton from "./BookmarkButton";
 import SubscribeButton from "./SubscribeButton";
-import { formatDate } from "@/lib/date";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -31,7 +28,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
   return (
     <article className="group h-full rounded-3xl border border-divider bg-block shadow-1 transition hover:shadow-2 flex flex-col">
       {/* Cover with padding and rounded 16px */}
-      <div className="p-[10px]">
+      <div className="p-[12px]">
         <Link href={`/article/${a.slug}`} className="block relative aspect-[16/9] overflow-hidden rounded-2xl">
           {a.cover_url ? (
             <Image src={a.cover_url} alt={a.cover_alt || a.title || a.slug || "cover"} fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover transition-transform duration-300 group-hover:scale-105" />
@@ -42,13 +39,13 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
       </div>
 
       {/* Content */}
-      <div className="px-[10px] pb-[10px] flex-1 flex flex-col">
+      <div className="px-[12px] pb-[12px] flex-1 flex flex-col">
         {/* Author row + subscribe */}
-        <div className="flex items-center justify-between gap-[10px] flex-none overflow-hidden whitespace-nowrap">
-          <div className="flex items-center gap-[10px] flex-1 min-w-0 overflow-hidden">
+        <div className="flex items-center justify-between gap-[12px] flex-none overflow-hidden whitespace-nowrap">
+          <div className="flex items-center gap-[12px] flex-1 min-w-0 overflow-hidden">
             {a.created_by_photo && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={a.created_by_photo} alt={author} className="w-[44px] h-[44px] rounded-full object-cover" />
+              <img src={a.created_by_photo} alt={author} className="w-[40px] h-[40px] rounded-full object-cover" />
             )}
             <div>
               <div className="ty-body font-medium overflow-hidden text-ellipsis">
@@ -65,33 +62,31 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
               </div>
             </div>
           </div>
-          <div className="flex-none" style={{ width: 106 }}>
-            <SubscribeButton authorId={a.created_by} />
-          </div>
+          <SubscribeButton authorId={a.created_by} />
         </div>
 
         {/* Title and subtitle */}
-        <div className="mt-[10px] flex-none">
-          <Link href={`/article/${a.slug}`} className="ty-h3 underline decoration-transparent hover:decoration-inherit">
+        <div className="mt-[12px] flex-none">
+          <Link href={`/article/${a.slug}`} className="ty-h3 underline decoration-transparent hover:decoration-inherit line-clamp-2">
             {a.title || a.slug}
           </Link>
           {a.subtitle && (
-            <p className="ty-subtitle mt-1">{a.subtitle}</p>
+            <p className="ty-subtitle text-secondary mt-1 line-clamp-2">{a.subtitle}</p>
           )}
         </div>
 
         {/* Tags */}
         {(tags.length > 0) && (
-          <div className="mt-[10px] flex flex-wrap gap-2d">
+          <div className="mt-[12px] flex flex-wrap gap-[8px] ty-meta">
             {tags.map((t) => (
-              <span key={t} className="ty-meta px-2 py-1 rounded-2xl border border-divider text-brand">#{t}</span>
+              <Link key={t} href={`/search?tag=${encodeURIComponent(t)}`} className="underline decoration-transparent hover:decoration-inherit">#{t}</Link>
             ))}
           </div>
         )}
 
         {/* Bottom actions and metrics */}
-        <div className="mt-auto pt-[10px] flex items-center justify-between overflow-hidden">
-          <div className="flex items-center gap-[10px] ty-meta" style={{ color: "var(--bgOverlay)" }}>
+        <div className="mt-auto pt-[12px] flex items-center justify-between overflow-hidden">
+          <div className="flex items-center gap-[12px] ty-meta" style={{ color: "var(--bgOverlay)" }}>
             <span className="inline-flex items-center gap-[6px]">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
                 <path d="M21 6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3l4 4 4-4h3a2 2 0 0 0 2-2V6z" fill="currentColor"/>
@@ -104,10 +99,12 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
               </svg>
               {a.views ?? 0}
             </span>
-          </div>
-          <div className="flex items-center gap-2d">
-            <LikeButton slug={a.slug} />
-            <BookmarkButton slug={a.slug} />
+            <span className="inline-flex items-center gap-[6px]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path d="M12.1 21.35l-1.1-.99C5.14 15.36 2 12.5 2 9.05 2 6.24 4.24 4 7.05 4c1.54 0 3.04.73 3.95 1.87C11.91 4.73 13.41 4 14.95 4 17.76 4 20 6.24 20 9.05c0 3.45-3.14 6.31-8.9 11.31l-1 0.99z" fill="currentColor"/>
+              </svg>
+              {a.likes ?? 0}
+            </span>
           </div>
         </div>
       </div>
