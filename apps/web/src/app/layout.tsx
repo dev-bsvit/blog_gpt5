@@ -76,7 +76,7 @@ export default function RootLayout({
               </div>
               {/* 8: Поиск по центру */}
               <div className="puk-col-8 flex justify-center">
-                <div className="w-full" style={{ maxWidth: 640 }}>
+                <div className="w-full" style={{ maxWidth: "unset" }}>
                   <HeaderSearch />
                 </div>
               </div>

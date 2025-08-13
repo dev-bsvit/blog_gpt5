@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useRouter } from "next/navigation";
 import { getFirebaseAuth, googleProvider } from "@/lib/firebaseClient";
 import { onAuthStateChanged, signInWithPopup } from "firebase/auth";
@@ -34,9 +35,7 @@ export default function WriteGuardLink() {
 
   return (
     <>
-      <button onClick={go} className="btn-rainbow" aria-label="Написать пост">
-        <span>Написать</span>
-      </button>
+      <RainbowButton onClick={go} className="h-10 px-6" aria-label="Написать пост">Написать</RainbowButton>
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="w-full max-w-sm rounded-xl bg-zinc-900 p-5 border border-white/10 shadow-xl">
