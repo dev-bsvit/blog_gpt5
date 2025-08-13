@@ -10,7 +10,7 @@ const tabs: Tab[] = [
 ];
 
 function Icon({ name, active }: { name: Tab["icon"]; active: boolean }) {
-  const color = active ? "#292C32" : "#A4A8B2";
+  const color = active ? "var(--textPrimary)" : "var(--bgOverlay)";
   if (name === "home") {
     return (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
@@ -37,16 +37,16 @@ export default function HomeTabs() {
   const sp = useSearchParams();
   const active = pathname === "/" ? (sp.get("tab") || "feed") : "";
   return (
-    <div className="flex flex-col items-start rounded-[24px] bg-[#FFFFFF] w-[288px] h-[230px] p-[10px]">
-      <nav className="flex flex-col gap-[10px]">
+    <div className="flex flex-col items-start rounded-[24px] bg-[#FFFFFF] w-full p-[10px]">
+      <nav className="flex flex-col gap-[10px] w-full">
         {tabs.map(t => {
           const isActive = active === t.key;
           return (
             <Link
               key={t.key}
               href={t.href}
-              className={`flex items-center gap-[10px] p-[10px] rounded-[8px] border ${isActive ? "text-[#292C32]" : "text-[#676E7E]"}`}
-              style={{ borderColor: "#D1D3D8" }}
+              className={`flex items-center gap-[10px] p-[10px] rounded-[8px] w-full`}
+              style={{ color: isActive ? "var(--textPrimary)" : "var(--bgOverlay)" }}
             >
               <Icon name={t.icon} active={isActive} />
               <span className="text-[16px] leading-[1.35]">{t.label}</span>
