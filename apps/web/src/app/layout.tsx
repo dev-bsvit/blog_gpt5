@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import AuthButton from "@/components/AuthButton";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -87,7 +88,9 @@ export default function RootLayout({
               <ThemeToggle />
             </nav>
           </div>
-          <TopProgressBar />
+          <Suspense fallback={null}>
+            <TopProgressBar />
+          </Suspense>
         </header>
         <SWRProvider>{children}</SWRProvider>
         <Footer />
