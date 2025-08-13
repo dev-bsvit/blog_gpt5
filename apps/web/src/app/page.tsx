@@ -21,14 +21,15 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
     const list = await listRes.json();
     return (
       <>
-        <SiteShell>
-          <h1 className="ty-h2 mb-3d">{tab === "fav" ? "Избранное" : tab === "subs" ? "Подписки" : "Лента"}</h1>
-          {tab === "fav" ? (
-            <BookmarksPage />
-          ) : (
+        {tab === "fav" ? (
+          // Страница закладок уже содержит SiteShell внутри
+          <BookmarksPage />
+        ) : (
+          <SiteShell>
+            <h1 className="ty-h2 mb-3d">{tab === "subs" ? "Подписки" : "Лента"}</h1>
             <HomeClient initialArticles={list} initialHealth={health?.status || "ok"} />
-          )}
-        </SiteShell>
+          </SiteShell>
+        )}
       </>
     );
   } catch {
