@@ -46,19 +46,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Prevent FOUC: inline theme setter */}
+        {/* Force light theme: remove dark switching */}
         <script dangerouslySetInnerHTML={{ __html: `
-          (function(){
-            try {
-              var theme = localStorage.getItem('theme');
-              if(!theme){
-                var m = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-                theme = (m && m.matches) ? 'dark' : 'light';
-              }
-              if(theme === 'dark') document.documentElement.classList.add('theme-dark');
-              else document.documentElement.classList.remove('theme-dark');
-            } catch(e){}
-          })();
+          try { document.documentElement.classList.remove('theme-dark'); localStorage.setItem('theme','light'); } catch(e){}
         ` }} />
         {/* Trix assets moved to write page to avoid loading on all pages */}
         {apiOrigin && (
@@ -80,7 +70,6 @@ export default function RootLayout({
             </div>
             <nav className="flex items-center justify-end gap-3d ty-body">
               <WriteGuardLink />
-              <Link href="/write" className="px-3d py-2d rounded-2xl btn-secondary hidden sm:inline">Написать</Link>
               <Link href="/login" className="underline hidden sm:inline">Вход</Link>
               <AuthButton />
               <ThemeToggle />
