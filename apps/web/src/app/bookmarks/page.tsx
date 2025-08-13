@@ -5,6 +5,7 @@ import useSWR from "swr";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
 import { onAuthStateChanged, User } from "firebase/auth";
 import ArticleCard, { ArticleListItem } from "@/components/ArticleCard";
+import PageLoader from "@/components/PageLoader";
 
 type Article = ArticleListItem;
 
