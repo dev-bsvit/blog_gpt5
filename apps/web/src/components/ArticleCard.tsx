@@ -43,21 +43,16 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={a.created_by_photo} alt={author} className={s.avatar} />
           )}
-          <span className={s.authorName}>
-            <Link href={a.created_by ? `/author/${a.created_by}` : "#"} style={{ color: "inherit", textDecoration: "none" }}>{author}</Link>
-          </span>
-          {a.category && (
-            <>
-              <span className={s.separator}>·</span>
-              <span className={s.category}>{a.category}</span>
-            </>
-          )}
-          {a.reading_time_minutes ? (
-            <>
-              <span className={s.separator}>·</span>
-              <span className={s.readingTime}>{a.reading_time_minutes} мин чтения</span>
-            </>
-          ) : null}
+          <div className={s.authorText}>
+            <span className={s.authorName}>
+              <Link href={a.created_by ? `/author/${a.created_by}` : "#"} style={{ color: "inherit", textDecoration: "none" }}>{author}</Link>
+            </span>
+            <div className={s.metaRow}>
+              {a.category && <span className={s.category}>{a.category}</span>}
+              {a.category && a.reading_time_minutes ? <span className={s.separator}>·</span> : null}
+              {a.reading_time_minutes ? <span className={s.readingTime}>{a.reading_time_minutes} мин чтения</span> : null}
+            </div>
+          </div>
         </div>
         <SubscribeButton authorId={a.created_by} className={s.subscribeBtn} />
       </div>
