@@ -385,6 +385,47 @@
 .btn-brand:hover { background-color: var(--controlBtnBrandBgHover); border-color: var(--controlBtnBrandBorderHover); }
 .btn-brand:active { background-color: var(--controlBtnBrandBgPress); border-color: var(--controlBtnBrandBorderPress); }
 
+/* Extra button variants from tokens */
+.btn-inverted {
+  background-color: var(--controlBtnInvertedBg);
+  color: var(--controlBtnInvertedContent);
+  border: 1px solid var(--controlBtnInvertedBorder);
+}
+.btn-inverted:hover { background-color: var(--controlBtnInvertedBgHover); border-color: var(--controlBtnInvertedBorderHover); }
+.btn-inverted:active { background-color: var(--controlBtnInvertedBgPress); border-color: var(--controlBtnInvertedBorderPress); }
+
+.btn-ghost {
+  background-color: var(--controlBtnGhostBg);
+  color: var(--controlBtnGhostContent);
+  border: 1px solid var(--controlBtnGhostBorder);
+}
+.btn-ghost:hover { background-color: var(--controlBtnGhostBgHover); border-color: var(--controlBtnGhostBorderHover); }
+.btn-ghost:active { background-color: var(--controlBtnGhostBgPress); border-color: var(--controlBtnGhostBorderPress); }
+
+.btn-action {
+  background-color: var(--controlBtnActionBg);
+  color: var(--controlContentPrimary);
+  border: 1px solid var(--controlBtnActionBorder);
+}
+.btn-action:hover { background-color: var(--controlBtnActionBgHover); border-color: var(--controlBtnActionBorderHover); }
+.btn-action:active { background-color: var(--controlBtnActionBgActive); border-color: var(--controlBtnActionBorderActive); }
+
+.btn-success {
+  background-color: var(--controlSuccessBg);
+  color: var(--controlContentActive);
+  border: 1px solid var(--controlSuccessBorder);
+}
+.btn-success:hover { background-color: var(--controlSuccessBgHover); border-color: var(--controlSuccessBorderHover); }
+.btn-success:active { background-color: var(--controlSuccessBgPress); border-color: var(--controlSuccessBorderPress); }
+
+.btn-alert {
+  background-color: var(--controlAlertBg);
+  color: var(--controlContentActive);
+  border: 1px solid var(--controlAlertBorder);
+}
+.btn-alert:hover { background-color: var(--controlAlertBgHover); border-color: var(--controlAlertBorderHover); }
+.btn-alert:active { background-color: var(--controlAlertBgPress); border-color: var(--controlAlertBorderPress); }
+
 /* Links */
 a { color: var(--linkLink); }
 a:hover { color: var(--linkLinkHover); }
