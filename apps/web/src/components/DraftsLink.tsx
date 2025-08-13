@@ -20,10 +20,8 @@ export default function DraftsLink() {
     return () => { if (unsub) unsub(); };
   }, []);
 
-  const { data } = useSWR(user ? "/users/me/articles" : null);
-  const hasDrafts = Array.isArray(data) && (data as Array<{ is_published?: boolean }>).some(a => a.is_published === false);
-
-  if (!ready || !user || !hasDrafts) return null;
+  // Показываем ссылку всем авторизованным пользователям, чтобы проще было найти свои черновики
+  if (!ready || !user) return null;
 
   return (
     <a href="/drafts" title="Черновики" className="inline-flex items-center justify-center w-12 h-12 rounded-[12px] border border-divider bg-block">
