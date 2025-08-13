@@ -35,7 +35,7 @@ export default function HomeClient({ initialArticles, initialHealth }: { initial
       ) : (
         <div className="puk-grid">
           {articles.map((a: ArticleListItem) => (
-            <div key={a.slug} className="puk-col-12 md:puk-col-6 lg:puk-col-4">
+            <div key={a.slug} className="puk-col-12 md-puk-col-6 lg-puk-col-4">
               <ArticleCard a={a} />
             </div>
           ))}

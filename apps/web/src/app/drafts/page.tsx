@@ -24,7 +24,7 @@ export default function DraftsPage() {
       ) : (
         <div className="puk-grid">
           {items.map((a) => (
-            <div key={a.slug} className="puk-col-12 md:puk-col-6">
+            <div key={a.slug} className="puk-col-12 md-puk-col-6">
               <ArticleCard a={a} />
             </div>
           ))}

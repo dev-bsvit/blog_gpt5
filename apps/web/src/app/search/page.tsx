@@ -39,7 +39,7 @@ export default function SearchPage() {
           <GridSkeleton items={6} />
         ) : (
           items.map(a=> (
-            <div key={a.slug} className="puk-col-12 md:puk-col-6">
+            <div key={a.slug} className="puk-col-12 md-puk-col-6">
               <ArticleCard a={a} />
             </div>
           ))
