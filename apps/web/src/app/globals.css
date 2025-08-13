@@ -448,6 +448,48 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Rainbow button inspired by 21st.dev rainbow-button */
+.btn-rainbow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  color: #111;
+  background: #fff;
+  border: 1px solid var(--strokeDivider);
+  overflow: hidden;
+}
+.btn-rainbow::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from 0deg,
+    #ff0080,
+    #ff8c00,
+    #ffee00,
+    #00ff85,
+    #00c2ff,
+    #7a5cff,
+    #ff00c8,
+    #ff0080
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+}
+.btn-rainbow > span {
+  position: relative;
+  z-index: 1;
+  font-weight: 600;
+}
+.btn-rainbow:hover { filter: brightness(1.02); }
+.btn-rainbow:active { transform: translateY(1px); }
+
 /* Basic Tiptap styles to ensure selection and lists/headings work */
 .tiptap:focus {
   outline: none;

@@ -34,7 +34,9 @@ export default function WriteGuardLink() {
 
   return (
     <>
-      <button onClick={go} className="underline">Написать</button>
+      <button onClick={go} className="btn-rainbow" aria-label="Написать пост">
+        <span>Написать</span>
+      </button>
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="w-full max-w-sm rounded-xl bg-zinc-900 p-5 border border-white/10 shadow-xl">
