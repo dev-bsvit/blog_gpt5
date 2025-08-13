@@ -3,7 +3,6 @@ import { Inter, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import AuthButton from "@/components/AuthButton";
-import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
 import SWRProvider from "@/components/SWRProvider";
 import WriteGuardLink from "@/components/WriteGuardLink";
@@ -72,7 +71,6 @@ export default function RootLayout({
               <WriteGuardLink />
               <Link href="/login" className="underline hidden sm:inline">Вход</Link>
               <AuthButton />
-              <ThemeToggle />
             </nav>
           </div>
           <Suspense fallback={null}>
