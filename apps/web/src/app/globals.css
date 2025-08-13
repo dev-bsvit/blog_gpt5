@@ -337,6 +337,17 @@
 .puk-col-3 { grid-column: span 3 / span 3; }
 .puk-col-8 { grid-column: span 8 / span 8; }
 
+/* Responsive variants for custom grid cols */
+@media (min-width: 768px) {
+  .md-puk-col-6 { grid-column: span 6 / span 6; }
+}
+@media (min-width: 1024px) {
+  .lg-puk-col-3 { grid-column: span 3 / span 3; }
+  .lg-puk-col-4 { grid-column: span 4 / span 4; }
+  .lg-puk-col-8 { grid-column: span 8 / span 8; }
+  .lg-puk-col-14 { grid-column: span 14 / span 14; }
+}
+
 /* Brand and statuses */
 .bg-brand { background-color: var(--bgBrand); }
 .text-brand { color: var(--textBrand); }
