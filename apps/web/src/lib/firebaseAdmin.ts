@@ -14,6 +14,17 @@ function getServiceAccount(): admin.ServiceAccount | undefined {
       return undefined;
     }
   }
+  try {
+    const txt = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+    if (txt && txt.trim()) {
+      const data = JSON.parse(txt);
+      return {
+        projectId: data.project_id,
+        clientEmail: data.client_email,
+        privateKey: (data.private_key as string)?.replace(/\\n/g, '\n'),
+      } as admin.ServiceAccount;
+    }
+  } catch {}
   return undefined;
 }
 

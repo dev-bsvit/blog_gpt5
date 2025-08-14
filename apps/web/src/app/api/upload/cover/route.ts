@@ -10,6 +10,23 @@ function getBucketName(): string {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+function getStorage(): Storage {
+  try {
+    const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON || '';
+    if (json.trim()) {
+      const creds = JSON.parse(json);
+      return new Storage({
+        projectId: creds.project_id,
+        credentials: {
+          client_email: creds.client_email,
+          private_key: (creds.private_key as string)?.replace(/\\n/g, '\n'),
+        },
+      });
+    }
+  } catch {}
+  return new Storage();
+}
+
 export async function POST(req: Request) {
   let uid: string | undefined;
   try { uid = (await verifyRequestAuth(req)).uid; } catch { return NextResponse.json({ error: 'unauthorized' }, { status: 401 }); }
@@ -21,7 +38,7 @@ export async function POST(req: Request) {
   const buf = Buffer.from(await file.arrayBuffer());
   const bucketName = getBucketName();
   if (!bucketName) return NextResponse.json({ error: 'bucket not set' }, { status: 500 });
-  const storage = new Storage();
+  const storage = getStorage();
   const safeName = (file.name || 'image').replace(/[^a-zA-Z0-9._-]/g, '_');
   const objectName = `covers/${uid}/${Date.now()}_${safeName}`;
   const bucket = storage.bucket(bucketName);

@@ -6,6 +6,7 @@ import AuthButton from "@/components/AuthButton";
 import Link from "next/link";
 import Image from "next/image";
 import SWRProvider from "@/components/SWRProvider";
+import AuthWarmup from "@/components/AuthWarmup";
 import WriteGuardLink from "@/components/WriteGuardLink";
 import TopProgressBar from "@/components/TopProgressBar";
 import HeaderSearch from "@/components/HeaderSearch";
@@ -82,7 +83,10 @@ export default function RootLayout({
             <TopProgressBar />
           </Suspense>
         </header>
-        <SWRProvider>{children}</SWRProvider>
+        <SWRProvider>
+          <AuthWarmup />
+          {children}
+        </SWRProvider>
         <Footer />
       </body>
     </html>
