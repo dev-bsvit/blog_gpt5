@@ -34,9 +34,19 @@ type Article = {
 export const revalidate = 0;
 
 async function fetchArticle(slug: string): Promise<Article | null> {
-  const res = await fetch(`/api/articles/${slug}`, { cache: "no-store" });
-  if (!res.ok) return null;
-  return (await res.json()) as Article;
+  try {
+    const res = await fetch(`/api/articles/${slug}`, { cache: "no-store" });
+    if (res.ok) return (await res.json()) as Article;
+  } catch {}
+  try {
+    const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+    if (!base) return null;
+    const r2 = await fetch(`${base}/articles/${slug}`, { cache: "no-store" });
+    if (!r2.ok) return null;
+    return (await r2.json()) as Article;
+  } catch {
+    return null;
+  }
 }
 
 export async function generateMetadata({

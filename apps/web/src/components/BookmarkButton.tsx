@@ -51,9 +51,6 @@ export default function BookmarkButton({ slug, className, activeClassName }: { s
     setSending(true);
     try {
       setError(null);
-      const auth = getFirebaseAuth();
-      const uid = auth.currentUser?.uid;
-      const headers: HeadersInit | undefined = uid ? { "X-User-Id": uid } : undefined;
       // optimistic
       setBookmarked((v) => !v);
       // update local snapshot and SWR caches immediately
@@ -66,7 +63,7 @@ export default function BookmarkButton({ slug, className, activeClassName }: { s
         // trigger background refresh of full bookmarks list
         void swrMutate(`/users/me/bookmarks`);
       } catch {}
-      const r = await apiPost<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`, uid ? { user_id: uid } : {}, headers ? { headers } : undefined);
+      const r = await apiPost<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`, {});
       setBookmarked(Boolean(r.bookmarked));
     } catch (e) {
       setError("Требуется вход");
