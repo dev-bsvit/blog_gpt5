@@ -72,7 +72,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
 
       <div className={s.interactionBar}>
         <div className={s.interactionLeft}>
-          <LikeButton slug={a.slug} className={s.likeButton} activeClassName={s.likeButtonActive} />
+          <LikeButton slug={a.slug} initialLikes={a.likes} className={s.likeButton} activeClassName={s.likeButtonActive} />
         </div>
         <div className={s.interactionRight}>
           <div className={s.interactionItem}>

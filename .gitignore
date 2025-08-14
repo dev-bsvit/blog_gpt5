@@ -34,3 +34,4 @@ services/python/api/.env
 .render/
 
 
+.vercel

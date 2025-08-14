@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { apiGet, apiPost } from "@/lib/api";
+import { apiGet, apiPost, getApiBase } from "@/lib/api";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
 import { onAuthStateChanged } from "firebase/auth";
 
-export default function LikeButton({ slug, className, activeClassName }: { slug: string; className?: string; activeClassName?: string }) {
-  const [likes, setLikes] = useState<number | null>(null);
+export default function LikeButton({ slug, initialLikes, className, activeClassName }: { slug: string; initialLikes?: number | null; className?: string; activeClassName?: string }) {
+  const [likes, setLikes] = useState<number | null>(typeof initialLikes === "number" ? initialLikes : null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [liked, setLiked] = useState(false);
@@ -17,7 +17,19 @@ export default function LikeButton({ slug, className, activeClassName }: { slug:
     let unsub: (() => void) | undefined;
     async function fetchState(uid?: string | null) {
       try {
-        const headers: HeadersInit | undefined = uid ? { "X-User-Id": uid } : undefined;
+        if (!uid) {
+          // Anonymous fast path without dynamic auth import
+          const res = await fetch(`${getApiBase()}/articles/${slug}/likes`, {
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+          });
+          if (!res.ok) throw new Error("fail");
+          const r = (await res.json()) as { likes: number; liked?: boolean };
+          setLikes(r.likes);
+          setLiked(Boolean(r.liked));
+          return;
+        }
+        const headers: HeadersInit | undefined = { "X-User-Id": uid };
         const r = await apiGet<{ likes: number; liked?: boolean }>(`/articles/${slug}/likes`, { headers });
         setLikes(r.likes);
         setLiked(Boolean(r.liked));
@@ -26,6 +38,12 @@ export default function LikeButton({ slug, className, activeClassName }: { slug:
         setLiked(false);
       }
     }
+    // Fast path: fetch immediately without waiting for Firebase Auth init
+    // This quickly renders counts; later we'll refine with user context when ready
+    fetchState(null).catch(() => {
+      setLikes(0);
+      setLiked(false);
+    });
     try {
       const auth = getFirebaseAuth();
       unsub = onAuthStateChanged(auth, (u) => {
@@ -34,7 +52,7 @@ export default function LikeButton({ slug, className, activeClassName }: { slug:
         fetchState(uid);
       });
     } catch {
-      fetchState(null);
+      // Already attempted anonymous fetch above; nothing else to do here
     }
     return () => { if (unsub) unsub(); };
   }, [slug]);

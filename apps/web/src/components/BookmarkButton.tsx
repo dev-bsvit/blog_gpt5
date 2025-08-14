@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiGet, apiPost } from "@/lib/api";
+import { apiGet, apiPost, getApiBase } from "@/lib/api";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -11,20 +11,24 @@ export default function BookmarkButton({ slug, className, activeClassName }: { s
 
   useEffect(() => {
     let unsub: (() => void) | undefined;
+    // Fast path: fetch immediately without waiting for Firebase Auth init
+    fetch(`${getApiBase()}/articles/${slug}/bookmark`, { headers: { "Content-Type": "application/json" }, cache: "no-store" })
+      .then(async (res) => { if (!res.ok) throw new Error("fail"); return (await res.json()) as { bookmarked: boolean }; })
+      .then((r) => setBookmarked(Boolean(r.bookmarked)))
+      .catch(() => setBookmarked(false));
     try {
       const auth = getFirebaseAuth();
       unsub = onAuthStateChanged(auth, async (u) => {
         try {
-          const headers: HeadersInit | undefined = u?.uid ? { "X-User-Id": u.uid } : undefined;
+          if (!u?.uid) return; // already have anonymous state
+          const headers: HeadersInit = { "X-User-Id": u.uid };
           const r = await apiGet<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`, { headers });
           setBookmarked(Boolean(r.bookmarked));
         } catch {
-          setBookmarked(false);
+          // keep anonymous state
         }
       });
-    } catch {
-      apiGet<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`).then(r => setBookmarked(Boolean(r.bookmarked))).catch(()=>setBookmarked(false));
-    }
+    } catch {}
     return () => { if (unsub) unsub(); };
   }, [slug]);
 

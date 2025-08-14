@@ -18,6 +18,7 @@ type Article = {
   subtitle?: string;
   content?: unknown;
   views?: number;
+  likes?: number;
   created_by?: string;
   created_at?: string;
   created_by_name?: string;
@@ -144,7 +145,7 @@ export default async function ArticlePage({
       <div className="flex gap-3 pt-2 items-center">
         <EditOwnerLink slug={article.slug} createdBy={article.created_by} />
         <PublishControls slug={article.slug} isPublished={Boolean((article as unknown as { is_published?: boolean }).is_published)} createdBy={article.created_by} />
-        <LikeButton slug={article.slug} />
+        <LikeButton slug={article.slug} initialLikes={article.likes} />
         <BookmarkButton slug={article.slug} />
       </div>
 
