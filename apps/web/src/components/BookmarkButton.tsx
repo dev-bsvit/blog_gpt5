@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import useSWR, { mutate as swrMutate } from "swr";
 import { apiGet, apiPost, getApiBase } from "@/lib/api";
 import { getFirebaseAuth } from "@/lib/firebaseClient";
 import { onAuthStateChanged } from "firebase/auth";
@@ -8,24 +9,38 @@ export default function BookmarkButton({ slug, className, activeClassName }: { s
   const [bookmarked, setBookmarked] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const storageKey = "bk_slugs";
+
+  // Instant state from last-known localStorage snapshot
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey) || "[]";
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) setBookmarked(arr.includes(slug));
+    } catch {}
+  }, [slug]);
 
   useEffect(() => {
     let unsub: (() => void) | undefined;
-    // Fast path: fetch immediately without waiting for Firebase Auth init
-    fetch(`${getApiBase()}/articles/${slug}/bookmark`, { headers: { "Content-Type": "application/json" }, cache: "no-store" })
-      .then(async (res) => { if (!res.ok) throw new Error("fail"); return (await res.json()) as { bookmarked: boolean }; })
-      .then((r) => setBookmarked(Boolean(r.bookmarked)))
-      .catch(() => setBookmarked(false));
+    // Fast path: try to read bookmark slugs in parallel once token available; otherwise fall back to item endpoint
     try {
       const auth = getFirebaseAuth();
       unsub = onAuthStateChanged(auth, async (u) => {
         try {
-          if (!u?.uid) return; // already have anonymous state
-          const headers: HeadersInit = { "X-User-Id": u.uid };
-          const r = await apiGet<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`, { headers });
-          setBookmarked(Boolean(r.bookmarked));
+          if (!u?.uid) return;
+          // fetch user slugs list once and set state from it (instant)
+          const list = await apiGet<{ slugs: string[] }>(`/users/me/bookmarks/slugs`);
+          const slugs = Array.isArray(list.slugs) ? list.slugs : [];
+          // persist snapshot and seed SWR cache for other consumers
+          try { localStorage.setItem(storageKey, JSON.stringify(slugs)); } catch {}
+          setBookmarked(slugs.includes(slug));
+          swrMutate(`/users/me/bookmarks/slugs`, { slugs }, { revalidate: false });
         } catch {
-          // keep anonymous state
+          // fallback: fetch item bookmark state anonymously
+          fetch(`${getApiBase()}/articles/${slug}/bookmark`, { headers: { "Content-Type": "application/json" }, cache: "no-store" })
+            .then(async (res) => { if (!res.ok) throw new Error("fail"); return (await res.json()) as { bookmarked: boolean }; })
+            .then((r) => setBookmarked(Boolean(r.bookmarked)))
+            .catch(() => setBookmarked(false));
         }
       });
     } catch {}
@@ -41,12 +56,29 @@ export default function BookmarkButton({ slug, className, activeClassName }: { s
       const headers: HeadersInit | undefined = uid ? { "X-User-Id": uid } : undefined;
       // optimistic
       setBookmarked((v) => !v);
+      // update local snapshot and SWR caches immediately
+      try {
+        const raw = localStorage.getItem(storageKey) || "[]";
+        const arr: string[] = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
+        const next = (arr.includes(slug) ? arr.filter(s => s !== slug) : [...arr, slug]);
+        localStorage.setItem(storageKey, JSON.stringify(next));
+        swrMutate(`/users/me/bookmarks/slugs`, { slugs: next }, { revalidate: false });
+        // trigger background refresh of full bookmarks list
+        void swrMutate(`/users/me/bookmarks`);
+      } catch {}
       const r = await apiPost<{ bookmarked: boolean }>(`/articles/${slug}/bookmark`, uid ? { user_id: uid } : {}, headers ? { headers } : undefined);
       setBookmarked(Boolean(r.bookmarked));
     } catch (e) {
       setError("Требуется вход");
       // rollback
       setBookmarked((v) => !v);
+      try {
+        const raw = localStorage.getItem(storageKey) || "[]";
+        const arr: string[] = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
+        const next = (arr.includes(slug) ? arr.filter(s => s !== slug) : [...arr, slug]);
+        localStorage.setItem(storageKey, JSON.stringify(next));
+        swrMutate(`/users/me/bookmarks/slugs`, { slugs: next }, { revalidate: false });
+      } catch {}
     } finally {
       setSending(false);
     }

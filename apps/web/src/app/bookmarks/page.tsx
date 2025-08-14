@@ -29,7 +29,7 @@ export default function BookmarksPage() {
     return () => { if (unsub) unsub(); };
   }, []);
 
-  const { data, isLoading } = useSWR(user ? "/users/me/bookmarks" : null);
+  const { data, isLoading } = useSWR(user ? "/users/me/bookmarks" : null, null, { revalidateOnFocus: false, revalidateOnReconnect: true });
   useEffect(() => {
     if (!user) return;
     setLoading(isLoading);

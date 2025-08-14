@@ -34,9 +34,7 @@ type Article = {
 export const revalidate = 0;
 
 async function fetchArticle(slug: string): Promise<Article | null> {
-  const base = process.env.NEXT_PUBLIC_API_BASE;
-  if (!base) throw new Error("NEXT_PUBLIC_API_BASE is not set");
-  const res = await fetch(`${base.replace(/\/$/, "")}/articles/${slug}`, { cache: "no-store" });
+  const res = await fetch(`/api/articles/${slug}`, { cache: "no-store" });
   if (!res.ok) return null;
   return (await res.json()) as Article;
 }

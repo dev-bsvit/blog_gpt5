@@ -44,7 +44,7 @@ export default function WritePage() {
     form.append("alt", coverAlt || (title || "cover"));
     setUploading(true);
     try {
-      const apiBase = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+      const apiBase = "";
       // Bearer token + uid fallback for backend
       let headers: Record<string, string> | undefined = undefined;
       try {

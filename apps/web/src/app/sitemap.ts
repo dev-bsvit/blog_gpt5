@@ -1,12 +1,11 @@
 import type { MetadataRoute } from 'next';
+export const runtime = 'nodejs';
 
 type Article = { slug: string; is_published?: boolean; updated_at?: string; created_at?: string };
 
 async function fetchArticles(): Promise<Article[]> {
-  const base = process.env.NEXT_PUBLIC_API_BASE;
-  if (!base) return [];
   try {
-    const res = await fetch(`${base.replace(/\/$/, '')}/articles`, { cache: 'no-store' });
+    const res = await fetch(`/api/articles`, { cache: 'no-store' });
     if (!res.ok) return [];
     return (await res.json()) as Article[];
   } catch {

@@ -1,8 +1,6 @@
 export function getApiBase(): string {
-  const base = process.env.NEXT_PUBLIC_API_BASE;
-  // Default to local Next.js API proxy if not provided
-  const eff = (base && base.trim().length > 0) ? base : "/api/v1";
-  return eff.replace(/\/$/, '');
+  // Now always use local Next.js API
+  return '/api';
 }
 
 async function withAuth(init?: RequestInit): Promise<RequestInit> {
@@ -12,7 +10,7 @@ async function withAuth(init?: RequestInit): Promise<RequestInit> {
     const auth = getFirebaseAuth();
     const user = auth.currentUser;
     if (user) {
-      const token = await getIdToken(user, true);
+      const token = await getIdToken(user, false);
       return { ...(init || {}), headers: { ...(init?.headers || {}), Authorization: `Bearer ${token}` } };
     }
   } catch {}

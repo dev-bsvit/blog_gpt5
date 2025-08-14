@@ -56,7 +56,7 @@ export default function PublishModal({
     }
     setUploading(true);
     try {
-      const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+      const base = "";
       const fd = new FormData();
       fd.append("file", f);
       fd.append("alt", alt || "cover");

@@ -6,7 +6,7 @@ import BookmarksPage from "@/app/bookmarks/page";
 export const revalidate = 30;
 
 export default async function Home({ searchParams }: { searchParams?: Promise<{ tab?: string }> }) {
-  const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+  const base = "";
   const sp = (await (searchParams || Promise.resolve({}))) as { tab?: string };
   const tab = (sp?.tab || "feed").toLowerCase();
   if (!base) {
@@ -20,8 +20,8 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
   }
   try {
     const [healthRes, listRes] = await Promise.all([
-      fetch(`${base}/articles/health`, { next: { revalidate } }),
-      fetch(`${base}/articles`, { next: { revalidate } }),
+      Promise.resolve({ json: async () => ({ status: 'ok' }) } as Response),
+      fetch(`/api/articles`, { next: { revalidate } }),
     ]);
     const health = await healthRes.json();
     const list = await listRes.json();

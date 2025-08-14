@@ -73,7 +73,7 @@ export default function EditorJS({ value, onChange, placeholder }: {
             config: {
               uploader: {
                 async uploadByFile(file: File) {
-                  const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+                  const base = "";
                   const fd = new FormData();
                   fd.append("file", file);
                   const r = await fetch(`/api/upload/cover`, { method: "POST", body: fd });

@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
+export const runtime = 'nodejs';
 
 type Article = { slug: string; title?: string; subtitle?: string; content?: string; is_published?: boolean; created_at?: string; updated_at?: string };
 
 async function fetchArticles(): Promise<Article[]> {
-  const base = process.env.NEXT_PUBLIC_API_BASE;
-  if (!base) return [];
   try {
-    const res = await fetch(`${base.replace(/\/$/, '')}/articles`, { cache: 'no-store' });
+    const res = await fetch(`/api/articles`, { cache: 'no-store' });
     if (!res.ok) return [];
     return (await res.json()) as Article[];
   } catch {

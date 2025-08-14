@@ -25,4 +25,7 @@ export async function GET(req: Request) {
   return NextResponse.json(items);
 }
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 

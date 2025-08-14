@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server';
 import { getFirestore } from '@/lib/firebaseAdmin';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function GET(_: Request, ctx: any) {
   const id = ctx?.params?.id as string;
   const db = getFirestore();

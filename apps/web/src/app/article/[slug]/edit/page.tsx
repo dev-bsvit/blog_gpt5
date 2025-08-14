@@ -126,7 +126,7 @@ export default function EditArticlePage() {
     form.append("alt", safeAlt);
     setUploading(true);
     try {
-      const apiBase = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+      const apiBase = "";
       let headers: Record<string, string> | undefined = undefined;
       try {
         const auth = getFirebaseAuth();

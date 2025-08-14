@@ -7,10 +7,8 @@ import SiteShell from "@/components/SiteShell";
 export const revalidate = 60;
 
 async function fetchAllArticles(): Promise<ArticleListItem[]> {
-  const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
-  if (!base) return [];
   try {
-    const res = await fetch(`${base}/articles`, { next: { revalidate } });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL ? '' : ''}/api/articles`, { next: { revalidate } });
     if (!res.ok) return [];
     return (await res.json()) as ArticleListItem[];
   } catch {

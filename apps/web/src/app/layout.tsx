@@ -37,13 +37,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const apiBase = (process.env.NEXT_PUBLIC_API_BASE || "").trim();
-  let apiOrigin = "";
-  try {
-    apiOrigin = apiBase ? new URL(apiBase).origin : "";
-  } catch {
-    apiOrigin = "";
-  }
+  const apiOrigin = "";
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -52,12 +46,7 @@ export default function RootLayout({
           try { document.documentElement.classList.remove('theme-dark'); localStorage.setItem('theme','light'); } catch(e){}
         ` }} />
         {/* Trix assets moved to write page to avoid loading on all pages */}
-        {apiOrigin && (
-          <>
-            <link rel="preconnect" href={apiOrigin} crossOrigin="" />
-            <link rel="dns-prefetch" href={apiOrigin} />
-          </>
-        )}
+        {/* No external API origin needed after migration */}
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <header className="bg-page sticky top-0 z-50" style={{ borderBottom: "1px solid var(--controlBtnSecondaryBg)" }}>
