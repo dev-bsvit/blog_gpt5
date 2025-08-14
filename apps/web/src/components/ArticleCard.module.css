@@ -50,10 +50,10 @@
 .authorText { display: flex; flex-direction: column; }
 .authorName { font-weight: 600; font-size: 14px; color: #1a1a1a; margin-right: 8px; display: inline-flex; align-items: center; gap: 8px; }
 .avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-.metaRow { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #666666; }
+.metaRow { display: flex; align-items: center; gap: 0; font-size: 14px; color: #666666; }
 .category { font-size: 14px; color: #666666; }
 .readingTime { font-size: 14px; color: #666666; }
-.separator { margin: 0 8px; color: #666666; }
+.separator { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: currentColor; margin: 0 8px; vertical-align: middle; }
 .subscribeBtn { background: var(--controlBtnSecondaryBg); color: var(--controlBtnSecondaryContent); border: 1px solid var(--controlBtnSecondaryBorder); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
 .subscribeBtn:hover { background: var(--controlBtnSecondaryBgHover); color: var(--controlBtnSecondaryContent); border-color: var(--controlBtnSecondaryBorderHover); }
 .subscribeActive { background: var(--controlBtnPrimaryBg); color: var(--controlBtnPrimaryContent); border-color: var(--controlBtnPrimaryBorder); }
