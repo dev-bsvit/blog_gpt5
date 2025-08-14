@@ -49,7 +49,7 @@ export default function ArticleCard({ a }: { a: ArticleListItem }) {
             </span>
             <div className={s.metaRow}>
               {a.category && <span className={s.category}>{a.category}</span>}
-              {a.category && a.reading_time_minutes ? <span className={s.separator}>·</span> : null}
+            {a.category && a.reading_time_minutes ? <span className={s.separator} aria-hidden /> : null}
               {a.reading_time_minutes ? <span className={s.readingTime}>{a.reading_time_minutes} мин чтения</span> : null}
             </div>
           </div>
