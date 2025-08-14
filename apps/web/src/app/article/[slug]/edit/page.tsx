@@ -137,7 +137,7 @@ export default function EditArticlePage() {
           form.append("user_id", user.uid);
         }
       } catch {}
-      const res = await fetch(`${apiBase}/upload/cover`, { method: "POST", body: form, headers });
+      const res = await fetch(`/api/upload/cover`, { method: "POST", body: form, headers });
       if (!res.ok) {
         let msg = `upload ${res.status}`;
         try { const j = await res.json(); msg = (j?.detail?.error || msg); } catch {}

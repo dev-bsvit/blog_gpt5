@@ -70,7 +70,7 @@ export default function PublishModal({
           fd.append("user_id", u.uid);
         }
       } catch {}
-      const r = await fetch(`${base}/upload/cover`, { method: "POST", body: fd, headers });
+      const r = await fetch(`/api/upload/cover`, { method: "POST", body: fd, headers });
       if (!r.ok) throw new Error(`upload ${r.status}`);
       const j = await r.json();
       setCoverUrl(String(j.url || ""));

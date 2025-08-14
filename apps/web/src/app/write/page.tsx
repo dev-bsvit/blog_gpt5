@@ -56,7 +56,7 @@ export default function WritePage() {
           form.append("user_id", user.uid);
         }
       } catch {}
-      const res = await fetch(`${apiBase}/upload/cover`, { method: "POST", body: form, headers });
+      const res = await fetch(`/api/upload/cover`, { method: "POST", body: form, headers });
       if (!res.ok) throw new Error(`upload ${res.status}`);
       const data = await res.json();
       setCoverUrl(String(data.url || ""));

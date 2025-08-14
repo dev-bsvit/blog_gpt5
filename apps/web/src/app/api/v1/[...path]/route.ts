@@ -42,4 +42,6 @@ export async function POST(req: Request, ctx: any) { return proxy(req, ctx); }
 export async function PUT(req: Request, ctx: any) { return proxy(req, ctx); }
 export async function DELETE(req: Request, ctx: any) { return proxy(req, ctx); }
 
+export const runtime = 'nodejs';
+
 

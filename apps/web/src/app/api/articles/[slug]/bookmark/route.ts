@@ -2,6 +2,8 @@
 import { NextResponse } from 'next/server';
 import { getFirestore } from '@/lib/firebaseAdmin';
 
+export const runtime = 'nodejs';
+
 export async function GET(_: Request, ctx: any) {
   const slug = ctx?.params?.slug as string;
   const db = getFirestore();

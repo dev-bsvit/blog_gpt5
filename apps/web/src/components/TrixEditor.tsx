@@ -30,7 +30,7 @@ export default function TrixEditor({ value, onChange, placeholder, onError }: Pr
       const file: File | undefined = att?.file;
       if (!file) return;
       try {
-        const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+        const base = ""; // switch to local API route
         const fd = new FormData();
         fd.append("file", file);
         fd.append("alt", file.name || "image");
@@ -51,7 +51,7 @@ export default function TrixEditor({ value, onChange, placeholder, onError }: Pr
           return;
         }
         async function tryUpload(attempt = 1): Promise<{ url: string }> {
-          const r = await fetch(`${base}/upload/cover`, { method: "POST", body: fd, headers });
+          const r = await fetch(`/api/upload/cover`, { method: "POST", body: fd, headers });
           if (r.ok) return r.json();
           if (attempt < 3 && r.status >= 500) {
             await new Promise(res => setTimeout(res, 300 * attempt));

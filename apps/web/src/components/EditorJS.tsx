@@ -76,7 +76,7 @@ export default function EditorJS({ value, onChange, placeholder }: {
                   const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
                   const fd = new FormData();
                   fd.append("file", file);
-                  const r = await fetch(`${base}/upload/cover`, { method: "POST", body: fd });
+                  const r = await fetch(`/api/upload/cover`, { method: "POST", body: fd });
                   const j = await r.json();
                   return { success: 1, file: { url: j.url } } as unknown as { success: 1; file: { url: string } };
                 },
