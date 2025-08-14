@@ -1,7 +1,8 @@
 export function getApiBase(): string {
   const base = process.env.NEXT_PUBLIC_API_BASE;
-  if (!base) throw new Error('NEXT_PUBLIC_API_BASE is not set');
-  return base.replace(/\/$/, '');
+  // Default to local Next.js API proxy if not provided
+  const eff = (base && base.trim().length > 0) ? base : "/api/v1";
+  return eff.replace(/\/$/, '');
 }
 
 async function withAuth(init?: RequestInit): Promise<RequestInit> {
